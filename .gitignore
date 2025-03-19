@@ -38,8 +38,6 @@ gradle-app.setting
 
 # Cache of project
 .gradletasknamecache
-/calendrier-server/gradle/wrapper/gradle-wrapper.jar
-/calendrier-server/gradle/wrapper/gradle-wrapper.properties
 /calendrier-server/src/main/docker/Dockerfile.jvm
 /calendrier-server/src/main/docker/Dockerfile.legacy-jar
 /calendrier-server/src/main/docker/Dockerfile.native
