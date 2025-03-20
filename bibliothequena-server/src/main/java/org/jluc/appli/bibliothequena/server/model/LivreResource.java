@@ -1,4 +1,4 @@
-package org.jluc.ctr.tools.calendrier.server.moniteurs;
+package org.jluc.appli.bibliothequena.server.model;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,41 +12,41 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-@Path("/ctr/moniteurs")
-public class MoniteurRessource {
-
+@Path("/bibna/livres")
+public class LivreResource {
     @Inject
-    MoniteurService service;
+    LivreService service;
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    @Path("/moniteuruuid")
-    public String moniteuruuid(@RestQuery String uuid) {
-        return service.getMoniteurByUUID(uuid);
+    @Path("/livreisbn")
+    public String livreisbn(@RestQuery String isbn) {
+        return service.getLivreByISBN(isbn);
     }
+
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    @Path("/moniteur")
-    public String moniteur(@RestQuery String name) {
-        return service.getMoniteurByName(name);
+    @Path("/livre")
+    public String livre(@RestQuery String name) {
+        return service.getLivreByName(name);
     }
 
     @GET
     @Transactional
     @Produces(MediaType.TEXT_PLAIN)
     public String add(@RestQuery String name) {
-        Moniteur moniteur = new Moniteur(name);
-        moniteur.persist();
-        return "Adding Mono ==> " + name;
+        Livre livre = new Livre("", name, "", "", 0, Status.LU, "");
+        livre.persist();
+        return "Adding Livre ==> " + name;
     }
 
     @GET
     @Path("names")
     @Produces(MediaType.TEXT_PLAIN)
     public String names() {
-        List<Moniteur> moniteurs = Moniteur.listAll();
-        String names = moniteurs.stream().map(g -> g.getLastname())
+        List<Livre> livres = Livre.listAll();
+        String names = livres.stream().map(g -> g.getName())
                 .collect(Collectors.joining(", "));
-        return "Les moniteurs " + names;
+        return "Les Livres " + names;
     }
 }

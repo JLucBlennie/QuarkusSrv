@@ -22,7 +22,7 @@ dependencies {
     testImplementation("io.rest-assured:rest-assured") 
 }
 
-group = "org.jluc.ctr.tools.calendrier.server"
+group = "org.jluc.appli.bibliothequena.server"
 version = "1.0.0-SNAPSHOT"
 
 java {
