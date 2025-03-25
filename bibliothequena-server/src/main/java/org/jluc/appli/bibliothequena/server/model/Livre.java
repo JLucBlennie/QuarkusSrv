@@ -61,4 +61,28 @@ public class Livre extends PanacheEntity {
     public String getComment(){
         return comment;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setISBN(String isbn) {
+        this.isbn = isbn;
+    }
+
+    public void setAuthor(String author){
+        this.author = author;
+    }
+
+    public void setNote(int note){
+        this.note = note;
+    }
+
+    public void setImage(String image){
+        this.image = image;
+    }
+
+    public void setComment(String comment){
+        this.comment= comment;
+    }
 }

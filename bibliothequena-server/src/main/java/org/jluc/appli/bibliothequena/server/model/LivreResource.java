@@ -8,45 +8,29 @@ import org.jboss.resteasy.reactive.RestQuery;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.core.MediaType; 
+import jakarta.ws.rs.core.Response;
+import java.util.List;
 
-@Path("/bibna/livres")
+@Path("/bibna")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class LivreResource {
-    @Inject
-    LivreService service;
-
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    @Path("/livreisbn")
-    public String livreisbn(@RestQuery String isbn) {
-        return service.getLivreByISBN(isbn);
-    }
-
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    @Path("/livre")
-    public String livre(@RestQuery String name) {
-        return service.getLivreByName(name);
-    }
-
-    @GET
+    @POST
     @Transactional
-    @Produces(MediaType.TEXT_PLAIN)
-    public String add(@RestQuery String name) {
-        Livre livre = new Livre("", name, "", "", 0, Status.LU, "");
+    public Response addLivre(Livre livre) {
+        System.out.println("Reçu: " + livre.getName() + " - " + livre.getAuthor());
         livre.persist();
-        return "Adding Livre ==> " + name;
+        return Response.ok(livre).status(Response.Status.CREATED).build();
     }
 
     @GET
-    @Path("names")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String names() {
+    public List<Livre> getLivres() {
         List<Livre> livres = Livre.listAll();
-        String names = livres.stream().map(g -> g.getName())
-                .collect(Collectors.joining(", "));
-        return "Les Livres " + names;
+        return livres;
     }
 }
