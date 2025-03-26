@@ -1,37 +1,24 @@
-package org.jluc.appli.bibliothequena.server.model;
+package org.jluc.appli.bibliothequena.server.model.json;
 
-import org.jluc.appli.bibliothequena.server.model.json.LivreJSON;
+import org.jluc.appli.bibliothequena.server.model.Status;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+public class LivreJSON {
 
-@Entity
-public class Livre extends PanacheEntity {
-    /*
-     * "id": 1,
-     * "isbn": "9782253262244",
-     * "name": "Qui ne se plante pas ne pousse jamais",
-     * "author": "Sophie TAL MEN",
-     * "image": "",
-     * "note": "4",
-     * "statut": "Lu"
-     */
+    private Long id;
     private String isbn;
     private String name;
     private String author;
     private String image;
     private int note;
-    @Enumerated(EnumType.STRING)
     private Status statut = Status.LU;
     private String comment;
 
-    public Livre() {
+    public LivreJSON() {
     }
 
-    public Livre(String isbn, String name, String author, String image, int note, Status statut,
+    public LivreJSON(Long id, String isbn, String name, String author, String image, int note, Status statut,
             String comment) {
+        this.id = id;
         this.name = name;
         this.isbn = isbn;
         this.author = author;
@@ -41,13 +28,13 @@ public class Livre extends PanacheEntity {
         this.comment = comment;
     }
 
-    public Livre(LivreJSON livrejson) {
-        updateFromJSON(livrejson);
-    }
-
     public String toString() {
         return "Livre [isbn = " + isbn + ", name = " + name + ", author = " + author + ", image = " + image
                 + ", note = " + note + ", statut = " + statut + ", comment = " + comment + "]";
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getName() {
@@ -78,6 +65,10 @@ public class Livre extends PanacheEntity {
         return statut;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -104,20 +95,5 @@ public class Livre extends PanacheEntity {
 
     public void setStatut(Status statut) {
         this.statut = statut;
-    }
-
-    public void updateFromJSON(LivreJSON livrejson) {
-        setISBN(livrejson.getISBN());
-        setName(livrejson.getName());
-        setAuthor(livrejson.getAuthor());
-        setNote(livrejson.getNote());
-        setImage(livrejson.getImage());
-        setStatut(livrejson.getStatut());
-        setComment(livrejson.getComment());
-    }
-
-    public LivreJSON toLivreJSON(){
-        LivreJSON livrejson = new org.jluc.appli.bibliothequena.server.model.json.LivreJSON(id, isbn, name, author, image, note, statut, comment);
-        return livrejson;
     }
 }

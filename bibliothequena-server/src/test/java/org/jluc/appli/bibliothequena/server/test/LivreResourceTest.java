@@ -1,12 +1,6 @@
 package org.jluc.appli.bibliothequena.server.test;
 
 import io.quarkus.test.junit.QuarkusTest;
-import org.junit.jupiter.api.Test;
-import java.util.UUID;
-
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.containsString;
 
 // TODO : A reprendre...
 @QuarkusTest
