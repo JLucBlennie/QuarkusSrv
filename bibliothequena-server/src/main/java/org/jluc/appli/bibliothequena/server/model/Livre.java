@@ -42,7 +42,14 @@ public class Livre extends PanacheEntity {
     }
 
     public Livre(LivreJSON livrejson) {
-        updateFromJSON(livrejson);
+        setISBN(livrejson.getISBN());
+        setISBN(livrejson.getISBN());
+        setName(livrejson.getName());
+        setAuthor(livrejson.getAuthor());
+        setNote(livrejson.getNote());
+        setImage(livrejson.getImage());
+        setStatut(livrejson.getStatut());
+        setComment(livrejson.getComment());
     }
 
     public String toString() {
@@ -104,20 +111,5 @@ public class Livre extends PanacheEntity {
 
     public void setStatut(Status statut) {
         this.statut = statut;
-    }
-
-    public void updateFromJSON(LivreJSON livrejson) {
-        setISBN(livrejson.getISBN());
-        setName(livrejson.getName());
-        setAuthor(livrejson.getAuthor());
-        setNote(livrejson.getNote());
-        setImage(livrejson.getImage());
-        setStatut(livrejson.getStatut());
-        setComment(livrejson.getComment());
-    }
-
-    public LivreJSON toLivreJSON(){
-        LivreJSON livrejson = new org.jluc.appli.bibliothequena.server.model.json.LivreJSON(id, isbn, name, author, image, note, statut, comment);
-        return livrejson;
     }
 }

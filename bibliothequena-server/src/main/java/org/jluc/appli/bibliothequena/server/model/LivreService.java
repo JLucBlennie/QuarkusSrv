@@ -2,33 +2,57 @@ package org.jluc.appli.bibliothequena.server.model;
 
 import java.util.List;
 
+import org.jluc.appli.bibliothequena.server.model.json.LivreJSON;
+
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class LivreService {
 
-    public String getLivreByISBN(String isbn) {
+    public Livre getLivreByISBN(String isbn) {
+        Livre livreToReturn = null;
         List<Livre> livres = Livre.listAll();
-        String name = "Livre Not Found ==> " + isbn;
         for (Livre livre : livres) {
             if (livre.getISBN().equalsIgnoreCase(isbn)) {
-                name = livre.getName();
+                livreToReturn = livre;
                 break;
             }
         }
-        return "Livre " + name;
+        return livreToReturn;
     }
 
-    public String getLivreByName(String name) {
+    public Livre getLivreByName(String name) {
+        Livre livreToReturn = null;
         List<Livre> livres = Livre.listAll();
-        String isbn = "Livre non trouvéFound ==> " + name;
         for (Livre livre : livres) {
             if (livre.getName().equalsIgnoreCase(name)) {
-                isbn = livre.getISBN();
+                livreToReturn = livre;
                 break;
             }
         }
-        return "Livre " + name + " --> ISBN : " + isbn;
+        return livreToReturn;
+    }
+
+    public Livre updateFromJSON(LivreJSON livrejson) {
+        Livre livre = getLivreByISBN(livrejson.getISBN());
+        if (livre == null) {
+            livre = new Livre();
+        }
+        livre.setISBN(livrejson.getISBN());
+        livre.setName(livrejson.getName());
+        livre.setAuthor(livrejson.getAuthor());
+        livre.setNote(livrejson.getNote());
+        livre.setImage(livrejson.getImage());
+        livre.setStatut(livrejson.getStatut());
+        livre.setComment(livrejson.getComment());
+        return livre;
+    }
+
+    public LivreJSON toLivreJSON(Livre livre) {
+        LivreJSON livrejson = new LivreJSON(livre.id,
+                livre.getISBN(), livre.getName(), livre.getAuthor(), livre.getImage(), livre.getNote(),
+                livre.getStatut(), livre.getComment());
+        return livrejson;
     }
 
 }

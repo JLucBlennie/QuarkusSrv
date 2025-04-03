@@ -24,7 +24,7 @@ dependencies {
 }
 
 group = "org.jluc.appli.bibliothequena.server"
-version = "1.0.0-SNAPSHOT"
+version = "1.0.1-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
