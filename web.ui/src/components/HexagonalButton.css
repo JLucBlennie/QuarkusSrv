@@ -1,0 +1,51 @@
+.hexagon-button {
+    width: 50px; /* Ajustez la taille selon vos besoins */
+    height: 28.87px; /* Hauteur pour un hexagone basé sur la largeur */
+    background-color: #124C57; /* Couleur de fond */
+    border-color: #0dB2B0;
+    border-width: 2px;
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    margin: 15px;
+    transition: transform 0.2s ease;
+}
+
+.hexagon-button:before,
+.hexagon-button:after {
+    content: '';
+    position: absolute;
+    width: 0;
+    border-left: 25px solid transparent; /* Halve width */
+    border-right: 25px solid transparent; /* Halve width */
+}
+
+.hexagon-button:before {
+    bottom: 100%;
+    border-bottom: 14.435px solid #124C57; /* Couleur de fond */
+}
+
+.hexagon-button:after {
+    top: 100%;
+    border-top: 14.435px solid #124C57; /* Couleur de fond */
+}
+
+.image-center {
+    width: 50%; /* Ajustez la taille de l'image */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.hexagon-button.glow {
+    box-shadow: 0 0 20px #00ffff; /* Couleur et effet de glow */
+}
+
+.hexagon-button.pressed {
+    transform: scale(0.95); /* Effet d'enfoncé */
+}
+
+.hexagon-button.disabled {
+    border-color: #FFFFFF80;
+}
