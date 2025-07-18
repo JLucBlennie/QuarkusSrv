@@ -1,6 +1,9 @@
 package org.jluc.ctr.tools.calendrier.server.evenements;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import org.jluc.ctr.tools.calendrier.server.evenements.json.EvenementJSON;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -11,24 +14,24 @@ public class EvenementService {
         List<Evenement> evenements = Evenement.listAll();
         String name = "Evènement Not Found ==> " + uuid;
         for (Evenement event : evenements) {
-            if (event.getUUID().equalsIgnoreCase(uuid)) {
-                name = event.getName();
+            if (event.getUUID().toString().equalsIgnoreCase(uuid)) {
+                name = event.getUUID().toString();
                 break;
             }
         }
         return "Evènement " + name;
     }
 
-    public String getEvenementByName(String name) {
-        List<Evenement> evenements = Evenement.listAll();
-        String uuid = "Evènement non trouvéFound ==> " + name;
-        for (Evenement event : evenements) {
-            if (event.getName().equalsIgnoreCase(name)) {
-                uuid = event.getUUID();
-                break;
-            }
-        }
-        return "Evènement " + name + " --> UUID : " + uuid;
+    public EvenementJSON toJSON(Evenement evenement) {
+        EvenementJSON evenementjson = new EvenementJSON(evenement);
+        return evenementjson;
     }
 
+    public List<EvenementJSON> toJSON(List<Evenement> evenements) {
+        List<EvenementJSON> evenementsJSON = new ArrayList<EvenementJSON>();
+        for (Evenement evenement : evenements) {
+            evenementsJSON.add(toJSON(evenement));
+        }
+        return evenementsJSON;
+    }
 }

@@ -2,22 +2,30 @@ package org.jluc.ctr.tools.calendrier.server.club;
 
 import java.util.UUID;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 
 @Entity
-public class Demandeur extends PanacheEntity {
+public class Demandeur extends PanacheEntityBase {
 
-    private String uuid;
+    @Id
+    private UUID uuid;
     private String name;
     private String numerostructure;
 
+    @PrePersist
+    public void generateUuid() {
+        if (uuid == null) {
+            uuid = UUID.randomUUID();
+        }
+    }
+
     public Demandeur() {
-        this.uuid = UUID.randomUUID().toString();
     }
 
     public Demandeur(String name, String numerostructure) {
-        this.uuid = UUID.randomUUID().toString();
         this.name = name;
         this.numerostructure = numerostructure;
     }

@@ -2,39 +2,55 @@ package org.jluc.ctr.tools.calendrier.server.moniteurs;
 
 import java.util.UUID;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 
 @Entity
-public class Moniteur extends PanacheEntity {
-    private String uuid;
+public class Moniteur extends PanacheEntityBase {
+    @Id
+    private UUID uuid;
     private String lastname;
     private String firstname;
     private NiveauMoniteur niveau;
 
-    public Moniteur() {
-        uuid = UUID.randomUUID().toString();
+    @PrePersist
+    public void generateUuid() {
+        if (uuid == null) {
+            uuid = UUID.randomUUID();
+        }
     }
 
-    public Moniteur(String uuid, String name) {
+    public Moniteur() {
+    }
+
+    public Moniteur(UUID uuid, String name) {
         this.lastname = name;
         this.uuid = uuid;
     }
 
     public Moniteur(String name) {
         this.lastname = name;
-        this.uuid = UUID.randomUUID().toString();
     }
 
     public String toString() {
-        return "Moniteur [uuid = " + uuid + ", name = " + lastname + "]";
+        return "Moniteur [uuid = " + uuid + ", name = " + firstname + " " + lastname + ", niveau = " + niveau + "]";
     }
 
     public String getLastname() {
         return lastname;
     }
 
-    public String getUUID() {
+    public UUID getUUID() {
         return uuid;
+    }
+
+    public String getFirstName() {
+        return firstname;
+    }
+
+    public NiveauMoniteur getNiveauMoniteur() {
+        return niveau;
     }
 }

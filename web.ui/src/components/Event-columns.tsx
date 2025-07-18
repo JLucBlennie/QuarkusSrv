@@ -3,9 +3,17 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export type EventColumn = {
+  datedemande: string;
   statut: string;
   activite: string;
   organisateur: string;
@@ -15,6 +23,20 @@ export type EventColumn = {
 };
 
 export const columns: ColumnDef<EventColumn>[] = [
+  {
+    accessorKey: "datedemande",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          <div className="text-center">Date de Demande</div>
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+  },
   {
     accessorKey: "statut",
     header: ({ column }) => {
@@ -72,7 +94,7 @@ export const columns: ColumnDef<EventColumn>[] = [
     },
   },
   {
-    accessorKey: "organisdatefinateur",
+    accessorKey: "datefin",
     header: ({ column }) => {
       return (
         <Button
@@ -80,6 +102,20 @@ export const columns: ColumnDef<EventColumn>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           <div className="text-center">Date de Fin</div>
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+  },
+  {
+    accessorKey: "organisateur",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          <div className="text-center">Organisateur</div>
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
@@ -103,28 +139,26 @@ export const columns: ColumnDef<EventColumn>[] = [
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const rowdata = row.original
+      const rowdata = row.original;
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-4 w-4 p-0">
+            <Button variant="ghost" className="h-4 w-8 p-2">
               <span className="sr-only">Open</span>
               <MoreHorizontal />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => console.log(rowdata)}
-            >
+            <DropdownMenuItem onClick={() => console.log(rowdata)}>
               Copie Activité
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Valider</DropdownMenuItem>
+            <DropdownMenuItem >Valider</DropdownMenuItem>
             <DropdownMenuItem>Refuser</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      )
-    }
-  }
+      );
+    },
+  },
 ];

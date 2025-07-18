@@ -11,7 +11,7 @@ public class MoniteurService {
         List<Moniteur> moniteurs = Moniteur.listAll();
         String name = "Mono Not Found ==> " + uuid;
         for (Moniteur moniteur : moniteurs) {
-            if (moniteur.getUUID().equalsIgnoreCase(uuid)) {
+            if (moniteur.getUUID().toString().equalsIgnoreCase(uuid)) {
                 name = moniteur.getLastname();
                 break;
             }
@@ -24,7 +24,7 @@ public class MoniteurService {
         String uuid = "Mono non trouvé ==> " + name;
         for (Moniteur moniteur : moniteurs) {
             if (moniteur.getLastname().equalsIgnoreCase(name)) {
-                uuid = moniteur.getUUID();
+                uuid = moniteur.getUUID().toString();
                 break;
             }
         }

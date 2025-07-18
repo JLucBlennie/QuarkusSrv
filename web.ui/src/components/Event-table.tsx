@@ -29,7 +29,7 @@ interface DataTableProps<TData, TValue> {
 
 export function DataTable<TData, TValue>({
   columns,
-  data
+  data,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -49,29 +49,28 @@ export function DataTable<TData, TValue>({
     HTMLTableElement,
     React.HTMLAttributes<HTMLTableElement>
   >(({ className, ...props }, ref) => (
-    <div className={cn("relative w-full")}>
       <table
         ref={ref}
         className={cn("w-full caption-bottom text-sm", className)}
         {...props}
       />
-    </div>
   ));
+
   const TableHeader = forwardRef<
     HTMLTableSectionElement,
     React.HTMLAttributes<HTMLTableSectionElement>
   >(({ className, ...props }, ref) => (
     <thead
       ref={ref}
-      className={cn("[&_tr]:border-b-0", className)}
+      className={cn("sticky top-0 bg-secondary [&_tr]:border-b-0", className)}
       {...props}
     />
   ));
   TableHeader.displayName = "TableHeader";
 
   return (
-    <>
-      <ScrollArea className="rounded-md border">
+    <div>
+      <ScrollArea className="h-[800px] rounded-md border">
         <Table>
           <TableHeader className="sticky top-0 border-0 bg-white shadow-border shadow-[inset_0_-1px_0]">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -97,6 +96,15 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className={
+                    row.getValue("statut") === "VALIDE"
+                      ? "bg-emerald-800 bg-opacity-70"
+                      : row.getValue("statut") === "DEMANDE"
+                      ? "bg-orange-800 bg-opacity-70"
+                      : row.getValue("statut") === "REFUSE"
+                      ? "bg-red-800 bg-opacity-70"
+                      : ""
+                  }
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -121,6 +129,6 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </ScrollArea>
-    </>
+    </div>
   );
 }
