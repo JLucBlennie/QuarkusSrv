@@ -1,11 +1,10 @@
-package org.jluc.ctr.tools.calendrier.server.evenements;
+package org.jluc.ctr.tools.calendrier.server.resource;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import org.jboss.resteasy.reactive.RestQuery;
-import org.jluc.ctr.tools.calendrier.server.evenements.json.EvenementJSON;
 
 import io.quarkus.logging.Log;
 import jakarta.inject.Inject;
@@ -18,6 +17,9 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.jluc.ctr.tools.calendrier.server.dto.EvenementDTO;
+import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
+import org.jluc.ctr.tools.calendrier.server.service.EvenementService;
 
 @Path("/evenements")
 @Produces(MediaType.APPLICATION_JSON)
@@ -33,24 +35,24 @@ public class EvenementResource {
         UUID uuid = UUID.fromString(id);
         Evenement event = Evenement.findById(uuid);
         if (event != null)
-            return Response.ok(service.toJSON(event)).build();
+            return Response.ok(EvenementDTO.fromEntity(event)).build();
         else
             return Response.noContent().build();
     }
 
     @GET
-    public List<EvenementJSON> getAll() {
+    public Response getAll() {
         List<Evenement> events = Evenement.listAll();
-        List<EvenementJSON> eventsJSON = new ArrayList<EvenementJSON>();
+        List<EvenementDTO> eventsDTO = new ArrayList<EvenementDTO>();
         for (Evenement evenement : events) {
-            eventsJSON.add(service.toJSON(evenement));
+            eventsDTO.add(EvenementDTO.fromEntity(evenement));
         }
-        return eventsJSON;
+       return Response.ok(eventsDTO).build();
     }
 
     @POST
-    public Response addEvent(EvenementJSON input) {
-        System.out.println("Reçu un événement : " + input.getComment());
+    public Response addEvent(EvenementDTO input) {
+        System.out.println("Reçu un événement : " + input);
 
         // Ici tu peux transformer en entité Evenement, valider, etc.
         // Exemple simple : retourner ce qu’on a reçu

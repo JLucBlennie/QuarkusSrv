@@ -1,0 +1,43 @@
+package org.jluc.ctr.tools.calendrier.server.model.evenements;
+
+import java.util.Date;
+import java.util.UUID;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.ManyToOne;
+
+@Entity
+public class Session extends PanacheEntityBase {
+    @Id
+    private UUID uuid;
+    @ManyToOne
+    private Evenement evenement;
+    private Date dateDebut;
+    private Date dateFin;
+    private TypeSession typeSession;
+    
+    @PrePersist
+    public void generateUuid() {
+        if (uuid == null) {
+            uuid = UUID.randomUUID();
+        }
+    }
+    
+    public Date getDateDebut() {
+        return dateDebut;
+    }
+
+    public Date getDateFin() {
+        return dateFin;
+    }
+
+    public UUID getUuid() {
+        return uuid;
+    }   
+
+    public TypeSession getTypeSession() {
+        return typeSession;
+    }
+}

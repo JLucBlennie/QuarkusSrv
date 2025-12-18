@@ -2,12 +2,12 @@
 
 import {
   ColumnDef,
-  SortingState,
   ColumnFiltersState,
   flexRender,
   getCoreRowModel,
-  getSortedRowModel,
   getFilteredRowModel,
+  getSortedRowModel,
+  SortingState,
   useReactTable,
 } from "@tanstack/react-table";
 
@@ -18,18 +18,20 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { forwardRef, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { forwardRef, useState } from "react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  onRowClick: (row: TData) => void;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  onRowClick,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -71,7 +73,7 @@ export function DataTable<TData, TValue>({
   return (
     <div>
       <ScrollArea className="h-[800px] rounded-md border">
-        <Table>
+        <Table >
           <TableHeader className="sticky top-0 border-0 bg-white shadow-border shadow-[inset_0_-1px_0]">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -96,6 +98,7 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  onClick={() => onRowClick(row.original)}
                   className={
                     row.getValue("statut") === "VALIDE"
                       ? "bg-emerald-800 bg-opacity-70"

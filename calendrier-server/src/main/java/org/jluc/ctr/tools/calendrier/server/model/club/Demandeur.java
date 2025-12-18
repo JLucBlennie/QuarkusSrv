@@ -1,4 +1,4 @@
-package org.jluc.ctr.tools.calendrier.server.club;
+package org.jluc.ctr.tools.calendrier.server.model.club;
 
 import java.util.UUID;
 
@@ -28,5 +28,14 @@ public class Demandeur extends PanacheEntityBase {
     public Demandeur(String name, String numerostructure) {
         this.name = name;
         this.numerostructure = numerostructure;
+    }
+    public UUID getUUID() {
+        return uuid;
+    }
+    public String getName() {
+        return name;
+    }
+    public String getNumeroStructure() {
+        return numerostructure;
     }
 }

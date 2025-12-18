@@ -1,4 +1,4 @@
-package org.jluc.ctr.tools.calendrier.server.moniteurs;
+package org.jluc.ctr.tools.calendrier.server.model.moniteurs;
 
 import java.util.UUID;
 
@@ -38,7 +38,7 @@ public class Moniteur extends PanacheEntityBase {
         return "Moniteur [uuid = " + uuid + ", name = " + firstname + " " + lastname + ", niveau = " + niveau + "]";
     }
 
-    public String getLastname() {
+    public String getLastName() {
         return lastname;
     }
 
@@ -50,7 +50,7 @@ public class Moniteur extends PanacheEntityBase {
         return firstname;
     }
 
-    public NiveauMoniteur getNiveauMoniteur() {
+    public NiveauMoniteur getNiveau() {
         return niveau;
     }
 }

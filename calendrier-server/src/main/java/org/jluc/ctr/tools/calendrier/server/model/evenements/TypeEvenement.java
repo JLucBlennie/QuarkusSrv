@@ -1,4 +1,4 @@
-package org.jluc.ctr.tools.calendrier.server.evenements;
+package org.jluc.ctr.tools.calendrier.server.model.evenements;
 
 import java.util.UUID;
 
@@ -24,5 +24,20 @@ public class TypeEvenement extends PanacheEntityBase {
     }
 
     public TypeEvenement() {
+    }
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public TypeActivite getActivite() {
+        return activite;
+    }
+    public String getValeurforms() {
+        return valeurforms;
     }
 }

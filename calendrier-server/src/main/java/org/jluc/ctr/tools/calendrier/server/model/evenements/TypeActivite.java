@@ -1,4 +1,4 @@
-package org.jluc.ctr.tools.calendrier.server.evenements;
+package org.jluc.ctr.tools.calendrier.server.model.evenements;
 
 public enum TypeActivite {
 	ALL("Tout"), N4_GP("N4 - GP"), INITIATEUR("Initiateur"), TSI("TSI"), MF1("MF1"), MF2("MF2"), TIV("TIV"),

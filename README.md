@@ -1,10 +1,7 @@
 # QuarkusSrv
 Serveurs Quarkus RESTFUL
 
-## BibliothequeNa-Server
-Serveur pour l'application de gestion de livres de Na
-
-## Calendrier-Serve
+## Calendrier-Server
 Serveur pour la gestion des activités de la CTR
 
 ## Web.UI

@@ -1,4 +1,4 @@
-package org.jluc.ctr.tools.calendrier.server.moniteurs;
+package org.jluc.ctr.tools.calendrier.server.model.moniteurs;
 
 public enum NiveauMoniteur {
 

@@ -1,8 +1,41 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { DataTable } from './Event-table';
+import { useEffect, useState } from 'react';
 import { columns, EventColumn } from './Event-columns';
+import { DataTable } from './Event-table';
+
+// TODO : Ajouter les types manquants : TypeActivite, Demandeur, Moniteur, ClubStructure
+type ClubStructure = {
+    uuid : string;
+    name : string;
+}
+
+type Demandeur = {
+    uuid : string;
+    name : string;
+    numerostructure : string;
+}
+
+type Moniteur = {
+    uuid : string;
+    lastname : string;
+    firstname : string;
+    niveau : string;
+}
+
+type TypeEvenement = {
+    uuid : string;
+    name : string;
+    activite : string;
+    valeurforms : string;
+}
+
+type Session = {
+    uuid : string;
+    dateDebut : Date;
+    dateFin : Date;
+    typeSession : string;
+}
 
 type EvenementJSON = {
   uuid: string;
@@ -10,25 +43,29 @@ type EvenementJSON = {
   datedemande: string;
   datedebut: string;
   datefin: string;
-  uuidtype: string;
-  uuiddemandeur: string;
-  uuidpartenaire: string;
+  typeEvenement: TypeEvenement;
+  demandeur: Demandeur;
+  partenaire: Demandeur;
   mailcontact: string;
   lieu: string;
-  uuidpresidentjury: string;
-  uuiddeleguectr: string;
-  uuidrepcibpl: string;
+  presidentjury: Moniteur;
+  deleguectr: Moniteur;
+  repcibpl: Moniteur;
   statut: string;
   datevalidation: string;
-  uuidorganisateur: string;
+  organisateur: ClubStructure;
   comment: string;
   calendareventid: string;
+  sessions: Session[];
 };
 
 const EvenementsList = () => {
   const [evenements, setEvenements] = useState<EventColumn[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [rowClicked, setRowClicked] = useState<boolean>(false);
+  const [selectedRow, setSelectedRow] = useState<EventColumn | null>(null);
+  const [eventsData, setEventsData] = useState<EvenementJSON[]>([]);
 
   useEffect(() => {
     fetch('http://localhost:9090/ctr/evenements', {
@@ -46,13 +83,20 @@ const EvenementsList = () => {
         let events: EventColumn[] = [];
         let id = 0;
         data.map((evenement: EvenementJSON) => {
-          var eventCol: EventColumn = { datedemande: "", statut: "", activite: "", organisateur: "", datedebut: "", datefin: "", lieu: "" };
-          eventCol.datedebut = evenement.datedebut;
-          eventCol.datedemande = evenement.datedemande;
-          eventCol.datefin=evenement.datefin;
-          eventCol.lieu=evenement.lieu;
+          var eventCol: EventColumn = {
+            uuid: evenement.uuid,
+            datedemande: evenement.datedemande,
+            statut: evenement.statut,
+            activite: (evenement.typeEvenement === undefined) ? "Type null" : evenement.typeEvenement.activite,
+            organisateur: evenement.organisateur ? evenement.organisateur.name : "",
+            datedebut: evenement.datedebut,
+            datefin: evenement.datefin,
+            lieu: evenement.lieu
+          };
+          events.push(eventCol);
         });
         setEvenements(events);
+        setEventsData(data);
         setLoading(false);
       })
       .catch((err) => {
@@ -64,10 +108,24 @@ const EvenementsList = () => {
 
   if (loading) return <p>Chargement des événements...</p>;
   if (error) return <p>Erreur : {error}</p>;
+  if (rowClicked) return <p>Vous avez cliqué sur une ligne ! {selectedRow === null ? "Aucune ligne sélectionnée" : getEvemenentByUuid(selectedRow.uuid)?.datedemande}</p>;
+
+  function handleRowClick(row: EventColumn) {
+    console.log('Ligne cliquée :', row);
+    setRowClicked(true);
+    setSelectedRow(row);
+  }
+
+  function getEvemenentByUuid(uuid: string): EvenementJSON | undefined {
+    console.log('Recherche de l\'événement avec UUID :', uuid);
+    const returnVal:EvenementJSON | undefined = eventsData.find(event => event.uuid === uuid);
+    console.log('Événement trouvé :', returnVal);
+    return returnVal;
+  }
 
   return (
     <div>
-      <DataTable columns={columns} data={evenements} />
+      <DataTable columns={columns} data={evenements} onRowClick={handleRowClick} />
     </div>
   );
 };

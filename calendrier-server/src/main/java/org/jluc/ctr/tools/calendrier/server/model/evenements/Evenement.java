@@ -1,4 +1,4 @@
-package org.jluc.ctr.tools.calendrier.server.evenements;
+package org.jluc.ctr.tools.calendrier.server.model.evenements;
 
 import java.util.Date;
 import java.util.UUID;
@@ -7,6 +7,14 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import java.util.List;
+import org.jluc.ctr.tools.calendrier.server.model.club.ClubStructure;  
+import org.jluc.ctr.tools.calendrier.server.model.moniteurs.Moniteur;
+import org.jluc.ctr.tools.calendrier.server.model.evenements.Status;
+import org.jluc.ctr.tools.calendrier.server.model.evenements.TypeEvenement;
+import org.jluc.ctr.tools.calendrier.server.model.club.Demandeur;
 
 @Entity
 public class Evenement extends PanacheEntityBase {
@@ -17,19 +25,28 @@ public class Evenement extends PanacheEntityBase {
     private Date datedemande;
     private Date datedebut;
     private Date datefin;
-    private UUID uuidtype;
-    private UUID uuiddemandeur;
-    private UUID uuidpartenaire;
+    @ManyToOne
+    private TypeEvenement typeEvenement;
+    @ManyToOne
+    private Demandeur demandeur;
+    @ManyToOne
+    private Demandeur partenaire;
     private String mailcontact;
     private String lieu;
-    private UUID uuidpresidentjury;
-    private UUID uuiddeleguectr;
-    private UUID uuidrepcibpl;
+    @ManyToOne
+    private Moniteur presidentjury;
+    @ManyToOne
+    private Moniteur deleguectr;
+    @ManyToOne  
+    private Moniteur repcibpl;
     private Status statut = Status.DEMANDE;
     private Date datevalidation;
-    private UUID uuidorganisateur;
+    @ManyToOne
+    private ClubStructure organisateur;
     private String comment;
     private String calendareventid;
+    @OneToMany(mappedBy = "evenement")
+    private List<Session> sessions;
     
     @PrePersist
     public void generateUuid() {
@@ -54,16 +71,16 @@ public class Evenement extends PanacheEntityBase {
         return datefin;
     }
 
-    public UUID getUuidtype() {
-        return uuidtype;
+    public TypeEvenement getType() {
+        return typeEvenement;
     }
 
-    public UUID getUuiddemandeur() {
-        return uuiddemandeur;
+    public Demandeur getDemandeur() {
+        return demandeur;
     }
 
-    public UUID getUuidpartenaire() {
-        return uuidpartenaire;
+    public Demandeur getPartenaire() {
+        return partenaire;
     }
 
     public String getMailcontact() {
@@ -74,16 +91,16 @@ public class Evenement extends PanacheEntityBase {
         return lieu;
     }
 
-    public UUID getUuidpresidentjury() {
-        return uuidpresidentjury;
+    public Moniteur getPresidentjury() {
+        return presidentjury;
     }
 
-    public UUID getUuiddeleguectr() {
-        return uuiddeleguectr;
+    public Moniteur getDeleguectr() {
+        return deleguectr;
     }
 
-    public UUID getUuidrepcibpl() {
-        return uuidrepcibpl;
+    public Moniteur getRepcibpl() {
+        return repcibpl;
     }
 
     public Status getStatut() {
@@ -94,8 +111,8 @@ public class Evenement extends PanacheEntityBase {
         return datevalidation;
     }
 
-    public UUID getUuidorganisateur() {
-        return uuidorganisateur;
+    public ClubStructure getOrganisateur() {
+        return organisateur;
     }
 
     public String getComment() {
@@ -104,6 +121,10 @@ public class Evenement extends PanacheEntityBase {
 
     public String getCalendareventid() {
         return calendareventid;
+    }
+
+    public List<Session> getSessions() {
+        return sessions;
     }
     
     public Evenement() {
