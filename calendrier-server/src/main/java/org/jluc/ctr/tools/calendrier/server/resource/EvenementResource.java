@@ -5,6 +5,12 @@ import java.util.List;
 import java.util.UUID;
 
 import org.jboss.resteasy.reactive.RestQuery;
+import org.jluc.ctr.tools.calendrier.server.dto.EvenementDTO;
+import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
+import org.jluc.ctr.tools.calendrier.server.service.EvenementService;
+import org.jluc.ctr.tools.calendrier.server.websockets.WebSocketResource;
+import org.jluc.ctr.tools.calendrier.server.websockets.messages.InfoMessage;
+import org.jluc.ctr.tools.calendrier.server.websockets.messages.ProgressMessage;
 
 import io.quarkus.logging.Log;
 import jakarta.inject.Inject;
@@ -17,9 +23,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.jluc.ctr.tools.calendrier.server.dto.EvenementDTO;
-import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
-import org.jluc.ctr.tools.calendrier.server.service.EvenementService;
 
 @Path("/evenements")
 @Produces(MediaType.APPLICATION_JSON)
@@ -27,6 +30,9 @@ import org.jluc.ctr.tools.calendrier.server.service.EvenementService;
 public class EvenementResource {
     @Inject
     EvenementService service;
+
+    @Inject
+    WebSocketResource wsResource;
 
     @GET
     @Path("/{id}")
@@ -43,10 +49,15 @@ public class EvenementResource {
     @GET
     public Response getAll() {
         List<Evenement> events = Evenement.listAll();
+        wsResource.broadcast(new ProgressMessage(true, "", "Chargement des évènements...", 0));
         List<EvenementDTO> eventsDTO = new ArrayList<EvenementDTO>();
+        int nb = 0;
         for (Evenement evenement : events) {
             eventsDTO.add(EvenementDTO.fromEntity(evenement));
+            wsResource.broadcast(new ProgressMessage(true, "", "Chargement des évènements...", nb / events.size()));
+            nb++;
         }
+        wsResource.broadcast(new ProgressMessage(true, "", "Chargement des évènements terminé...", 100));
        return Response.ok(eventsDTO).build();
     }
 
@@ -56,6 +67,7 @@ public class EvenementResource {
 
         // Ici tu peux transformer en entité Evenement, valider, etc.
         // Exemple simple : retourner ce qu’on a reçu
+        wsResource.broadcast(new InfoMessage("Evenement ajouté " + input.typeEvenement.activite));
         return Response.status(Response.Status.CREATED).entity(input).build();
     }
 

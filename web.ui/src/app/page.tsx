@@ -1,15 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { AlertDialogNotImplemented } from "@/components/AlertDialogNotImplemented";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import WebSocketNotificationListener from "@/components/WebSocketNotificationListener";
-import { columns, EventColumn } from "@/components/Event-columns";
+import { useState } from "react";
 
-import pack from "../../package.json";
-import data from "@/app/resources/data.json";
-import { DataTable } from "@/components/Event-table";
 import EvenementsList from "@/components/EvenementsList";
+import pack from "../../package.json";
 
 export default function Home() {
   const [notImplementedAlertVisible, setNotImplementedAlertVisible] = useState(false);
@@ -70,7 +66,7 @@ return (
       />
       */}
 
-    <WebSocketNotificationListener url="ws://localhost:8080/ws" />
+    <WebSocketNotificationListener url="ws://localhost:9090/ws" />
   </div>
 );
 }

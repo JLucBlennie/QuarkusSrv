@@ -1,43 +1,44 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { EvenementEditor } from './EvenementEditor';
 import { columns, EventColumn } from './Event-columns';
 import { DataTable } from './Event-table';
 
 // TODO : Ajouter les types manquants : TypeActivite, Demandeur, Moniteur, ClubStructure
 type ClubStructure = {
-    uuid : string;
-    name : string;
+  uuid: string;
+  name: string;
 }
 
 type Demandeur = {
-    uuid : string;
-    name : string;
-    numerostructure : string;
+  uuid: string;
+  name: string;
+  numerostructure: string;
 }
 
 type Moniteur = {
-    uuid : string;
-    lastname : string;
-    firstname : string;
-    niveau : string;
+  uuid: string;
+  lastname: string;
+  firstname: string;
+  niveau: string;
 }
 
 type TypeEvenement = {
-    uuid : string;
-    name : string;
-    activite : string;
-    valeurforms : string;
+  uuid: string;
+  name: string;
+  activite: string;
+  valeurforms: string;
 }
 
 type Session = {
-    uuid : string;
-    dateDebut : Date;
-    dateFin : Date;
-    typeSession : string;
+  uuid: string;
+  dateDebut: Date;
+  dateFin: Date;
+  typeSession: string;
 }
 
-type EvenementJSON = {
+export type EvenementJSON = {
   uuid: string;
   evtidforms: string;
   datedemande: string;
@@ -106,27 +107,21 @@ const EvenementsList = () => {
       });
   }, []);
 
-  if (loading) return <p>Chargement des événements...</p>;
-  if (error) return <p>Erreur : {error}</p>;
-  if (rowClicked) return <p>Vous avez cliqué sur une ligne ! {selectedRow === null ? "Aucune ligne sélectionnée" : getEvemenentByUuid(selectedRow.uuid)?.datedemande}</p>;
-
   function handleRowClick(row: EventColumn) {
     console.log('Ligne cliquée :', row);
     setRowClicked(true);
     setSelectedRow(row);
   }
 
-  function getEvemenentByUuid(uuid: string): EvenementJSON | undefined {
-    console.log('Recherche de l\'événement avec UUID :', uuid);
-    const returnVal:EvenementJSON | undefined = eventsData.find(event => event.uuid === uuid);
-    console.log('Événement trouvé :', returnVal);
-    return returnVal;
-  }
-
   return (
     <div>
-      <DataTable columns={columns} data={evenements} onRowClick={handleRowClick} />
-    </div>
+      {(!rowClicked && !error && !loading) &&
+        <DataTable columns={columns} data={evenements} onRowClick={handleRowClick} />
+      }
+      {rowClicked && <EvenementEditor selectedRow={selectedRow} events={eventsData} onExit={() => { setRowClicked(false) }} />}
+      {error && <p>Erreur : {error}</p>}
+      {loading && <p> </p>}
+    </div >
   );
 };
 

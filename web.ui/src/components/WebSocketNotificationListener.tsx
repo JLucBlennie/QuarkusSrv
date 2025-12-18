@@ -1,8 +1,8 @@
 "use client"
 
-import { Fragment, useEffect, useState } from "react"
+import { useEffect, useState } from "react";
 import ProgressCard from "./ProgressCard";
-import { toast } from "./ui/use-toast"
+import { toast } from "./ui/use-toast";
 
 export default function WebSocketNotificationListener(props: { url: any; }) {
 
@@ -32,13 +32,14 @@ export default function WebSocketNotificationListener(props: { url: any; }) {
     };
 
     useEffect(() => {
-        const ws = new WebSocket(props.url);
+      const ws = new WebSocket(props.url);
+      console.log("Tentative de connexion au WS...");
 
         ws.addEventListener("message", (event) => {
           console.log("Message from server ", event.data);
           handleMessage(event.data);
         });
-
+      console.log("Après l'abonnement à l'évènement...");
         return () => {
           ws.close();
         };
@@ -47,8 +48,9 @@ export default function WebSocketNotificationListener(props: { url: any; }) {
       const handleMessage = (incomingMessage: string) => {
         
         const message = JSON.parse(incomingMessage);
+        console.log("Type de message " + message.type);
 
-        if(message.type == "PROGRESSBLOCKING") {
+        if(message.type === "PROGRESSBLOCKING") {
           if(message.progressValue === 100) {
             setBlocking(false)
           } else {
@@ -56,25 +58,25 @@ export default function WebSocketNotificationListener(props: { url: any; }) {
           }
         }
 
-        if(message.type == "PROGRESS" || message.type == "PROGRESSBLOCKING") {
+        if(message.type === "PROGRESS" || message.type === "PROGRESSBLOCKING") {
           addEntry(message.processKey, message)
 
           if(message.progressValue === 100) {
             setTimeout(() => { removeEntry(message.processKey)}, 1000)
           }
           
-        } else if(message.type == "INFO") {
+        } else if(message.type === "INFO") {
           toast({
             title: (<>{message.title}</>),
             description: (<>{message.message}</>)
           })
-        } else if(message.type == "ERROR") {
+        } else if(message.type === "ERROR") {
           toast({
             title: (<>{message.title}</>),
             variant: "destructive",
             description: (<span>{message.message}</span>),
           })
-        } //else {
+        } else {
           toast({
             title: "Websocket message received:",
             description: (
@@ -83,16 +85,16 @@ export default function WebSocketNotificationListener(props: { url: any; }) {
               </pre>
             ),
           })
-        //}
+        }
       };
 
       //
 
       return (
         <>
-        <div className="absolute left-5 transform -translate-y-1/2 top-1/2 w-1/6">
+        <div className="absolute left-1/2 transform -translate-y-1/2 top-1/2">
           {Array.from(mapProgress.entries()).slice(0,4).map(([key, value]) => (
-            <ProgressCard message={value.message == "" ? value.title : value.message} key={key} progress={value.progressValue} />
+            <ProgressCard message={value.message === "" ? value.title : value.message} key={key} progress={value.progressValue} />
           ))}
         </div>
           <div

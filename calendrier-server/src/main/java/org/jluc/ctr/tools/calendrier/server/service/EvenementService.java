@@ -1,10 +1,10 @@
 package org.jluc.ctr.tools.calendrier.server.service;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.enterprise.context.ApplicationScoped;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
+
+import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class EvenementService {

@@ -1,20 +1,19 @@
 package org.jluc.ctr.tools.calendrier.server.model.evenements;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
+
+import org.jluc.ctr.tools.calendrier.server.model.club.ClubStructure;
+import org.jluc.ctr.tools.calendrier.server.model.club.Demandeur;
+import org.jluc.ctr.tools.calendrier.server.model.moniteurs.Moniteur;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import java.util.List;
-import org.jluc.ctr.tools.calendrier.server.model.club.ClubStructure;  
-import org.jluc.ctr.tools.calendrier.server.model.moniteurs.Moniteur;
-import org.jluc.ctr.tools.calendrier.server.model.evenements.Status;
-import org.jluc.ctr.tools.calendrier.server.model.evenements.TypeEvenement;
-import org.jluc.ctr.tools.calendrier.server.model.club.Demandeur;
+import jakarta.persistence.PrePersist;
 
 @Entity
 public class Evenement extends PanacheEntityBase {
