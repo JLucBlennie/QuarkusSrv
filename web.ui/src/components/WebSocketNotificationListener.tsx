@@ -33,13 +33,13 @@ export default function WebSocketNotificationListener(props: { url: any; }) {
 
     useEffect(() => {
       const ws = new WebSocket(props.url);
-      console.log("Tentative de connexion au WS...");
+      //console.log("Tentative de connexion au WS...");
 
         ws.addEventListener("message", (event) => {
-          console.log("Message from server ", event.data);
+          //console.log("Message from server ", event.data);
           handleMessage(event.data);
         });
-      console.log("Après l'abonnement à l'évènement...");
+      //console.log("Après l'abonnement à l'évènement...");
         return () => {
           ws.close();
         };
@@ -48,7 +48,7 @@ export default function WebSocketNotificationListener(props: { url: any; }) {
       const handleMessage = (incomingMessage: string) => {
         
         const message = JSON.parse(incomingMessage);
-        console.log("Type de message " + message.type);
+        //console.log("Type de message " + message.type);
 
         if(message.type === "PROGRESSBLOCKING") {
           if(message.progressValue === 100) {

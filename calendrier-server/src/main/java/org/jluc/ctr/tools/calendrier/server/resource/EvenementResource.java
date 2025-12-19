@@ -20,6 +20,7 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -36,14 +37,20 @@ public class EvenementResource {
 
     @GET
     @Path("/{id}")
-    public Response getEventById(@RestQuery String id) {
-        Log.info(id);
+    public Response getEventById(@PathParam("id") String id) {
+        Log.info("UUID demandé : " + id);
+        wsResource.broadcast(new ProgressMessage(true, "Chargement d'un évènement", "Chargement de l'évènement...", 0));
         UUID uuid = UUID.fromString(id);
         Evenement event = Evenement.findById(uuid);
-        if (event != null)
+        if (event != null) {
+            wsResource.broadcast(new ProgressMessage(true,
+                    "Chargement d'un évènement", "Chargement de l'évènement terminé...", 100));
             return Response.ok(EvenementDTO.fromEntity(event)).build();
-        else
+        } else {
+            wsResource.broadcast(
+                    new InfoMessage("Erreur de chargement d'un évènement", "Chargement de l'évènement terminé..."));
             return Response.noContent().build();
+        }
     }
 
     @GET
@@ -58,7 +65,7 @@ public class EvenementResource {
             nb++;
         }
         wsResource.broadcast(new ProgressMessage(true, "", "Chargement des évènements terminé...", 100));
-       return Response.ok(eventsDTO).build();
+        return Response.ok(eventsDTO).build();
     }
 
     @POST

@@ -118,7 +118,7 @@ const EvenementsList = () => {
       {(!rowClicked && !error && !loading) &&
         <DataTable columns={columns} data={evenements} onRowClick={handleRowClick} />
       }
-      {rowClicked && <EvenementEditor selectedRow={selectedRow} events={eventsData} onExit={() => { setRowClicked(false) }} />}
+      {rowClicked && <EvenementEditor uuid={selectedRow?.uuid} onExit={() => { setRowClicked(false) }} />}
       {error && <p>Erreur : {error}</p>}
       {loading && <p> </p>}
     </div >
