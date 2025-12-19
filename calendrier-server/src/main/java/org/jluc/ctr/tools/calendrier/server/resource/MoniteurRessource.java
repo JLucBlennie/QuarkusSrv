@@ -1,21 +1,23 @@
 package org.jluc.ctr.tools.calendrier.server.resource;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.jboss.resteasy.reactive.RestQuery;
+import org.jluc.ctr.tools.calendrier.server.dto.MoniteurDTO;
+import org.jluc.ctr.tools.calendrier.server.model.moniteurs.Moniteur;
+import org.jluc.ctr.tools.calendrier.server.service.MoniteurService;
 
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import org.jluc.ctr.tools.calendrier.server.dto.MoniteurDTO;
-import org.jluc.ctr.tools.calendrier.server.model.moniteurs.Moniteur;
-import org.jluc.ctr.tools.calendrier.server.service.MoniteurService;
 
 @Path("/moniteur")
 @Produces(MediaType.APPLICATION_JSON)
@@ -38,7 +40,7 @@ public class MoniteurRessource {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     @Path("/{uuid}")
-    public MoniteurDTO moniteuruuid(@RestQuery String uuid) {
+    public MoniteurDTO moniteuruuid(@PathParam("uuid") UUID uuid) {
         return MoniteurDTO.fromEntity(service.getMoniteurByUUID(uuid));
     }
     @GET

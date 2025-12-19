@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.jboss.resteasy.reactive.RestQuery;
 import org.jluc.ctr.tools.calendrier.server.dto.EvenementDTO;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
 import org.jluc.ctr.tools.calendrier.server.service.EvenementService;
@@ -85,7 +84,7 @@ public class EvenementResource {
 
     @DELETE
     @Path("/{id}")
-    public Response deleteEventById(@RestQuery String id) {
+    public Response deleteEventById(@PathParam("id") String id) {
         UUID uuid = UUID.fromString(id);
         if (Evenement.deleteById(uuid))
             return Response.ok().build();
