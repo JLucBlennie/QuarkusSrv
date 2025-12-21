@@ -17,7 +17,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
         if (uuid === undefined) {
             setCreateMode(true);
         } else {
-            fetch('http://localhost:9090/ctr/evenements/' + uuid, {
+            fetch('http://51.83.78.37:9090/ctr/evenements/' + uuid, {
                 method: "GET",
                 redirect: "follow"
             })

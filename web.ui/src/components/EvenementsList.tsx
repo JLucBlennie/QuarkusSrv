@@ -69,7 +69,7 @@ const EvenementsList = () => {
   const [eventsData, setEventsData] = useState<EvenementJSON[]>([]);
 
   useEffect(() => {
-    fetch('http://localhost:9090/ctr/evenements', {
+    fetch('http://51.83.78.37:9090/ctr/evenements', {
       method: "GET",
       redirect: "follow"
     })
