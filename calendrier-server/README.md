@@ -53,6 +53,12 @@ You can then execute your native executable with: `./build/calendrier-server-1.0
 
 If you want to learn more about building native executables, please consult <https://quarkus.io/guides/gradle-tooling>.
 
+### Production et lancement dans le VPS
+```shel script 
+./gradlew build
+java -jar build/quarkus-app/quarkus-run.jar
+```
+
 ## Related Guides
 
 - REST ([guide](https://quarkus.io/guides/rest)): A Jakarta REST implementation utilizing build time processing and Vert.x. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it.
