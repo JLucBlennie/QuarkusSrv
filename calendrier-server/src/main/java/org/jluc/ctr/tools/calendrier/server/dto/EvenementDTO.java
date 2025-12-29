@@ -3,8 +3,9 @@ package org.jluc.ctr.tools.calendrier.server.dto;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import org.jluc.ctr.tools.calendrier.server.model.evenements.Status;
+
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
+import org.jluc.ctr.tools.calendrier.server.model.evenements.Status;
 
 public class EvenementDTO {
     public UUID uuid;
@@ -25,6 +26,7 @@ public class EvenementDTO {
     public ClubStructureDTO organisateur;
     public String comment;
     public String calendareventid;
+    public int nbparticipants;
     public List<SessionDTO> sessions;
 
     public static EvenementDTO fromEntity(Evenement evenement) {
@@ -51,6 +53,7 @@ public class EvenementDTO {
         dto.organisateur = ClubStructureDTO.fromEntity(evenement.getOrganisateur());    
         dto.comment = evenement.getComment();
         dto.calendareventid = evenement.getCalendareventid();
+        dto.nbparticipants = evenement.getNbparticipants();
         
         if (evenement.getSessions() == null) {
             dto.sessions = null;
