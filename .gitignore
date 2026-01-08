@@ -42,3 +42,7 @@ gradle-app.setting
 /calendrier-server/src/main/docker/Dockerfile.legacy-jar
 /calendrier-server/src/main/docker/Dockerfile.native
 /calendrier-server/src/main/docker/Dockerfile.native-micro
+calendrier-server/data/club.csv
+calendrier-server/data/demandeur.csv
+calendrier-server/data/moniteur.csv
+calendrier-server/data/typeevenement.csv
