@@ -12,9 +12,17 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 
+@NamedEntityGraph(name = "evenement-with-type", attributeNodes = @NamedAttributeNode("typeEvenement"))
+@NamedEntityGraph(name = "evenement-with-demandeur", attributeNodes = @NamedAttributeNode("demandeur"))
+@NamedEntityGraph(name = "evenement-with-partenaire", attributeNodes = @NamedAttributeNode("partenaire"))
+@NamedEntityGraph(name = "evenement-with-organisateur", attributeNodes = @NamedAttributeNode("organisateur"))
+@NamedEntityGraph(name = "evenement-with-all", attributeNodes = { @NamedAttributeNode("typeEvenement"),
+        @NamedAttributeNode("demandeur"), @NamedAttributeNode("partenaire"), @NamedAttributeNode("organisateur") })
 @Entity
 public class Evenement extends PanacheEntityBase {
     @Id
@@ -145,6 +153,32 @@ public class Evenement extends PanacheEntityBase {
         this.nbparticipants = nbparticipants;
         this.comment = comment;
         this.evtidforms = "evt-" + datedemande.getTime() + "-" + activite.replace(" ", "");
+        // Récupération du TypeEvenement dans la liste des types existants
+        this.typeEvenement = TypeEvenement.find("valeurforms", activite).firstResult();
+        ClubStructure organisateur = ClubStructure
+                .find("name", organisateurStr).firstResult();
+        if (organisateur == null) {
+            System.out.println("Organisateur non trouvé pour : " + organisateurStr);
+            organisateur = new ClubStructure(organisateurStr);
+            organisateur.persist();
+        }
+        this.organisateur = organisateur;
+        Demandeur demandeur = Demandeur
+                .find("numerostructure",
+                        demandeurStr.substring(demandeurStr.indexOf(" (") + 2, demandeurStr.indexOf(")")))
+                .firstResult();
+        if (demandeur == null) {
+            System.out.println("Demandeur non trouvé pour : " + demandeurStr);
+            demandeur = new Demandeur(demandeurStr.substring(0, demandeurStr.indexOf(" (")),
+                    demandeurStr.substring(demandeurStr.indexOf(" (") + 2, demandeurStr.indexOf(")")));
+            demandeur.persist();
+        }
+        this.demandeur = demandeur;
+        if (partenaireStr == null || partenaireStr.isEmpty()) {
+            this.partenaire = null;
+        } else
+            this.partenaire = Demandeur.find("numerostructure", partenaireStr.substring(partenaireStr.indexOf(" (") + 2,
+                    partenaireStr.indexOf(")"))).firstResult();
     }
 
     public String toString() {

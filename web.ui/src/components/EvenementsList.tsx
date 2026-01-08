@@ -60,6 +60,9 @@ export type EvenementJSON = {
   sessions: Session[];
 };
 
+/* const SERVER_URL = 'http://51.83.78.37:9090'; */
+const SERVER_URL = 'http://localhost:9090';
+
 const EvenementsList = () => {
   const [evenements, setEvenements] = useState<EventColumn[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -69,7 +72,7 @@ const EvenementsList = () => {
   const [eventsData, setEventsData] = useState<EvenementJSON[]>([]);
 
   useEffect(() => {
-    fetch('http://51.83.78.37:9090/ctr/evenements', {
+    fetch(`${SERVER_URL}/ctr/evenements`, {
       method: "GET",
       redirect: "follow"
     })

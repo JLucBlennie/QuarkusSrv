@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.jluc.ctr.tools.calendrier.server.dto.EvenementDTO;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
+import org.jluc.ctr.tools.calendrier.server.model.evenements.EvenementRepository;
 import org.jluc.ctr.tools.calendrier.server.service.EvenementService;
 import org.jluc.ctr.tools.calendrier.server.websockets.WebSocketResource;
 import org.jluc.ctr.tools.calendrier.server.websockets.messages.InfoMessage;
@@ -33,33 +34,38 @@ public class EvenementResource {
     EvenementService service;
 
     @Inject
+    EvenementRepository evenementRepository;
+
+    @Inject
     WebSocketResource wsResource;
 
     @GET
     @Path("/{id}")
     public Response getEventById(@PathParam("id") String id) {
         Log.info("UUID demandé : " + id);
-        wsResource.broadcast(new ProgressMessage(true, "Chargement d'un évènement", "Chargement de l'évènement...", 0));
+        wsResource.broadcast(new ProgressMessage(true, "loadevents", "Chargement de l'évènement...", 0));
         UUID uuid = UUID.fromString(id);
         Evenement event = Evenement.findById(uuid);
         if (event != null) {
             wsResource.broadcast(new ProgressMessage(true,
-                    "Chargement d'un évènement", "Chargement de l'évènement terminé...", 100));
+                    "loadevents", "Chargement de l'évènement terminé...", 100));
             return Response.ok(EvenementDTO.fromEntity(event)).build();
         } else {
             wsResource.broadcast(
-                    new InfoMessage("Erreur de chargement d'un évènement", "Chargement de l'évènement terminé..."));
+                    new InfoMessage("Erreur de loadevents", "Chargement de l'évènement terminé..."));
             return Response.noContent().build();
         }
     }
 
     @GET
     public Response getAll() {
-        wsResource.broadcast(new ProgressMessage(true, "", "Chargement des nouveaux évènements...", 0));
-        int nbNewEvents = service.updateEvenementsFromGoogleForms();
-        wsResource.broadcast(new ProgressMessage(true, "", "Ajout de " + nbNewEvents + " nouveaux évènements...", 100));
-        List<Evenement> events = Evenement.listAll();
-        wsResource.broadcast(new ProgressMessage(true, "", "Chargement des évènements...", 0));
+        wsResource.broadcast(
+                new ProgressMessage(true, "loadevents", "Chargement des nouveaux évènements...", 0));
+        int nbNewEvents = service.updateEvenementsFromGoogleForms(wsResource);
+        wsResource.broadcast(new ProgressMessage(true, "loadevents",
+                "Ajout de " + nbNewEvents + " nouveaux évènements...", 100));
+        List<Evenement> events = evenementRepository.findAllWithAllLoaded();
+        wsResource.broadcast(new ProgressMessage(true, "loadevents", "Chargement des évènements...", 0));
         List<EvenementDTO> eventsDTO = new ArrayList<EvenementDTO>();
         int nb = 0;
         Date Today = new Date();
@@ -68,10 +74,12 @@ public class EvenementResource {
                 eventsDTO.add(EvenementDTO.fromEntity(evenement));
             }
             wsResource.broadcast(
-                    new ProgressMessage(true, "", "Chargement des évènements...", (nb / events.size()) * 100));
+                    new ProgressMessage(true, "loadevents", "Chargement des évènements...",
+                            (nb / events.size()) * 100));
             nb++;
         }
-        wsResource.broadcast(new ProgressMessage(true, "", "Chargement des évènements terminé...", 100));
+        wsResource.broadcast(
+                new ProgressMessage(true, "loadevents", "Chargement des évènements terminé...", 100));
         return Response.ok(eventsDTO).build();
     }
 
