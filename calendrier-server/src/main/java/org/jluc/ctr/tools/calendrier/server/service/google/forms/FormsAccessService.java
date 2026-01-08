@@ -24,11 +24,17 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.IOUtils;
 import org.jboss.logging.Logger;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
+import org.jluc.ctr.tools.calendrier.server.websockets.WebSocketResource;
+import org.jluc.ctr.tools.calendrier.server.websockets.messages.ProgressMessage;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class FormsAccessService {
+    @Inject
+    static WebSocketResource wsResource;
+
     public static final ResourceBundle DICO_PROPERTIES = ResourceBundle.getBundle("dicoCTR", Locale.getDefault());
     private static String FORMS_URL = DICO_PROPERTIES.getString("app.forms.url");
     private static String OFFLINE_DATA = DICO_PROPERTIES.getString("app.forms.offline.data");
@@ -44,6 +50,8 @@ public class FormsAccessService {
         Reader reader = null;
         Writer writer = null;
         List<Evenement> events = new ArrayList<Evenement>();
+        wsResource.broadcast(new ProgressMessage(true, "Récupération des évènements de Forms",
+                "Récupération des évènements de Forms...", 0));
         try {
             URL url = new URI(FORMS_URL).toURL();
             try {
@@ -67,6 +75,7 @@ public class FormsAccessService {
             CSVParser records = csvFormat.parse(reader);
             // mLogger.debug(" ==> Headers : " +
             // records.getHeaderMap().toString());
+            int nbEvents = 0;
             for (CSVRecord record : records) {
                 // Liste de Headers : {Horodateur=0, Adresse e-mail=1, Contact
                 // (mails secondaire)=2, Autre contact (si besoin)=3,
@@ -87,11 +96,20 @@ public class FormsAccessService {
                     String organisateur = record.get(12).isEmpty() ? demandeur : record.get(12);
                     int nbparticipants = record.get(13).isEmpty() ? 0 : Integer.parseInt(record.get(13));
 
-                    events.add(new Evenement(dateDemande, dateDebut, dateFin, activite, demandeur, partenaire, mail, lieu, organisateur, comment, nbparticipants));
+                    events.add(new Evenement(dateDemande, dateDebut, dateFin, activite, demandeur, partenaire, mail,
+                            lieu, organisateur, comment, nbparticipants));
+                    nbEvents++;
+                    wsResource.broadcast(new ProgressMessage(true, "Récupération des évènements de Forms",
+                            "Récupération des " + nbEvents + "évènements de Forms...",
+                            (int) (nbEvents / records.getRecordNumber() * 100)));
                 } catch (ParseException e) {
                     mLogger.error(
-                            "Pb durant le parsing des évènements : " + record.get(4) + " demande par " + (record.get(7).isEmpty() ? record.get(8) : record.get(7)) + " ==> On passe au suivant : ", e);
-                    ERRORS.add(record.get(4) + " demande par " + (record.get(7).isEmpty() ? record.get(8) : record.get(7)));
+                            "Pb durant le parsing des évènements : " + record.get(4) + " demande par "
+                                    + (record.get(7).isEmpty() ? record.get(8) : record.get(7))
+                                    + " ==> On passe au suivant : ",
+                            e);
+                    ERRORS.add(record.get(4) + " demande par "
+                            + (record.get(7).isEmpty() ? record.get(8) : record.get(7)));
                 }
             }
         } catch (IOException | URISyntaxException e) {
@@ -118,6 +136,8 @@ public class FormsAccessService {
                     mLogger.debug("Fichier Temporaire supprime : " + csvTempFile.getAbsolutePath());
             }
         }
+        wsResource.broadcast(new ProgressMessage(true, "Récupération des évènements de Forms",
+                "Fin de récupération des évènements de Forms...", 100));
 
         return events;
     }

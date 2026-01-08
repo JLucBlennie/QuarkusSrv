@@ -1,6 +1,7 @@
 package org.jluc.ctr.tools.calendrier.server.resource;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -54,13 +55,20 @@ public class EvenementResource {
 
     @GET
     public Response getAll() {
+        wsResource.broadcast(new ProgressMessage(true, "", "Chargement des nouveaux évènements...", 0));
+        int nbNewEvents = service.updateEvenementsFromGoogleForms();
+        wsResource.broadcast(new ProgressMessage(true, "", "Ajout de " + nbNewEvents + " nouveaux évènements...", 100));
         List<Evenement> events = Evenement.listAll();
         wsResource.broadcast(new ProgressMessage(true, "", "Chargement des évènements...", 0));
         List<EvenementDTO> eventsDTO = new ArrayList<EvenementDTO>();
         int nb = 0;
+        Date Today = new Date();
         for (Evenement evenement : events) {
-            eventsDTO.add(EvenementDTO.fromEntity(evenement));
-            wsResource.broadcast(new ProgressMessage(true, "", "Chargement des évènements...", nb / events.size()));
+            if (evenement.getDatedebut().after(Today)) {
+                eventsDTO.add(EvenementDTO.fromEntity(evenement));
+            }
+            wsResource.broadcast(
+                    new ProgressMessage(true, "", "Chargement des évènements...", (nb / events.size()) * 100));
             nb++;
         }
         wsResource.broadcast(new ProgressMessage(true, "", "Chargement des évènements terminé...", 100));

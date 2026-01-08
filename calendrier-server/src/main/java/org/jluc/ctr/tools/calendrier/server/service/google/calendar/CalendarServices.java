@@ -7,16 +7,17 @@ import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.jboss.logging.Logger;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.TypeActivite;
 
+import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
@@ -26,14 +27,15 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.client.util.store.FileDataStoreFactory;
+import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.CalendarList;
 import com.google.api.services.calendar.model.CalendarListEntry;
+import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 import com.google.common.io.BaseEncoding;
 
-import io.quarkus.security.credential.Credential;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
@@ -60,7 +62,7 @@ public class CalendarServices {
 
     private Map<TypeCalendar, CalendarListEntry> mCalendarList;
 
-    private Logger mLogger = LogManager.getLogger(CalendarServices.class);
+    private Logger mLogger = Logger.getLogger(CalendarServices.class);
 
     /**
      * Application name.
@@ -70,7 +72,7 @@ public class CalendarServices {
     /**
      * Global instance of the JSON factory.
      */
-    private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
+    private static final GsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     /**
      * Directory to store authorization tokens for this application.
      */
@@ -193,7 +195,7 @@ public class CalendarServices {
         TypeActivite activite = event.getType().getActivite();
         String typeEvenement = event.getType().getName();
         String description = "Organisateur : " + event.getDemandeur().getName() + "\n" + "\r\n"
-                + "Contact : presidente-technique@cibpl.fr\r\n" + event.getContact();
+                + "Contact : presidente-technique@cibpl.fr\r\n" + event.getMailcontact();
 
         String calendarId = mCalendarList.get(TypeCalendar.CTR).getId();
 
@@ -238,8 +240,8 @@ public class CalendarServices {
         }
 
         // On cherche si l'event existe deja
-        if (event.getCalendarEventId() != null
-                && mService.events().get(calendarId, event.getCalendarEventId()) != null) {
+        if (event.getCalendareventid() != null
+                && mService.events().get(calendarId, event.getCalendareventid()) != null) {
             // On a bien un event existant
             // Il faut le mettre à jour
             mLogger.debug("Event existant...");
@@ -248,10 +250,10 @@ public class CalendarServices {
             mLogger.debug("Event a creer...");
             Event eventCalendar = createEvent(typeEvenement + " - " + event.getDemandeur().getName(),
                     event.getLieu(),
-                    description, event.getDateDebut(), event.getDateFin());
+                    description, event.getDatedebut(), event.getDatefin());
 
             mService.events().insert(calendarId, eventCalendar).execute();
-            event.setCalendarEventId(eventCalendar.getId());
+            event.setCalendareventid(eventCalendar.getId());
         }
         return true;
     }

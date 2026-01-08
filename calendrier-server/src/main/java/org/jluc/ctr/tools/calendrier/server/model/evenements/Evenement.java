@@ -46,7 +46,7 @@ public class Evenement extends PanacheEntityBase {
     private String calendareventid;
     @OneToMany(mappedBy = "evenement")
     private List<Session> sessions;
-    private int nbparticipants = 0;
+    private Integer nbparticipants = 0;
     
     @PrePersist
     public void generateUuid() {
@@ -144,6 +144,7 @@ public class Evenement extends PanacheEntityBase {
         this.mailcontact = mailcontact;
         this.nbparticipants = nbparticipants;
         this.comment = comment;
+        this.evtidforms = "evt-" + datedemande.getTime() + "-" + activite.replace(" ", "");
     }
 
     public String toString() {
@@ -152,5 +153,9 @@ public class Evenement extends PanacheEntityBase {
 
     public UUID getUUID() {
         return uuid;
+    }
+
+    public void setCalendareventid(String calendareventid) {
+        this.calendareventid = calendareventid;
     }
 }
