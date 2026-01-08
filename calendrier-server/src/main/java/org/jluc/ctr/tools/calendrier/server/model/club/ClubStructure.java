@@ -33,7 +33,17 @@ public class ClubStructure extends PanacheEntityBase {
     public UUID getUuid() {
         return uuid;
     }
+
     public String getName() {
         return name;
     }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
 }

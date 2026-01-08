@@ -53,4 +53,20 @@ public class Moniteur extends PanacheEntityBase {
     public NiveauMoniteur getNiveau() {
         return niveau;
     }
+
+    public void setLastName(String lastname) {
+        this.lastname = lastname;
+    }
+
+    public void setFirstName(String firstname) {
+        this.firstname = firstname;
+    }
+
+    public void setNiveau(NiveauMoniteur niveau) {
+        this.niveau = niveau;
+    }
+
+    public void setUUID(UUID uuid) {
+        this.uuid = uuid;
+    }
 }

@@ -20,13 +20,13 @@ import jakarta.inject.Inject;
 @ApplicationScoped
 public class MailServices {
     @Inject
-    static Mailer mailer;
+    Mailer mailer;
 
     private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd MMM yyyy");
     public static final ResourceBundle DICO_PROPERTIES = ResourceBundle.getBundle("dicoCTR", Locale.getDefault());
     public static final String SPLASH_IMAGE_PATH = "/images/logo.png";
 
-    public static void sendValidationMessage(Evenement event)
+    public void sendValidationMessage(Evenement event)
             throws MalformedURLException, FileNotFoundException, URISyntaxException {
         String htmlValidationMsg = DICO_PROPERTIES.getString("app.mail.validation");
         // Récupération du compte

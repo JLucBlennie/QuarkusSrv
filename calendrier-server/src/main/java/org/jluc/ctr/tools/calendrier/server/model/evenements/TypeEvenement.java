@@ -37,7 +37,24 @@ public class TypeEvenement extends PanacheEntityBase {
     public TypeActivite getActivite() {
         return activite;
     }
+
     public String getValeurforms() {
         return valeurforms;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setActivite(TypeActivite activite) {
+        this.activite = activite;
+    }
+
+    public void setValeurforms(String valeurforms) {
+        this.valeurforms = valeurforms;
     }
 }

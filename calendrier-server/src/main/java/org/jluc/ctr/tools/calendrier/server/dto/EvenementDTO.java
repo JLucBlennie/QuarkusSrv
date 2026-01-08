@@ -33,7 +33,7 @@ public class EvenementDTO {
         if (evenement == null) {
             return null;
         }
-        
+
         EvenementDTO dto = new EvenementDTO();
         dto.uuid = evenement.getUUID();
         dto.evtidforms = evenement.getEvtidforms();
@@ -42,26 +42,63 @@ public class EvenementDTO {
         dto.datefin = evenement.getDatefin();
         dto.typeEvenement = TypeEvenementDTO.fromEntity(evenement.getType());
         dto.demandeur = DemandeurDTO.fromEntity(evenement.getDemandeur());
-        dto.partenaire = DemandeurDTO.fromEntity(evenement.getPartenaire());    
+        dto.partenaire = DemandeurDTO.fromEntity(evenement.getPartenaire());
         dto.mailcontact = evenement.getMailcontact();
         dto.lieu = evenement.getLieu();
-        dto.presidentjury = MoniteurDTO.fromEntity(evenement.getPresidentjury());  
+        dto.presidentjury = MoniteurDTO.fromEntity(evenement.getPresidentjury());
         dto.deleguectr = MoniteurDTO.fromEntity(evenement.getDeleguectr());
         dto.repcibpl = MoniteurDTO.fromEntity(evenement.getRepcibpl());
-        dto.statut = evenement.getStatut(); 
+        dto.statut = evenement.getStatut();
         dto.datevalidation = evenement.getDatevalidation();
-        dto.organisateur = ClubStructureDTO.fromEntity(evenement.getOrganisateur());    
+        dto.organisateur = ClubStructureDTO.fromEntity(evenement.getOrganisateur());
         dto.comment = evenement.getComment();
         dto.calendareventid = evenement.getCalendareventid();
         dto.nbparticipants = evenement.getNbparticipants();
-        
+
         if (evenement.getSessions() == null) {
             dto.sessions = null;
         } else {
             dto.sessions = evenement.getSessions().stream()
-                .map(SessionDTO::fromEntity)
-                .toList();
+                    .map(SessionDTO::fromEntity)
+                    .toList();
         }
         return dto;
+    }
+
+    public Evenement toEntity() {
+        Evenement evenement = Evenement.findById(this.uuid);
+        if (evenement == null) {
+            evenement = new Evenement();
+            evenement.setUUID(this.uuid != null ? this.uuid : UUID.randomUUID());
+        }
+        evenement.setEvtidforms(this.evtidforms);
+        evenement.setDatedemande(this.datedemande);
+        evenement.setDatedebut(this.datedebut);
+        evenement.setDatefin(this.datefin);
+        evenement.setType(this.typeEvenement != null ? this.typeEvenement.toEntity() : null);
+        evenement.setDemandeur(this.demandeur != null ? this.demandeur.toEntity() : null);
+        evenement.setPartenaire(this.partenaire != null ? this.partenaire.toEntity() : null);
+        evenement.setMailcontact(this.mailcontact);
+        evenement.setLieu(this.lieu);
+        evenement.setPresidentjury(this.presidentjury != null ? this.presidentjury.toEntity() : null);
+        evenement.setDeleguectr(this.deleguectr != null ? this.deleguectr.toEntity() : null);
+        evenement.setRepcibpl(this.repcibpl != null ? this.repcibpl.toEntity() : null);
+        evenement.setStatut(this.statut);
+        evenement.setDatevalidation(this.datevalidation);
+        evenement.setOrganisateur(this.organisateur != null ? this.organisateur.toEntity() : null);
+        evenement.setComment(this.comment);
+        evenement.setCalendareventid(this.calendareventid);
+        evenement.setNbparticipants(this.nbparticipants);
+
+        if (this.sessions != null) {
+            List<org.jluc.ctr.tools.calendrier.server.model.evenements.Session> sessionEntities = this.sessions.stream()
+                    .map(SessionDTO::toEntity)
+                    .toList();
+            evenement.setSessions(sessionEntities);
+        } else {
+            evenement.setSessions(null);
+        }
+
+        return evenement;
     }
 }

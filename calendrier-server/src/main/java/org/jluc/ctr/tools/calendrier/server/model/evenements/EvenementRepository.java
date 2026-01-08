@@ -1,6 +1,7 @@
 package org.jluc.ctr.tools.calendrier.server.model.evenements;
 
 import java.util.List;
+import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -21,11 +22,30 @@ public class EvenementRepository {
         return query.getResultList();
     }
     
+    public List<Evenement> findAllWithPresidentDeleguer() {
+        EntityGraph<Evenement> graph = (EntityGraph<Evenement>) entityManager
+                .getEntityGraph("evenement-with-presdelegue");
+        TypedQuery<Evenement> query = entityManager
+                .createQuery("SELECT e FROM Evenement e", Evenement.class)
+                .setHint("jakarta.persistence.loadgraph", graph);
+        return query.getResultList();
+    }
+
     public List<Evenement> findAllWithAllLoaded() {
         EntityGraph<Evenement> graph = (EntityGraph<Evenement>) entityManager.getEntityGraph("evenement-with-all");
         TypedQuery<Evenement> query = entityManager
                 .createQuery("SELECT e FROM Evenement e", Evenement.class)
                 .setHint("jakarta.persistence.loadgraph", graph);
         return query.getResultList();
+    }
+
+    public Evenement findOneWithAllLoaded(UUID evenementId) {
+        EntityGraph<Evenement> graph = (EntityGraph<Evenement>) entityManager.getEntityGraph("evenement-with-all");
+        TypedQuery<Evenement> query = entityManager
+                .createQuery("SELECT e FROM Evenement e WHERE e.uuid = :evenementId",
+                        Evenement.class)
+                .setParameter("evenementId", evenementId)
+                .setHint("jakarta.persistence.loadgraph", graph);
+        return query.getResultList().isEmpty() ? null : query.getResultList().get(0);
     }
 }

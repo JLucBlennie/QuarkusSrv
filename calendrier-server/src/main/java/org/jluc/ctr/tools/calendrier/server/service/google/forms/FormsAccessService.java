@@ -36,7 +36,7 @@ public class FormsAccessService {
 
     private static List<String> ERRORS = new ArrayList<String>();
 
-    public static List<Evenement> getEventsFromGoogleForms(WebSocketResource wsResource) throws CsvException {
+    public List<Evenement> getEventsFromGoogleForms(WebSocketResource wsResource) throws CsvException {
         List<Evenement> events = new ArrayList<Evenement>();
         wsResource.broadcast(new ProgressMessage(true, "loadevents",
                 "Récupération des évènements de Forms...", 0));
@@ -99,7 +99,7 @@ public class FormsAccessService {
         return events;
     }
 
-    public static List<String> getErrors() {
+    public List<String> getErrors() {
         return ERRORS;
     }
 }

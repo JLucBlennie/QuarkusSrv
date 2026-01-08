@@ -21,8 +21,13 @@ import jakarta.persistence.PrePersist;
 @NamedEntityGraph(name = "evenement-with-demandeur", attributeNodes = @NamedAttributeNode("demandeur"))
 @NamedEntityGraph(name = "evenement-with-partenaire", attributeNodes = @NamedAttributeNode("partenaire"))
 @NamedEntityGraph(name = "evenement-with-organisateur", attributeNodes = @NamedAttributeNode("organisateur"))
+@NamedEntityGraph(name = "evenement-with-presidentjury", attributeNodes = @NamedAttributeNode("presidentjury"))
+@NamedEntityGraph(name = "evenement-with-deleguectr", attributeNodes = @NamedAttributeNode("deleguectr"))
+@NamedEntityGraph(name = "evenement-with-presdelegue", attributeNodes = { @NamedAttributeNode("presidentjury"),
+        @NamedAttributeNode("deleguectr") })
 @NamedEntityGraph(name = "evenement-with-all", attributeNodes = { @NamedAttributeNode("typeEvenement"),
-        @NamedAttributeNode("demandeur"), @NamedAttributeNode("partenaire"), @NamedAttributeNode("organisateur") })
+        @NamedAttributeNode("demandeur"), @NamedAttributeNode("partenaire"), @NamedAttributeNode("organisateur"),
+        @NamedAttributeNode("presidentjury"), @NamedAttributeNode("deleguectr") })
 @Entity
 public class Evenement extends PanacheEntityBase {
     @Id
@@ -191,5 +196,81 @@ public class Evenement extends PanacheEntityBase {
 
     public void setCalendareventid(String calendareventid) {
         this.calendareventid = calendareventid;
+    }
+
+    public void setStatut(Status statut) {
+        this.statut = statut;
+    }
+
+    public void setDatevalidation(Date datevalidation) {
+        this.datevalidation = datevalidation;
+    }
+
+    public void setNbparticipants(int nbparticipants) {
+        this.nbparticipants = nbparticipants;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public void setPresidentjury(Moniteur presidentjury) {
+        this.presidentjury = presidentjury;
+    }
+
+    public void setDeleguectr(Moniteur deleguectr) {
+        this.deleguectr = deleguectr;
+    }
+
+    public void setRepcibpl(Moniteur repcibpl) {
+        this.repcibpl = repcibpl;
+    }
+
+    public void setUUID(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    public void setEvtidforms(String evtidforms) {
+        this.evtidforms = evtidforms;
+    }
+
+    public void setDatedemande(Date datedemande) {
+        this.datedemande = datedemande;
+    }
+
+    public void setDatedebut(Date datedebut) {
+        this.datedebut = datedebut;
+    }
+
+    public void setDatefin(Date datefin) {
+        this.datefin = datefin;
+    }
+
+    public void setType(TypeEvenement typeEvenement) {
+        this.typeEvenement = typeEvenement;
+    }
+
+    public void setDemandeur(Demandeur demandeur) {
+        this.demandeur = demandeur;
+    }
+
+    public void setPartenaire(Demandeur partenaire) {
+        this.partenaire = partenaire;
+    }
+
+    public void setMailcontact(String mailcontact) {
+        this.mailcontact = mailcontact;
+    }
+
+    public void setLieu(String lieu) {
+        this.lieu = lieu;
+    }
+
+    public void setOrganisateur(ClubStructure organisateur) {
+        this.organisateur = organisateur;
+    }
+
+    public void setSessions(List<Session> sessions) {
+        this.sessions = sessions;
     }
 }

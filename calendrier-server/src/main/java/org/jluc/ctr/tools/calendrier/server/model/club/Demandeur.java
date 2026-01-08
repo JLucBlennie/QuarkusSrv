@@ -35,7 +35,20 @@ public class Demandeur extends PanacheEntityBase {
     public String getName() {
         return name;
     }
+
     public String getNumeroStructure() {
         return numerostructure;
+    }
+
+    public void setUUID(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setNumeroStructure(String numerostructure) {
+        this.numerostructure = numerostructure;
     }
 }

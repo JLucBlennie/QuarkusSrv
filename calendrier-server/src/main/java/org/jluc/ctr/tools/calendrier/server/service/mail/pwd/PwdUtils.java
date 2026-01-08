@@ -48,7 +48,6 @@ public class PwdUtils {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public synchronized List<StructPwd> readPwdFile() {
         List<StructPwd> result = null;
         ObjectInputStream ois = null;
