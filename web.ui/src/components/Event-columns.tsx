@@ -23,7 +23,7 @@ export type EventColumn = {
   lieu: string;
 };
 
-export const columns: ColumnDef<EventColumn>[] = [
+export const eventcolumns: ColumnDef<EventColumn>[] = [
   {
     accessorKey: "datedemande",
     header: ({ column }) => {
@@ -51,7 +51,7 @@ export const columns: ColumnDef<EventColumn>[] = [
         </Button>
       );
     },
-  },
+  }, 
   {
     accessorKey: "activite",
     header: ({ column }) => {

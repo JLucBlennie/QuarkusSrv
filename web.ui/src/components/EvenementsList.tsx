@@ -1,9 +1,12 @@
 'use client';
 
+import { SERVER_URL } from '@/app/page';
 import { useEffect, useState } from 'react';
+import { FaPlus } from "react-icons/fa6";
+import { DataTable } from './DataTable';
 import { EvenementEditor } from './EvenementEditor';
-import { columns, EventColumn } from './Event-columns';
-import { DataTable } from './Event-table';
+import { EventColumn, eventcolumns } from './Event-columns';
+import { Button } from './ui/button';
 
 // TODO : Ajouter les types manquants : TypeActivite, Demandeur, Moniteur, ClubStructure
 type ClubStructure = {
@@ -60,14 +63,12 @@ export type EvenementJSON = {
   sessions: Session[];
 };
 
-/* const SERVER_URL = 'http://51.83.78.37:9090'; */
-const SERVER_URL = 'http://localhost:9090';
-
 const EvenementsList = () => {
   const [evenements, setEvenements] = useState<EventColumn[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [rowClicked, setRowClicked] = useState<boolean>(false);
+  const [addClicked, setAddClicked] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<EventColumn | null>(null);
   const [eventsData, setEventsData] = useState<EvenementJSON[]>([]);
 
@@ -116,12 +117,24 @@ const EvenementsList = () => {
     setSelectedRow(row);
   }
 
+  function handleAddClick() {
+    console.log('Ajouter un événement');
+    setAddClicked(true);
+    setSelectedRow(null);
+  }
+
   return (
     <div>
-      {(!rowClicked && !error && !loading) &&
-        <DataTable columns={columns} data={evenements} onRowClick={handleRowClick} />
+      {(!rowClicked && !addClicked && !error && !loading) &&
+        <div>
+          <DataTable columns={eventcolumns} data={evenements} onRowClick={handleRowClick} />
+          <Button className="fixed bottom-6 right-6 flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors z-10" onClick={handleAddClick}>
+            <FaPlus className="h-6 w-6" />
+          </Button>
+        </div>
       }
       {rowClicked && <EvenementEditor uuid={selectedRow?.uuid} onExit={() => { setRowClicked(false) }} />}
+      {addClicked && <EvenementEditor uuid={undefined} onExit={() => { setAddClicked(false) }} />}
       {error && <p>Erreur : {error}</p>}
       {loading && <p> </p>}
     </div >

@@ -1,15 +1,15 @@
 import { SERVER_URL } from "@/app/page";
 import { useEffect, useState } from "react";
-import { EvenementJSON } from "./EvenementsList";
-import { EventColumn } from "./Event-columns";
+import { MoniteurColumn } from "./Moniteur-columns";
+import { MoniteurJSON } from "./MoniteursList";
 import { Button } from "./ui/button";
 
-type EventEditorProps = {
+type MoniteurEditorProps = {
     uuid: String | undefined;
     onExit: () => void;
 }
-export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
-    const [event, setEvent] = useState<EvenementJSON>();
+export function MoniteurEditor({ uuid, onExit }: MoniteurEditorProps) {
+    const [moniteur, setMoniteur] = useState<MoniteurJSON>();
     const [error, setError] = useState<string | null>(null);
     const [createMode, setCreateMode] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
@@ -18,7 +18,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
         if (uuid === undefined) {
             setCreateMode(true);
         } else {
-            fetch(`${SERVER_URL}/ctr/evenements/` + uuid, {
+            fetch(`${SERVER_URL}/ctr/moniteurs/` + uuid, {
                 method: "GET",
                 redirect: "follow"
             })
@@ -30,9 +30,9 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                 })
                 .then((data) => {
                     console.log('Réponse du serveur Quarkus :', data);
-                    let events: EventColumn[] = [];
+                    let moniteurs: MoniteurColumn[] = [];
                     let id = 0;
-                    setEvent(data);
+                    setMoniteur(data);
                     setLoading(false);
                 })
                 .catch((err) => {
@@ -43,12 +43,11 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
         }
     }, []);
 
-
     return (
         <div className="content-center">
             {error && !loading && <p>Erreur : {error}</p>}
             {!error && !createMode && !loading &&
-                <p className="text-center">Vous avez cliqué sur une ligne ! {event === null ? "Aucune ligne sélectionnée" : "UUID" + event?.uuid}</p>
+                <p className="text-center">Vous avez cliqué sur une ligne ! {moniteur === null ? "Aucune ligne sélectionnée" : "UUID" + moniteur?.uuid}</p>
             }
             {createMode && !loading &&
                 <p className="text-center">Mode création d'un nouvel événement.</p>
