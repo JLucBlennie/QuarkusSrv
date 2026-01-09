@@ -46,4 +46,10 @@ public class ClubStructure extends PanacheEntityBase {
         this.name = name;
     }
 
+    public boolean isDoublonOf(ClubStructure other) {
+        if (other == null) {
+            return false;
+        }
+        return this.name.equalsIgnoreCase(other.name);
+    }
 }

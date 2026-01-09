@@ -51,4 +51,8 @@ public class Demandeur extends PanacheEntityBase {
     public void setNumeroStructure(String numerostructure) {
         this.numerostructure = numerostructure;
     }
+
+    public boolean isDoublonOf(Demandeur other) {
+        return this.name.equals(other.name) && this.numerostructure.equals(other.numerostructure);
+    }
 }

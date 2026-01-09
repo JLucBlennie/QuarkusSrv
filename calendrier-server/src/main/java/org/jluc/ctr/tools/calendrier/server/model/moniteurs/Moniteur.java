@@ -69,4 +69,13 @@ public class Moniteur extends PanacheEntityBase {
     public void setUUID(UUID uuid) {
         this.uuid = uuid;
     }
+
+    public boolean isDoublonOf(Moniteur other) {
+        if (other == null) {
+            return false;
+        }
+        return this.niveau == other.niveau && (this.lastname.equalsIgnoreCase(other.lastname)
+                && ((this.firstname == null && other.firstname == null)
+                        || (this.firstname != null && this.firstname.equalsIgnoreCase(other.firstname))));
+    }
 }

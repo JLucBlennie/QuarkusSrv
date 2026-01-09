@@ -57,4 +57,12 @@ public class TypeEvenement extends PanacheEntityBase {
     public void setValeurforms(String valeurforms) {
         this.valeurforms = valeurforms;
     }
+
+    public boolean isDoublonOf(TypeEvenement other) {
+        if (other == null) {
+            return false;
+        }
+        return this.name != null && this.name.equals(other.name)
+                && this.activite == other.activite;
+    }
 }
