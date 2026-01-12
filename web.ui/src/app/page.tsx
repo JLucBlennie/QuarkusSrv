@@ -6,13 +6,93 @@ import WebSocketNotificationListener from "@/components/WebSocketNotificationLis
 import EvenementsList from "@/components/EvenementsList";
 import MoniteursList from "@/components/MoniteursList";
 import Tabs from "@/components/ui/tabs";
+import { useEffect, useState } from "react";
 import pack from "../../package.json";
 
 /* export const SERVER_URL = 'http://51.83.78.37:9090'; */
 export const SERVER_URL = 'http://localhost:9090';
 
-export default function Home() {
+// TODO : Ajouter les types manquants : TypeActivite, Demandeur, Moniteur, ClubStructure
+export type MoniteurJSON = {
+  uuid: string;
+  lastname: string;
+  firstname: string;
+  niveau: string;
+};
 
+export type ClubStructure = {
+  uuid: string;
+  name: string;
+}
+
+export type Demandeur = {
+  uuid: string;
+  name: string;
+  numerostructure: string;
+}
+
+export type Moniteur = {
+  uuid: string;
+  lastname: string;
+  firstname: string;
+  niveau: string;
+}
+
+export type TypeEvenement = {
+  uuid: string;
+  name: string;
+  activite: string;
+  valeurforms: string;
+}
+
+export type Session = {
+  uuid: string;
+  dateDebut: string;
+  dateFin: string;
+  typeSession: string;
+}
+
+export type EvenementJSON = {
+  uuid: string;
+  evtidforms: string;
+  datedemande: string;
+  datedebut: string;
+  datefin: string;
+  typeEvenement: TypeEvenement;
+  demandeur: Demandeur;
+  partenaire: Demandeur;
+  mailcontact: string;
+  lieu: string;
+  presidentjury: Moniteur;
+  deleguectr: Moniteur;
+  repcibpl: Moniteur;
+  statut: string;
+  datevalidation: string;
+  organisateur: ClubStructure;
+  comment: string;
+  calendareventid: string;
+  sessions: Session[];
+};
+
+export default function Home() {
+  const [updateDbDone, setUpdateDbDone] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!updateDbDone) {
+      console.log('Mise à jour de la BDD locale depuis le serveur Quarkus...');
+      setUpdateDbDone(true);
+      fetch(`${SERVER_URL}/ctr/evenements/updatebdd/`, {
+        method: "GET",
+        redirect: "follow",
+      })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`Erreur serveur : ${res.status}`);
+          }
+          return res;
+        });
+    }
+  }, []);
 return (
   <div className="relative min-h-screen bg-logo-35op bg-no-repeat bg-center bg-contain ">
     <div className="w-full h-full absolute top-0 left-0">

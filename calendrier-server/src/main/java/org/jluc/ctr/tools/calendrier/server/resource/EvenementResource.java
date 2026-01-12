@@ -48,6 +48,7 @@ public class EvenementResource {
         UUID uuid = UUID.fromString(id);
         Evenement event = evenementRepository.findOneWithAllLoaded(uuid);
         if (event != null) {
+            Log.info("Évènement trouvé et nb de sessions : " + event.getSessions().size());
             wsResource.broadcast(new ProgressMessage(true,
                     "loadevents", "Chargement de l'évènement terminé...", 100));
             return Response.ok(EvenementDTO.fromEntity(event)).build();
@@ -59,12 +60,18 @@ public class EvenementResource {
     }
 
     @GET
-    public Response getAll() {
+    @Path("/updatebdd")
+    public Response updateBDD() {
         wsResource.broadcast(
                 new ProgressMessage(true, "loadevents", "Chargement des nouveaux évènements...", 0));
         int nbNewEvents = service.updateEvenementsFromGoogleForms(wsResource);
         wsResource.broadcast(new ProgressMessage(true, "loadevents",
                 "Ajout de " + nbNewEvents + " nouveaux évènements...", 100));
+        return Response.ok().build();
+    }
+
+    @GET
+    public Response getAll() {
         List<Evenement> events = evenementRepository.findAllWithAllLoaded();
         wsResource.broadcast(new ProgressMessage(true, "loadevents", "Chargement des évènements...", 0));
         List<EvenementDTO> eventsDTO = new ArrayList<EvenementDTO>();

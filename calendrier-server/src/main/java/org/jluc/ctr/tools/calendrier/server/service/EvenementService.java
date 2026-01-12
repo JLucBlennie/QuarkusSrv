@@ -54,6 +54,10 @@ public class EvenementService {
         for (Evenement event : events) {
             if (!evenementExists(event.getEvtidforms())) {
                 event.persist();
+                for (int iSession = 0; iSession < event.getSessions().size(); iSession++) {
+                    event.getSessions().get(iSession).setEvenement(event);
+                    event.getSessions().get(iSession).persist();
+                }
                 nbSaved++;
             }
         }

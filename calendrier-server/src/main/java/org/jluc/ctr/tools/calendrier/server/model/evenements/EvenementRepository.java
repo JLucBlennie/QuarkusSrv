@@ -3,6 +3,7 @@ package org.jluc.ctr.tools.calendrier.server.model.evenements;
 import java.util.List;
 import java.util.UUID;
 
+import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityGraph;
@@ -45,7 +46,8 @@ public class EvenementRepository {
                 .createQuery("SELECT e FROM Evenement e WHERE e.uuid = :evenementId",
                         Evenement.class)
                 .setParameter("evenementId", evenementId)
-                .setHint("jakarta.persistence.loadgraph", graph);
+                        .setHint("jakarta.persistence.loadgraph", graph);
+        Log.info("Query creee : " + evenementId + " -> " + query.getResultList().size() + " resultats.");
         return query.getResultList().isEmpty() ? null : query.getResultList().get(0);
     }
 }

@@ -1,20 +1,12 @@
 'use client';
 
-import { SERVER_URL } from '@/app/page';
+import { MoniteurJSON, SERVER_URL } from '@/app/page';
 import { useEffect, useState } from 'react';
 import { FaPlus } from 'react-icons/fa6';
-import { DataTable } from './DataTable';
+import { DataTableMoniteur } from './DataTableMoniteur';
 import { MoniteurColumn, moniteurcolumns } from './Moniteur-columns';
 import { MoniteurEditor } from './MoniteurEditor';
 import { Button } from './ui/button';
-
-// TODO : Ajouter les types manquants : TypeActivite, Demandeur, Moniteur, ClubStructure
-export type MoniteurJSON = {
-    uuid: string;
-    lastname: string;
-    firstname: string;
-    niveau: string;
-};
 
 const MoniteursList = () => {
     const [moniteurs, setMoniteurs] = useState<MoniteurColumn[]>([]);
@@ -26,38 +18,42 @@ const MoniteursList = () => {
     const [moniteursData, setMoniteursData] = useState<MoniteurJSON[]>([]);
 
     useEffect(() => {
-        fetch(`${SERVER_URL}/ctr/moniteurs`, {
-            method: "GET",
-            redirect: "follow"
-        })
-            .then((res) => {
-                if (!res.ok) {
-                    throw new Error(`Erreur serveur : ${res.status}`);
-                }
-                return res.json();
+        if (loading) {
+            console.log('Chargement des moniteurs depuis le serveur Quarkus...');
+            fetch(`${SERVER_URL}/ctr/moniteurs`, {
+                method: "GET",
+                redirect: "follow",
+                cache: "force-cache"
             })
-            .then((data) => {
-                console.log('Réponse du serveur Quarkus :', data);
-                let moniteurs: MoniteurColumn[] = [];
-                let id = 0;
-                data.map((moniteur: MoniteurJSON) => {
-                    var moniteurCol: MoniteurColumn = {
-                        uuid: moniteur.uuid,
-                        lastname: moniteur.lastname,
-                        firstname: moniteur.firstname,
-                        niveau: moniteur.niveau
-                    };
-                    moniteurs.push(moniteurCol);
+                .then((res) => {
+                    if (!res.ok) {
+                        throw new Error(`Erreur serveur : ${res.status}`);
+                    }
+                    return res.json();
+                })
+                .then((data) => {
+                    console.log('Réponse du serveur Quarkus :', data);
+                    let moniteurs: MoniteurColumn[] = [];
+                    let id = 0;
+                    data.map((moniteur: MoniteurJSON) => {
+                        var moniteurCol: MoniteurColumn = {
+                            uuid: moniteur.uuid,
+                            lastname: moniteur.lastname,
+                            firstname: moniteur.firstname,
+                            niveau: moniteur.niveau,
+                        };
+                        moniteurs.push(moniteurCol);
+                    });
+                    setMoniteurs(moniteurs);
+                    setMoniteursData(data);
+                    setLoading(false);
+                })
+                .catch((err) => {
+                    console.error('Erreur fetch :', err);
+                    setError(err.message);
+                    setLoading(false);
                 });
-                setMoniteurs(moniteurs);
-                setMoniteursData(data);
-                setLoading(false);
-            })
-            .catch((err) => {
-                console.error('Erreur fetch :', err);
-                setError(err.message);
-                setLoading(false);
-            });
+        }
     }, []);
 
     function handleRowClick(row: MoniteurColumn) {
@@ -76,7 +72,7 @@ const MoniteursList = () => {
         <div>
             {(!rowClicked && !addClicked && !error && !loading) &&
                 <div>
-                    <DataTable columns={moniteurcolumns} data={moniteurs} onRowClick={handleRowClick} />
+                    <DataTableMoniteur columns={moniteurcolumns} data={moniteurs} onRowClick={handleRowClick} />
                     <Button className="fixed bottom-6 right-6 flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors z-10" onClick={handleAddClick}>
                         <FaPlus className="h-6 w-6" />
                     </Button>

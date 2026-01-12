@@ -16,7 +16,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "CTR",
+  title: "Calendrier CTR",
   description: "",
 };
 

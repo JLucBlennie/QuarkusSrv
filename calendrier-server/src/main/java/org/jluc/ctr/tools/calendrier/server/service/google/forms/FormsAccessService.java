@@ -17,6 +17,8 @@ import java.util.ResourceBundle;
 
 import org.jboss.logging.Logger;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
+import org.jluc.ctr.tools.calendrier.server.model.evenements.Session;
+import org.jluc.ctr.tools.calendrier.server.model.evenements.TypeSession;
 import org.jluc.ctr.tools.calendrier.server.websockets.WebSocketResource;
 import org.jluc.ctr.tools.calendrier.server.websockets.messages.ProgressMessage;
 
@@ -70,9 +72,17 @@ public class FormsAccessService {
                     String mail = record[1];
                     String organisateur = record[12].isEmpty() ? demandeur : record[12];
                     int nbparticipants = record[13].isEmpty() ? 0 : Integer.parseInt(record[13]);
+                    Evenement eventToAdd = new Evenement(dateDemande, dateDebut, dateFin, activite, demandeur,
+                            partenaire, mail,
+                            lieu, organisateur, comment, nbparticipants);
+                    // Gestion des sessions - ici une seule session par évènement
+                    List<Session> sessions = new ArrayList<Session>();
+                    Session session = new Session(dateDebut, dateFin, TypeSession.PRESENTIEL);
+                    sessions.add(session);
+                    eventToAdd.setSessions(sessions);
 
-                    events.add(new Evenement(dateDemande, dateDebut, dateFin, activite, demandeur, partenaire, mail,
-                            lieu, organisateur, comment, nbparticipants));
+                    // Ajout de l'évènement à la liste
+                    events.add(eventToAdd);
                     nbEvents++;
                     wsResource.broadcast(new ProgressMessage(true, "loadevents",
                             "Récupération des " + nbEvents + "évènements de Forms...",

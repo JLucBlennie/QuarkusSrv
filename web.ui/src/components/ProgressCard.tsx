@@ -1,11 +1,12 @@
-import { Key } from "react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
-import { Label } from "./ui/label";
 import { Progress } from "./ui/progress";
 
+interface ProgressCardProps {
+    key: string;
+    message: string;
+    progress: number;
+}
 
-
-export default function ProgressCard(props: { key: any | null | undefined; message: any; progress: any;}) {
+export default function ProgressCard(props: ProgressCardProps) {
 
     return (
         <>

@@ -1,67 +1,12 @@
 'use client';
 
-import { SERVER_URL } from '@/app/page';
+import { EvenementJSON, SERVER_URL } from '@/app/page';
 import { useEffect, useState } from 'react';
 import { FaPlus } from "react-icons/fa6";
 import { DataTable } from './DataTable';
 import { EvenementEditor } from './EvenementEditor';
 import { EventColumn, eventcolumns } from './Event-columns';
 import { Button } from './ui/button';
-
-// TODO : Ajouter les types manquants : TypeActivite, Demandeur, Moniteur, ClubStructure
-type ClubStructure = {
-  uuid: string;
-  name: string;
-}
-
-type Demandeur = {
-  uuid: string;
-  name: string;
-  numerostructure: string;
-}
-
-type Moniteur = {
-  uuid: string;
-  lastname: string;
-  firstname: string;
-  niveau: string;
-}
-
-type TypeEvenement = {
-  uuid: string;
-  name: string;
-  activite: string;
-  valeurforms: string;
-}
-
-type Session = {
-  uuid: string;
-  dateDebut: Date;
-  dateFin: Date;
-  typeSession: string;
-}
-
-export type EvenementJSON = {
-  uuid: string;
-  evtidforms: string;
-  datedemande: string;
-  datedebut: string;
-  datefin: string;
-  typeEvenement: TypeEvenement;
-  demandeur: Demandeur;
-  partenaire: Demandeur;
-  mailcontact: string;
-  lieu: string;
-  presidentjury: Moniteur;
-  deleguectr: Moniteur;
-  repcibpl: Moniteur;
-  statut: string;
-  datevalidation: string;
-  organisateur: ClubStructure;
-  comment: string;
-  calendareventid: string;
-  sessions: Session[];
-};
 
 const EvenementsList = () => {
   const [evenements, setEvenements] = useState<EventColumn[]>([]);
@@ -73,42 +18,45 @@ const EvenementsList = () => {
   const [eventsData, setEventsData] = useState<EvenementJSON[]>([]);
 
   useEffect(() => {
-    fetch(`${SERVER_URL}/ctr/evenements`, {
-      method: "GET",
-      redirect: "follow"
-    })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`Erreur serveur : ${res.status}`);
-        }
-        return res.json();
+    if (loading) {
+      console.log('Chargement des événements depuis le serveur Quarkus...');
+      fetch(`${SERVER_URL}/ctr/evenements`, {
+        method: "GET",
+        redirect: "follow",
       })
-      .then((data) => {
-        console.log('Réponse du serveur Quarkus :', data);
-        let events: EventColumn[] = [];
-        let id = 0;
-        data.map((evenement: EvenementJSON) => {
-          var eventCol: EventColumn = {
-            uuid: evenement.uuid,
-            datedemande: evenement.datedemande,
-            statut: evenement.statut,
-            activite: (evenement.typeEvenement === undefined) ? "Type null" : evenement.typeEvenement.activite,
-            organisateur: evenement.organisateur ? evenement.organisateur.name : "",
-            datedebut: evenement.datedebut,
-            datefin: evenement.datefin,
-            lieu: evenement.lieu
-          };
-          events.push(eventCol);
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`Erreur serveur : ${res.status}`);
+          }
+          return res.json();
+        })
+        .then((data) => {
+          console.log('Réponse du serveur Quarkus :', data);
+          let events: EventColumn[] = [];
+          let id = 0;
+          data.map((evenement: EvenementJSON) => {
+            var eventCol: EventColumn = {
+              uuid: evenement.uuid,
+              datedemande: evenement.datedemande.split('T')[0],
+              statut: evenement.statut,
+              activite: (evenement.typeEvenement === undefined) ? "Type null" : evenement.typeEvenement.name,
+              organisateur: evenement.organisateur ? evenement.organisateur.name : "",
+              datedebut: evenement.datedebut.split('T')[0],
+              datefin: evenement.datefin.split('T')[0],
+              lieu: evenement.lieu
+            };
+            events.push(eventCol);
+          });
+          setEvenements(events);
+          setEventsData(data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error('Erreur fetch :', err);
+          setError(err.message);
+          setLoading(false);
         });
-        setEvenements(events);
-        setEventsData(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error('Erreur fetch :', err);
-        setError(err.message);
-        setLoading(false);
-      });
+    }
   }, []);
 
   function handleRowClick(row: EventColumn) {

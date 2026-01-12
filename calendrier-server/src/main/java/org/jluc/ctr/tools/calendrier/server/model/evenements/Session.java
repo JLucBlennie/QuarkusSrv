@@ -25,7 +25,16 @@ public class Session extends PanacheEntityBase {
             uuid = UUID.randomUUID();
         }
     }
-    
+
+    public Session() {
+    }
+
+    public Session(Date debut, Date fin, TypeSession typeSession) {
+        this.dateDebut = debut;
+        this.dateFin = fin;
+        this.typeSession = typeSession;
+    }
+
     public Date getDateDebut() {
         return dateDebut;
     }
@@ -56,5 +65,9 @@ public class Session extends PanacheEntityBase {
 
     public void setUuid(UUID uuid) {
         this.uuid = uuid;
+    }
+
+    public void setEvenement(Evenement evenement) {
+        this.evenement = evenement;
     }
 }
