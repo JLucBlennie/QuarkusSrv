@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.jboss.logging.Logger;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.TypeActivite;
 
@@ -36,6 +35,7 @@ import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 import com.google.common.io.BaseEncoding;
 
+import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
@@ -61,8 +61,6 @@ public class CalendarServices {
     private static CalendarServices mInstance;
 
     private Map<TypeCalendar, CalendarListEntry> mCalendarList;
-
-    private Logger mLogger = Logger.getLogger(CalendarServices.class);
 
     /**
      * Application name.
@@ -104,7 +102,7 @@ public class CalendarServices {
             mCalendarList = new HashMap<TypeCalendar, CalendarListEntry>();
             int i = 1;
             for (CalendarListEntry calendar : calendarList.getItems()) {
-                System.out.println("Calendrier - " + i + " - " + calendar.getSummary());
+                Log.debug("Calendrier - " + i + " - " + calendar.getSummary());
                 // Ici il faut stocker les calendrier en fonction des activites
                 String summary = calendar.getSummary().trim();
                 if (summary.equalsIgnoreCase(TypeCalendar.CTR.getCalendarName())) {
@@ -144,21 +142,21 @@ public class CalendarServices {
                     .setOrderBy("startTime").setSingleEvents(true).execute();
             List<Event> items = events.getItems();
             if (items.isEmpty()) {
-                System.out.println("No upcoming events found.");
+                Log.debug("No upcoming events found.");
             } else {
-                System.out.println("Upcoming events");
+                Log.debug("Upcoming events");
                 for (Event event : items) {
                     DateTime start = event.getStart().getDateTime();
                     if (start == null) {
                         start = event.getStart().getDate();
                     }
-                    System.out.printf("%s (%s)\n ==> id %s\n", event.getSummary(), start, event.getId());
+                    Log.debugf("%s (%s)\n ==> id %s\n", event.getSummary(), start, event.getId());
                 }
             }
         } catch (GeneralSecurityException | IOException e) {
-            mLogger.error("Problem during calendar retrieving", e);
+            Log.error("Problem during calendar retrieving", e);
         }
-        mLogger.debug(
+        Log.debug(
                 "Nb de calendriers dans le calendar : " + mCalendarList.size() + " / " + TypeCalendar.values().length);
     }
 
@@ -244,16 +242,17 @@ public class CalendarServices {
                 && mService.events().get(calendarId, event.getCalendareventid()) != null) {
             // On a bien un event existant
             // Il faut le mettre à jour
-            mLogger.debug("Event existant...");
+            Log.debug("Event existant...");
             return false;
         } else {
-            mLogger.debug("Event a creer...");
+            Log.debug("Event a creer...");
             Event eventCalendar = createEvent(typeEvenement + " - " + event.getDemandeur().getName(),
                     event.getLieu(),
                     description, event.getDatedebut(), event.getDatefin());
 
-            mService.events().insert(calendarId, eventCalendar).execute();
+            /* mService.events().insert(calendarId, eventCalendar).execute(); */
             event.setCalendareventid(eventCalendar.getId());
+            event.persist();
         }
         return true;
     }
@@ -272,7 +271,7 @@ public class CalendarServices {
 
         String id = toBase32(UUID.randomUUID());
         event.setId(id);
-        mLogger.debug("Id de l'event : " + id);
+        Log.debug("Id de l'event : " + id);
 
         return event;
     }
@@ -283,9 +282,5 @@ public class CalendarServices {
         bb.putLong(uuid.getLeastSignificantBits());
         return BaseEncoding.base32().omitPadding().encode(bb.array()).toLowerCase().replace('w', 'v').replace('x', 'd')
                 .replace('y', '0').replace('z', '6');
-    }
-
-    public static void main(String... args) throws IOException, GeneralSecurityException {
-        CalendarServices.getInstance();
     }
 }

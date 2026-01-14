@@ -1,5 +1,9 @@
 package org.jluc.ctr.tools.calendrier.server.service;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -7,8 +11,11 @@ import java.util.List;
 
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.EvenementRepository;
+import org.jluc.ctr.tools.calendrier.server.model.evenements.Status;
 import org.jluc.ctr.tools.calendrier.server.model.moniteurs.Moniteur;
+import org.jluc.ctr.tools.calendrier.server.service.google.calendar.CalendarServices;
 import org.jluc.ctr.tools.calendrier.server.service.google.forms.FormsAccessService;
+import org.jluc.ctr.tools.calendrier.server.service.mail.MailServices;
 import org.jluc.ctr.tools.calendrier.server.websockets.WebSocketResource;
 import org.jluc.ctr.tools.calendrier.server.websockets.messages.InfoMessage;
 
@@ -25,6 +32,12 @@ public class EvenementService {
 
     @Inject
     FormsAccessService formsAccessService;
+
+    @Inject
+    MailServices mailServices;
+
+    @Inject
+    CalendarServices calendarServices;
 
     private boolean evenementExists(String evtIdForms) {
         List<Evenement> evenements = Evenement.listAll();
@@ -82,5 +95,42 @@ public class EvenementService {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         return calendar.get(Calendar.YEAR);
+    }
+
+    public void validateEvenement(Evenement event, WebSocketResource wsResource)
+            throws MalformedURLException, FileNotFoundException, IOException, URISyntaxException {
+        // Il faut creer l'agenda et envoyer le mail de confirmation
+        event.setDatevalidation(new Date());
+        event.setStatut(Status.VALIDE);
+
+        wsResource.broadcast(new InfoMessage("[Info]",
+                "Préparation de l'ajout de l'evenement dans les calendriers"));
+        if (calendarServices.addEvent(event)) {
+            wsResource.broadcast(new InfoMessage("[Info]",
+                    "evenement ajoute dans le calendrier"));
+
+            wsResource.broadcast(new InfoMessage("[Info]",
+                    "Préparation de l'eMail de validation"));
+
+            mailServices.sendValidationMessage(event);
+            wsResource.broadcast(new InfoMessage("[Info]",
+                    "eMail de validation envoyé"));
+        } else {
+            // On n'a rien cree
+        }
+    }
+
+    public void refuseEvenement(Evenement event, WebSocketResource wsResource)
+            throws MalformedURLException, FileNotFoundException, URISyntaxException {
+        // Il faut envoyer le mail de refus
+        event.setDatevalidation(new Date());
+        event.setStatut(Status.REFUSE);
+
+        wsResource.broadcast(new InfoMessage("[Info]",
+                "Préparation de l'eMail de refus"));
+
+        mailServices.sendRefuseMessage(event);
+        wsResource.broadcast(new InfoMessage("[Info]",
+                "eMail de refus envoyé"));
     }
 }

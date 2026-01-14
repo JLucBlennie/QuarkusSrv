@@ -47,7 +47,7 @@ public class EvenementRepository {
                         Evenement.class)
                 .setParameter("evenementId", evenementId)
                         .setHint("jakarta.persistence.loadgraph", graph);
-        Log.info("Query creee : " + evenementId + " -> " + query.getResultList().size() + " resultats.");
+        Log.debug("Query creee : " + evenementId + " -> " + query.getResultList().size() + " resultats.");
         return query.getResultList().isEmpty() ? null : query.getResultList().get(0);
     }
 }

@@ -1,5 +1,7 @@
 package org.jluc.ctr.tools.calendrier.server.resource;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -24,6 +26,7 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -43,18 +46,74 @@ public class EvenementResource {
     @GET
     @Path("/{id}")
     public Response getEventById(@PathParam("id") String id) {
-        Log.info("UUID demandé : " + id);
+        Log.debug("UUID demandé : " + id);
         wsResource.broadcast(new ProgressMessage(true, "loadevents", "Chargement de l'évènement...", 0));
         UUID uuid = UUID.fromString(id);
         Evenement event = evenementRepository.findOneWithAllLoaded(uuid);
         if (event != null) {
-            Log.info("Évènement trouvé et nb de sessions : " + event.getSessions().size());
+            Log.debug("Évènement trouvé et nb de sessions : " + event.getSessions().size());
             wsResource.broadcast(new ProgressMessage(true,
                     "loadevents", "Chargement de l'évènement terminé...", 100));
             return Response.ok(EvenementDTO.fromEntity(event)).build();
         } else {
             wsResource.broadcast(
                     new InfoMessage("[Erreur]", "Erreur de chargement de l'évènement..."));
+            return Response.noContent().build();
+        }
+    }
+
+    @GET
+    @Path("/validate")
+    public Response validateEvent(@QueryParam("id") String id) {
+        Log.debug("Validation de l'évènement UUID : " + id);
+        wsResource.broadcast(new ProgressMessage(true, "validateevent", "Validation de l'évènement...", 0));
+        UUID uuid = UUID.fromString(id);
+        Evenement event = Evenement.findById(uuid);
+        if (event != null) {
+            try {
+                service.validateEvenement(event, wsResource);
+                Log.debug("Évènement validé : " + event.getUUID());
+                wsResource.broadcast(new ProgressMessage(true,
+                        "validateevent", "Évènement validé avec succès.", 100));
+                wsResource.broadcast(new InfoMessage("Évènement validé : " + event.getUUID()));
+            } catch (IOException | URISyntaxException e) {
+                Log.error("Erreur lors de la validation de l'évènement : " + uuid, e);
+                wsResource.broadcast(
+                        new InfoMessage("[Erreur]", "Erreur de validation de l'évènement..."));
+                return Response.noContent().build();
+            }
+            return Response.ok(EvenementDTO.fromEntity(event)).build();
+        } else {
+            wsResource.broadcast(
+                    new InfoMessage("[Erreur]", "Erreur de validation de l'évènement..."));
+            return Response.noContent().build();
+        }
+    }
+
+    @GET
+    @Path("/refuse")
+    public Response refuseEvent(@QueryParam("id") String id) {
+        Log.debug("Refus de l'évènement UUID : " + id);
+        wsResource.broadcast(new ProgressMessage(true, "refuseevent", "Refus de l'évènement...", 0));
+        UUID uuid = UUID.fromString(id);
+        Evenement event = Evenement.findById(uuid);
+        if (event != null) {
+            try {
+                service.refuseEvenement(event, wsResource);
+                Log.debug("Évènement refusé : " + event.getUUID());
+                wsResource.broadcast(new ProgressMessage(true,
+                        "refuseevent", "Évènement refusé avec succès.", 100));
+                wsResource.broadcast(new InfoMessage("Évènement refusé : " + event.getUUID()));
+            } catch (IOException | URISyntaxException e) {
+                Log.error("Erreur lors du refus de l'évènement : " + uuid, e);
+                wsResource.broadcast(
+                        new InfoMessage("[Erreur]", "Erreur du refus de l'évènement..."));
+                return Response.noContent().build();
+            }
+            return Response.ok(EvenementDTO.fromEntity(event)).build();
+        } else {
+            wsResource.broadcast(
+                    new InfoMessage("[Erreur]", "Erreur du refus de l'évènement..."));
             return Response.noContent().build();
         }
     }
@@ -93,7 +152,7 @@ public class EvenementResource {
 
     @POST
     public Response addEvent(EvenementDTO input) {
-        Log.info("Ajout d'un événement : " + input);
+        Log.debug("Ajout d'un événement : " + input);
 
         // Ici tu peux transformer en entité Evenement, valider, etc.
         // Exemple simple : retourner ce qu’on a reçu
@@ -111,7 +170,7 @@ public class EvenementResource {
 
     @PUT
     public Response modifyEvent(EvenementDTO input) {
-        Log.info("Modification de l'évènement" + input);
+        Log.debug("Modification de l'évènement" + input);
         Evenement newEvent = Evenement.findById(input.uuid);
         if (newEvent == null) {
             Log.warn("L'évènement n'existe pas en base : " + input.uuid);
@@ -137,7 +196,7 @@ public class EvenementResource {
     @GET
     @Path("/moniteur/{moniteurid}")
     public Response getEventsByMoniteurById(@PathParam("moniteurid") String moniteurid) {
-        Log.info("UUID demandé : " + moniteurid);
+        Log.debug("UUID demandé : " + moniteurid);
         wsResource.broadcast(new ProgressMessage(true, "loadmoniteur", "Chargement du moniteur...", 0));
         UUID uuid = UUID.fromString(moniteurid);
         Moniteur moniteur = Moniteur.findById(uuid);
