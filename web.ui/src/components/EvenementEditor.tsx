@@ -231,6 +231,45 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
         }
     };
 
+    function onValidate() {
+        console.log('Validation de l\'événement :', event);
+        setError(null);
+        setSuccess(null);
+
+        const url = `${SERVER_URL}/ctr/evenements/validate/?id=${uuid}`;
+        const method = 'GET';
+
+        fetch(url, {
+            method,
+            redirect: 'follow'
+        }).then((response) => {
+            if (!response.ok) {
+                throw new Error(`Échec de l'opération: ${response.statusText}`);
+            } else {
+                setSuccess('Événement validé avec succès !');
+            }
+        });
+    }
+    function onRefuse() {
+        console.log('Refus de l\'événement :', event);
+        setError(null);
+        setSuccess(null);
+
+        const url = `${SERVER_URL}/ctr/evenements/refuse/?id=${uuid}`;
+        const method = 'GET';
+
+        fetch(url, {
+            method,
+            redirect: 'follow'
+        }).then((response) => {
+            if (!response.ok) {
+                throw new Error(`Échec de l'opération: ${response.statusText}`);
+            } else {
+                setSuccess('Événement refusé avec succès !');
+            }
+        });
+    }  
+
     return (
         <div className="content-center">
             {error && !loading && <p>Erreur : {error}</p>}
@@ -604,12 +643,28 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                 Annuler
                             </button>
                             <button
+                                type="button"
+                                onClick={onValidate}
+                                disabled={uuid === undefined}
+                                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-white-700 hover:bg-gray-50"
+                            >
+                                Valider
+                            </button>
+                            <button
+                                type="button"
+                                onClick={onRefuse}
+                                disabled={uuid === undefined}
+                                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-white-700 hover:bg-gray-50"
+                            >
+                                Refuser
+                            </button>
+                            <button
                                 type="submit"
                                 className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                             >
                                 {uuid ? 'Mettre à jour' : 'Créer'}
                             </button>
-            </div>
+                        </div>
                     </form>
                 </div >
             }

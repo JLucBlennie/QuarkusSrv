@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import org.jboss.logging.Logger;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Session;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.TypeSession;
@@ -25,6 +24,7 @@ import org.jluc.ctr.tools.calendrier.server.websockets.messages.ProgressMessage;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
 
+import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
@@ -32,7 +32,6 @@ public class FormsAccessService {
 
     public static final ResourceBundle DICO_PROPERTIES = ResourceBundle.getBundle("dicoCTR", Locale.getDefault());
     private static String FORMS_URL = DICO_PROPERTIES.getString("app.forms.url");
-    private static Logger mLogger = Logger.getLogger(FormsAccessService.class);
     private static SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
     private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -49,7 +48,7 @@ public class FormsAccessService {
             CSVReader csvReader = new CSVReader(urlReader);
 
             List<String[]> records = csvReader.readAll();
-            mLogger.debug(" ==> Headers : " +
+            Log.debug(" ==> Headers : " +
                     records.get(0).toString());
             int nbEvents = 0;
             for (int i = 1; i < records.size(); i++) {
@@ -61,6 +60,10 @@ public class FormsAccessService {
                 // partenariat avec=10, Lieu=11, Structure support=12, Nombre de
                 // stagiaires / candidats (prévisionnel)=13, =18}
                 try {
+                    if (record[0].isEmpty()) {
+                        Log.warn("Evènement sans activité, on l'ignore : " + record.toString());
+                        continue;
+                    }
                     Date dateDemande = DATE_TIME_FORMAT.parse(record[0]);
                     Date dateDebut = DATE_FORMAT.parse(record[5]);
                     Date dateFin = DATE_FORMAT.parse(record[6]);
@@ -88,7 +91,7 @@ public class FormsAccessService {
                             "Récupération des " + nbEvents + "évènements de Forms...",
                             (int) (nbEvents / records.size() * 100)));
                 } catch (ParseException e) {
-                    mLogger.error(
+                    Log.error(
                             "Pb durant le parsing des évènements : " + record[4] + " demande par "
                                     + (record[7].isEmpty() ? record[8] : record[7])
                                     + " ==> On passe au suivant : ",
@@ -100,7 +103,7 @@ public class FormsAccessService {
                 }
             }
         } catch (IOException | URISyntaxException e) {
-            mLogger.error("Problème de lecture du CSV...", e);
+            Log.error("Problème de lecture du CSV...", e);
         } finally {
             wsResource.broadcast(new ProgressMessage(true, "loadevents",
                     "Récupération des évènements de Forms terminée.", 100));
