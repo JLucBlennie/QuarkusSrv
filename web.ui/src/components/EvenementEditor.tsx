@@ -1,4 +1,4 @@
-import { ClubStructure, Demandeur, EvenementJSON, Moniteur, SERVER_URL, TypeEvenement } from "@/app/page";
+import { ClubStructure, Demandeur, EvenementJSON, Moniteur, SERVER_URL, TypeEvenement } from "@/lib/constants";
 import { useEffect, useState } from "react";
 
 type EventEditorProps = {
@@ -169,8 +169,8 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
 
     function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
         const { name, value } = e.target;
-        setEvent((prev: EvenementJSON) => ({
-            ...prev, [name]: value
+        setEvent((prev: EvenementJSON | undefined) => ({
+            ...(prev || {}), [name]: value
         }));
     };
 
@@ -178,8 +178,8 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
         const selectedTypeUUID = e.target.value;
         const selectedType = eventTypes.find(type => type.uuid === selectedTypeUUID);
         if (selectedType) {
-            setEvent((prev: EvenementJSON | null) => ({
-                ...prev, typeEvenement: selectedType
+            setEvent((prev: EvenementJSON | undefined) => ({
+                ...(prev || {}), typeEvenement: selectedType
             }));
         }
     };
@@ -188,8 +188,8 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
         const selectedDemandeurUUID = e.target.value;
         const selectedDemandeur = eventDemandeurs.find(demandeur => demandeur.uuid === selectedDemandeurUUID);
         if (selectedDemandeur) {
-            setEvent((prev: EvenementJSON | null) => ({
-                ...prev, demandeur: selectedDemandeur
+            setEvent((prev: EvenementJSON | undefined) => ({
+                ...(prev || {}), demandeur: selectedDemandeur
             }));
         }
     };
@@ -198,8 +198,8 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
         const selectedOrganisationUUID = e.target.value;
         const selectedOrganisateur = eventOrganisateurs.find(organisateur => organisateur.uuid === selectedOrganisationUUID);
         if (selectedOrganisateur) {
-            setEvent((prev: EvenementJSON | null) => ({
-                ...prev, organisateur: selectedOrganisateur
+            setEvent((prev: EvenementJSON | undefined) => ({
+                ...(prev || {}), organisateur: selectedOrganisateur
             }));
         }
     };
@@ -207,8 +207,8 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
         const selectedMoniteurUUID = e.target.value;
         const selectedMoniteur = eventMoniteurs.find(moniteur => moniteur.uuid === selectedMoniteurUUID);
         if (selectedMoniteur) {
-            setEvent((prev: EvenementJSON | null) => ({
-                ...prev, presidentjury: selectedMoniteur
+            setEvent((prev: EvenementJSON | undefined) => ({
+                ...(prev || {}), presidentjury: selectedMoniteur
             }));
         }
     };
@@ -216,8 +216,8 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
         const selectedDelegueCTRUUID = e.target.value;
         const selectedDelegueCTR = eventMoniteurs.find(delegueCTR => delegueCTR.uuid === selectedDelegueCTRUUID);
         if (selectedDelegueCTR) {
-            setEvent((prev: EvenementJSON | null) => ({
-                ...prev, deleguectr: selectedDelegueCTR
+            setEvent((prev: EvenementJSON | undefined) => ({
+                ...(prev || {}), deleguectr: selectedDelegueCTR
             }));
         }
     };
@@ -225,8 +225,8 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
         const selectedRepCIBPLUUID = e.target.value;
         const selectedRepCIBPL = eventMoniteurs.find(repcibpl => repcibpl.uuid === selectedRepCIBPLUUID);
         if (selectedRepCIBPL) {
-            setEvent((prev: EvenementJSON | null) => ({
-                ...prev, repcibpl: selectedRepCIBPL
+            setEvent((prev: EvenementJSON | undefined) => ({
+                ...(prev || {}), repcibpl: selectedRepCIBPL
             }));
         }
     };
@@ -537,7 +537,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                                 id={`session${index + 1}datedebut`}
                                                 name={`session${index + 1}datedebut`}
                                                 type="date"
-                                                value={event?.sessions[index]?.dateDebut?.split('T')[0] || ''}
+                                                value={session?.dateDebut?.split('T')[0] || ''}
                                                 /* onChange={handleSessionChange} */
                                                 required
                                                 className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
@@ -551,7 +551,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                                 id={`session${index + 1}datefin`}
                                                 name={`session${index + 1}datefin`}
                                                 type="date"
-                                                value={event?.sessions[index]?.dateFin?.split('T')[0] || ''}
+                                                value={session?.dateFin?.split('T')[0] || ''}
                                                 /* onChange={handleSessionChange} */
                                                 required
                                                 className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"

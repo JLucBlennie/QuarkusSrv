@@ -8,71 +8,7 @@ import MoniteursList from "@/components/MoniteursList";
 import Tabs from "@/components/ui/tabs";
 import { useEffect, useState } from "react";
 import pack from "../../package.json";
-
-/* export const SERVER_URL = 'http://51.83.78.37:9090'; */
-export const SERVER_URL = 'http://localhost:9090';
-
-// TODO : Ajouter les types manquants : TypeActivite, Demandeur, Moniteur, ClubStructure
-export type MoniteurJSON = {
-  uuid: string;
-  lastname: string;
-  firstname: string;
-  niveau: string;
-};
-
-export type ClubStructure = {
-  uuid: string;
-  name: string;
-}
-
-export type Demandeur = {
-  uuid: string;
-  name: string;
-  numerostructure: string;
-}
-
-export type Moniteur = {
-  uuid: string;
-  lastname: string;
-  firstname: string;
-  niveau: string;
-}
-
-export type TypeEvenement = {
-  uuid: string;
-  name: string;
-  activite: string;
-  valeurforms: string;
-}
-
-export type Session = {
-  uuid: string;
-  dateDebut: string;
-  dateFin: string;
-  typeSession: string;
-}
-
-export type EvenementJSON = {
-  uuid: string;
-  evtidforms: string;
-  datedemande: string;
-  datedebut: string;
-  datefin: string;
-  typeEvenement: TypeEvenement;
-  demandeur: Demandeur;
-  partenaire: Demandeur;
-  mailcontact: string;
-  lieu: string;
-  presidentjury: Moniteur;
-  deleguectr: Moniteur;
-  repcibpl: Moniteur;
-  statut: string;
-  datevalidation: string;
-  organisateur: ClubStructure;
-  comment: string;
-  calendareventid: string;
-  sessions: Session[];
-};
+import { SERVER_URL } from "@/lib/constants";
 
 export default function Home() {
   const [updateDbDone, setUpdateDbDone] = useState<boolean>(false);
