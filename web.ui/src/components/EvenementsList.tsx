@@ -1,6 +1,6 @@
 'use client';
 
-import { EvenementJSON, SERVER_URL } from '@/app/page';
+import { EvenementJSON, SERVER_URL } from '@/lib/constants';
 import { useEffect, useState } from 'react';
 import { FaPlus } from "react-icons/fa6";
 import { DataTable } from './DataTable';
@@ -36,14 +36,14 @@ const EvenementsList = () => {
           let id = 0;
           data.map((evenement: EvenementJSON) => {
             var eventCol: EventColumn = {
-              uuid: evenement.uuid,
-              datedemande: evenement.datedemande.split('T')[0],
-              statut: evenement.statut,
+              uuid: (evenement.uuid || ''),
+              datedemande: (evenement.datedemande?.split('T')[0] || ''),
+              statut: (evenement.statut || ''),
               activite: (evenement.typeEvenement === undefined) ? "Type null" : evenement.typeEvenement.name,
               organisateur: evenement.organisateur ? evenement.organisateur.name : "",
-              datedebut: evenement.datedebut.split('T')[0],
-              datefin: evenement.datefin.split('T')[0],
-              lieu: evenement.lieu
+              datedebut: (evenement.datedebut?.split('T')[0] || ''),
+              datefin: (evenement.datefin?.split('T')[0] || ''),
+              lieu: (evenement.lieu || '')
             };
             events.push(eventCol);
           });

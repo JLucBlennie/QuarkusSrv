@@ -1,4 +1,4 @@
-import { MoniteurJSON, SERVER_URL } from "@/app/page";
+import { MoniteurJSON, SERVER_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
 import { MoniteurColumn } from "./Moniteur-columns";
 import { Button } from "./ui/button";

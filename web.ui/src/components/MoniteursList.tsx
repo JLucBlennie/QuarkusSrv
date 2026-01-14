@@ -1,6 +1,6 @@
 'use client';
 
-import { MoniteurJSON, SERVER_URL } from '@/app/page';
+import { MoniteurJSON, SERVER_URL } from '@/lib/constants';
 import { useEffect, useState } from 'react';
 import { FaPlus } from 'react-icons/fa6';
 import { DataTableMoniteur } from './DataTableMoniteur';

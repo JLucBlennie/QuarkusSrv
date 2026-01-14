@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "./ui/alert-dialog";
 
-export function AlertDialogNotImplemented(props: { open: boolean; onOpenChange: Function; }) {
+export function AlertDialogNotImplemented(props: { open: boolean; onOpenChange: ()=>void; }) {
     return (
       <AlertDialog open={props.open} onOpenChange={props.onOpenChange}>
         <AlertDialogTrigger>Open</AlertDialogTrigger>
