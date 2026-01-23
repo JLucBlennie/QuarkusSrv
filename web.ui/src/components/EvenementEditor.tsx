@@ -1,5 +1,7 @@
-import { ClubStructure, Demandeur, EvenementJSON, Moniteur, SERVER_URL, TypeEvenement } from "@/lib/constants";
+import { ClubStructure, Demandeur, EvenementJSON, Moniteur, SERVER_URL, Session, TypeEvenement } from "@/lib/constants";
 import { useEffect, useState } from "react";
+import { FaPlus } from "react-icons/fa6";
+import { Button } from "./ui/button";
 
 type EventEditorProps = {
     uuid: String | undefined;
@@ -13,7 +15,7 @@ function parseDateForInput(isoDate: string): string {
 
 // Fonction utilitaire pour formater les dates pour l'API
 function formatDateForAPI(date: string): string {
-    return `${date}T00:00:00`; // "2024-12-31" → "2024-12-31T00:00:00"
+    return `${date}T23:00:00.000+00:00`; // "2024-12-31" → "2024-12-31T23:00:00.000+00:00"
 };
 
 export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
@@ -26,6 +28,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
     const [success, setSuccess] = useState<string | null>(null);
     const [createMode, setCreateMode] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
+    const [modified, setModified] = useState<boolean>(false);
 
     useEffect(() => {
         setLoading(true);
@@ -162,6 +165,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                         ? 'Événement mis à jour avec succès !'
                         : 'Événement créé avec succès !'
                 );
+                setModified(false);
                 onExit();
             }
         });
@@ -172,6 +176,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
         setEvent((prev: EvenementJSON | undefined) => ({
             ...(prev || {}), [name]: value
         }));
+        setModified(true);
     };
 
     function handleTypeEvenementChange(e: React.ChangeEvent<HTMLSelectElement>) {
@@ -181,6 +186,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
             setEvent((prev: EvenementJSON | undefined) => ({
                 ...(prev || {}), typeEvenement: selectedType
             }));
+            setModified(true);
         }
     };
 
@@ -191,6 +197,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
             setEvent((prev: EvenementJSON | undefined) => ({
                 ...(prev || {}), demandeur: selectedDemandeur
             }));
+            setModified(true);
         }
     };
 
@@ -201,6 +208,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
             setEvent((prev: EvenementJSON | undefined) => ({
                 ...(prev || {}), organisateur: selectedOrganisateur
             }));
+            setModified(true);
         }
     };
     function handlePresidentJuryChange(e: React.ChangeEvent<HTMLSelectElement>) {
@@ -210,6 +218,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
             setEvent((prev: EvenementJSON | undefined) => ({
                 ...(prev || {}), presidentjury: selectedMoniteur
             }));
+            setModified(true);
         }
     };
     function handleDelegueCTRChange(e: React.ChangeEvent<HTMLSelectElement>) {
@@ -219,6 +228,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
             setEvent((prev: EvenementJSON | undefined) => ({
                 ...(prev || {}), deleguectr: selectedDelegueCTR
             }));
+            setModified(true);
         }
     };
     function handleRepCIBPLChange(e: React.ChangeEvent<HTMLSelectElement>) {
@@ -228,6 +238,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
             setEvent((prev: EvenementJSON | undefined) => ({
                 ...(prev || {}), repcibpl: selectedRepCIBPL
             }));
+            setModified(true);
         }
     };
 
@@ -236,8 +247,8 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
         setError(null);
         setSuccess(null);
 
-        const url = `${SERVER_URL}/ctr/evenements/validate/?id=${uuid}`;
-        const method = 'GET';
+        const url = `${SERVER_URL}/ctr/evenements/validate?id=${uuid}`;
+        const method = 'PUT';
 
         fetch(url, {
             method,
@@ -255,8 +266,8 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
         setError(null);
         setSuccess(null);
 
-        const url = `${SERVER_URL}/ctr/evenements/refuse/?id=${uuid}`;
-        const method = 'GET';
+        const url = `${SERVER_URL}/ctr/evenements/refuse?id=${uuid}`;
+        const method = 'PUT';
 
         fetch(url, {
             method,
@@ -268,7 +279,43 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                 setSuccess('Événement refusé avec succès !');
             }
         });
-    }  
+    }
+
+    function handleAddClick() {
+        console.log('Ajouter une Session');
+        const newSession: Session = {
+            uuid: '',
+            dateDebut: '',
+            dateFin: '',
+            typeSession: ''
+        };
+        setEvent((prev: EvenementJSON | undefined) => {
+            if (!prev) return prev;
+            const updatedSessions = prev.sessions ? [...prev.sessions, newSession] : [newSession];
+            return { ...prev, sessions: updatedSessions };
+        });
+        setModified(true);
+    }
+
+    function handleSessionChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
+        const { name, value } = e.target;
+        const sessionIndex = parseInt(name.match(/\d+/)?.[0] || '0', 10) - 1;
+        const fieldName = name.replace(`session${sessionIndex + 1}`, '');
+        var valueToSet = value;
+        if (fieldName.startsWith('date')) {
+            valueToSet = formatDateForAPI(value);
+        }
+        setEvent((prev: EvenementJSON | undefined) => {
+            if (!prev) return prev;
+            const updatedSessions = prev.sessions ? [...prev.sessions] : [];
+            if (updatedSessions[sessionIndex]) {
+                (updatedSessions[sessionIndex] as any)[fieldName] = valueToSet;
+            }
+            return { ...prev, sessions: updatedSessions };
+        });
+        setModified(true);
+    }
+
 
     return (
         <div className="content-center">
@@ -279,9 +326,9 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
             {!error && !loading &&
                 <div>
                     <form onSubmit={handleSubmit} className="space-y-6">
-                        <div className="grid grid-cols-2 grid-rows-5 gap-4 max-w-l mx-auto">
+                        <div className="grid grid-cols-2 grid-rows-5 gap-2 max-w-l mx-auto">
                             {/* Champ Date de Demande */}
-                            <div className="p-2">
+                            <div className="p-1">
                                 <label htmlFor="datedemande" className="text-sm font-medium text-white-700">
                                     Date de demande
                                 </label>
@@ -297,7 +344,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                             </div>
 
                             {/* Champ Demandeur */}
-                            <div className="p-2">
+                            <div className="p-1">
                                 <label htmlFor="demandeur" className="text-sm font-medium text-white-700 mb-1">
                                     Demandeur *
                                 </label>
@@ -332,7 +379,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                             </div>
 
                             {/* Champ Date de début */}
-                            <div className="p-2">
+                            <div className="p-1">
                                 <label htmlFor="datededebut" className="text-sm font-medium text-white-700">
                                     Date de début *
                                 </label>
@@ -348,7 +395,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                             </div>
 
                             {/* Champ Date de fin */}
-                            <div className="p-2">
+                            <div className="p-1">
                                 <label htmlFor="datefin" className="text-sm font-medium text-white-700">
                                     Date de fin *
                                 </label>
@@ -364,7 +411,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                             </div>
 
                             {/* Champ Contact */}
-                            <div className="p-2">
+                            <div className="p-1">
                                 <label htmlFor="mailcontact" className="text-sm font-medium text-white-700">
                                     Contact
                                 </label>
@@ -379,7 +426,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                             </div>
 
                             {/* Champ type événement */}
-                            <div className="p-2">
+                            <div className="p-1">
                                 <label htmlFor="event-type" className="text-sm font-medium text-white-700 mb-1">
                                     Type d'événement *
                                 </label>
@@ -414,7 +461,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                             </div>
 
                             {/* Champ Lieu */}
-                            <div className="p-2">
+                            <div className="p-1">
                                 <label htmlFor="lieu" className="text-sm font-medium text-white-700">
                                     Lieu
                                 </label>
@@ -429,7 +476,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                             </div>
 
                             {/* Champ Organisateur */}
-                            <div className="p-2">
+                            <div className="p-1">
                                 <label htmlFor="organisateur" className="text-sm font-medium text-white-700 mb-1">
                                     Organisateur *
                                 </label>
@@ -462,8 +509,8 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                     </select>
                                 )}
                             </div>
-                            <div className="col-span-2 grid grid-cols-3 grid-rows-1 gap-4 w-full max-w-l mx-auto">
-                                <div className="p-2">
+                            <div className="col-span-2 grid grid-cols-3 grid-rows-1 gap-2 w-full max-w-l mx-auto">
+                                <div className="p-1">
                                     <label htmlFor="presidentjury" className="text-sm font-medium text-white-700 mb-1">
                                         Président du jury *
                                     </label>
@@ -495,7 +542,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                         </select>
                                     )}
                                 </div>
-                                <div className="p-2">
+                                <div className="p-1">
                                     <label htmlFor="deleguectr" className="text-sm font-medium text-white-700 mb-1">
                                         Délégué CTR *
                                     </label>
@@ -527,7 +574,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                         </select>
                                     )}
                                 </div>
-                                <div className="p-2">
+                                <div className="p-1">
                                     <label htmlFor="repcibpl" className="text-sm font-medium text-white-700 mb-1">
                                         Représentant du Comité *
                                     </label>
@@ -567,43 +614,43 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                     </label>
                                 )}
                                 {event?.sessions && event.sessions.map((session, index) => (
-                                    <div key={index} className="grid grid-cols-3 grid-rows-1 gap-4 w-full max-w-l mx-auto">
-                                        <div className="p-2">
-                                            <label htmlFor={`session${index + 1}datedebut`} className="text-sm font-medium text-white-700 mb-1">
+                                    <div key={index} className="grid grid-cols-3 grid-rows-1 gap-2 w-full max-w-l mx-auto">
+                                        <div className="p-1">
+                                            <label htmlFor={`session${index + 1}dateDebut`} className="text-sm font-medium text-white-700 mb-1">
                                                 Session {index + 1} - Date de début *
                                             </label>
                                             <input
-                                                id={`session${index + 1}datedebut`}
-                                                name={`session${index + 1}datedebut`}
+                                                id={`session${index + 1}dateDebut`}
+                                                name={`session${index + 1}dateDebut`}
                                                 type="date"
                                                 value={session?.dateDebut?.split('T')[0] || ''}
-                                                /* onChange={handleSessionChange} */
+                                                onChange={handleSessionChange}
                                                 required
                                                 className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
                                             />
                                         </div>
-                                        <div className="p-2">
-                                            <label htmlFor={`session${index + 1}datefin`} className="text-sm font-medium text-white-700 mb-1">
+                                        <div className="p-1">
+                                            <label htmlFor={`session${index + 1}dateFin`} className="text-sm font-medium text-white-700 mb-1">
                                                 Session {index + 1} - Date de fin *
                                             </label>
                                             <input
-                                                id={`session${index + 1}datefin`}
-                                                name={`session${index + 1}datefin`}
+                                                id={`session${index + 1}dateFin`}
+                                                name={`session${index + 1}dateFin`}
                                                 type="date"
                                                 value={session?.dateFin?.split('T')[0] || ''}
-                                                /* onChange={handleSessionChange} */
+                                                onChange={handleSessionChange}
                                                 required
                                                 className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
                                             />
                                         </div>
-                                        <div className="p-2">
-                                            <label htmlFor={`session${index + 1}typesession`} className="text-sm font-medium text-white-700 mb-1">
+                                        <div className="p-1">
+                                            <label htmlFor={`session${index + 1}typeSession`} className="text-sm font-medium text-white-700 mb-1">
                                                 Session {index + 1} - Type *
                                             </label>
                                             <select
-                                                id={`session${index + 1}typesession`}
-                                                name={`session${index + 1}typesession`}
-                                                /* onChange={handleSessionChange} */
+                                                id={`session${index + 1}typeSession`}
+                                                name={`session${index + 1}typeSession`}
+                                                onChange={handleSessionChange}
                                                 className={`mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2`}
                                             >
                                                 <option>PRESENTIEL</option>
@@ -614,13 +661,16 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                     </div>
                                 ))}
                                 {/* Bouton Ajouter une session */}
+                                <Button className="fixed bottom-56 right-6 flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors z-10" onClick={handleAddClick}>
+                                    <FaPlus className="h-6 w-6" />
+                                </Button>
                             </div>
                         </div>
 
                         {/* Tableau des conflits d'evenement */}
 
                         {/* Champ Commentaire */}
-                        <div className="p-4">
+                        <div className="p-1">
                             <label htmlFor="comment" className="text-sm font-medium text-white-700">
                                 Commentaire
                             </label>
@@ -645,22 +695,24 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                             <button
                                 type="button"
                                 onClick={onValidate}
-                                disabled={uuid === undefined}
-                                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-white-700 hover:bg-gray-50"
+                                disabled={uuid === undefined || modified}
+                                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-white-700 enabled:hover:bg-gray-50 disabled:opacity-50"
                             >
                                 Valider
                             </button>
                             <button
                                 type="button"
                                 onClick={onRefuse}
-                                disabled={uuid === undefined}
-                                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-white-700 hover:bg-gray-50"
+                                disabled={uuid === undefined || modified}
+                                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-white-700 enabled:hover:bg-gray-50 disabled:opacity-50"
                             >
                                 Refuser
                             </button>
                             <button
                                 type="submit"
-                                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                onClick={handleSubmit}
+                                disabled={!modified}
+                                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 enabled:hover:bg-gray-50 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                             >
                                 {uuid ? 'Mettre à jour' : 'Créer'}
                             </button>

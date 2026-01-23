@@ -18,6 +18,7 @@ import org.jluc.ctr.tools.calendrier.server.websockets.messages.ProgressMessage;
 
 import io.quarkus.logging.Log;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -62,7 +63,8 @@ public class EvenementResource {
         }
     }
 
-    @GET
+    @PUT
+    @Transactional
     @Path("/validate")
     public Response validateEvent(@QueryParam("id") String id) {
         Log.debug("Validation de l'évènement UUID : " + id);
@@ -73,6 +75,7 @@ public class EvenementResource {
             try {
                 service.validateEvenement(event, wsResource);
                 Log.debug("Évènement validé : " + event.getUUID());
+                event.persistAndFlush();
                 wsResource.broadcast(new ProgressMessage(true,
                         "validateevent", "Évènement validé avec succès.", 100));
                 wsResource.broadcast(new InfoMessage("Évènement validé : " + event.getUUID()));
@@ -90,7 +93,8 @@ public class EvenementResource {
         }
     }
 
-    @GET
+    @PUT
+    @Transactional
     @Path("/refuse")
     public Response refuseEvent(@QueryParam("id") String id) {
         Log.debug("Refus de l'évènement UUID : " + id);
@@ -104,6 +108,7 @@ public class EvenementResource {
                 wsResource.broadcast(new ProgressMessage(true,
                         "refuseevent", "Évènement refusé avec succès.", 100));
                 wsResource.broadcast(new InfoMessage("Évènement refusé : " + event.getUUID()));
+                event.persist();
             } catch (IOException | URISyntaxException e) {
                 Log.error("Erreur lors du refus de l'évènement : " + uuid, e);
                 wsResource.broadcast(
@@ -151,6 +156,7 @@ public class EvenementResource {
     }
 
     @POST
+    @Transactional
     public Response addEvent(EvenementDTO input) {
         Log.debug("Ajout d'un événement : " + input);
 
@@ -169,6 +175,7 @@ public class EvenementResource {
     }
 
     @PUT
+    @Transactional
     public Response modifyEvent(EvenementDTO input) {
         Log.debug("Modification de l'évènement" + input);
         Evenement newEvent = Evenement.findById(input.uuid);
@@ -184,6 +191,7 @@ public class EvenementResource {
     }
 
     @DELETE
+    @Transactional
     @Path("/{id}")
     public Response deleteEventById(@PathParam("id") String id) {
         UUID uuid = UUID.fromString(id);
