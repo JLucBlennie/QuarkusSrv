@@ -34,6 +34,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
         setLoading(true);
         if (uuid === undefined) {
             setCreateMode(true);
+            setLoading(false);
         } else {
             fetch(`${SERVER_URL}/ctr/evenements/` + uuid, {
                 method: "GET",
@@ -143,9 +144,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
         setError(null);
         setSuccess(null);
 
-        const url = uuid
-            ? `${SERVER_URL}/ctr/evenements/${uuid}`
-            : `${SERVER_URL}/ctr/evenements`;
+        const url = `${SERVER_URL}/ctr/evenements`;
         const method = uuid ? 'PUT' : 'POST';
 
         fetch(url, {

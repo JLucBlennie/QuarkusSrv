@@ -4,10 +4,11 @@ export const SERVER_URL = 'http://localhost:9090';
 
 // TODO : Ajouter les types manquants : TypeActivite, Demandeur, Moniteur, ClubStructure
 export type MoniteurJSON = {
-  uuid: string;
-  lastname: string;
-  firstname: string;
-  niveau: string;
+  uuid?: string;
+  lastname?: string;
+  firstname?: string;
+  niveau?: string;
+  nbevents?: number;
 };
 
 export type ClubStructure = {
