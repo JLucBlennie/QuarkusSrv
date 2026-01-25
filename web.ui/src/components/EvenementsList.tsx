@@ -33,7 +33,6 @@ const EvenementsList = () => {
         .then((data) => {
           console.log('Réponse du serveur Quarkus :', data);
           let events: EventColumn[] = [];
-          let id = 0;
           data.map((evenement: EvenementJSON) => {
             var eventCol: EventColumn = {
               uuid: (evenement.uuid || ''),
@@ -75,7 +74,7 @@ const EvenementsList = () => {
     <div>
       {(!rowClicked && !addClicked && !error && !loading) &&
         <div>
-          <DataTable columns={eventcolumns} data={evenements} onRowClick={handleRowClick} />
+          <DataTable columns={eventcolumns} data={evenements.sort((a, b) => a.datedemande.localeCompare(b.datedemande)).reverse()} onRowClick={handleRowClick} />
           <Button className="fixed bottom-6 right-6 flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors z-10" onClick={handleAddClick}>
             <FaPlus className="h-6 w-6" />
           </Button>

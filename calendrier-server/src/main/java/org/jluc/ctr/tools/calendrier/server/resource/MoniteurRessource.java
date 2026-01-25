@@ -1,17 +1,22 @@
 package org.jluc.ctr.tools.calendrier.server.resource;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import org.jluc.ctr.tools.calendrier.server.dto.EvenementDTO;
 import org.jluc.ctr.tools.calendrier.server.dto.MoniteurDTO;
+import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
 import org.jluc.ctr.tools.calendrier.server.model.moniteurs.Moniteur;
+import org.jluc.ctr.tools.calendrier.server.service.EvenementService;
 import org.jluc.ctr.tools.calendrier.server.websockets.WebSocketResource;
 import org.jluc.ctr.tools.calendrier.server.websockets.messages.InfoMessage;
 import org.jluc.ctr.tools.calendrier.server.websockets.messages.ProgressMessage;
 
 import io.quarkus.logging.Log;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -31,6 +36,9 @@ public class MoniteurRessource {
     @Inject
     WebSocketResource wsResource;
 
+    @Inject
+    EvenementService serviceEvent;
+
     @GET
     public Response getAll() {
         List<Moniteur> moniteurs = Moniteur.listAll();
@@ -38,7 +46,21 @@ public class MoniteurRessource {
         List<MoniteurDTO> moniteursDTO = new ArrayList<MoniteurDTO>();
         int nb = 0;
         for (Moniteur moniteur : moniteurs) {
-            moniteursDTO.add(MoniteurDTO.fromEntity(moniteur));
+            // Récupération du nb d'évènements
+            List<EvenementDTO> eventsDTO = new ArrayList<EvenementDTO>();
+            int nbEvent = 0;
+            Date Today = new Date();
+            List<Evenement> events = serviceEvent.getExamensFor(moniteur);
+            for (Evenement evenement : events) {
+                if (serviceEvent.getAnnee(evenement.getDatedebut()) == serviceEvent.getAnnee(Today) ||
+                        serviceEvent.getAnnee(evenement.getDatedebut()) == serviceEvent.getAnnee(Today) - 1) {
+                    eventsDTO.add(EvenementDTO.fromEntity(evenement));
+                    nbEvent++;
+                }
+            }
+            MoniteurDTO dto = MoniteurDTO.fromEntity(moniteur);
+            dto.setNbevents(nbEvent);
+            moniteursDTO.add(dto);
             wsResource.broadcast(
                     new ProgressMessage(true, "loadmoniteur", "Chargement des moniteurs...",
                             (nb / moniteurs.size()) * 100));
@@ -57,9 +79,23 @@ public class MoniteurRessource {
         UUID uuid = UUID.fromString(id);
         Moniteur moniteur = Moniteur.findById(uuid);
         if (moniteur != null) {
+            // Récupération du nb d'évènements
+            List<EvenementDTO> eventsDTO = new ArrayList<EvenementDTO>();
+            int nbEvent = 0;
+            Date Today = new Date();
+            List<Evenement> events = serviceEvent.getExamensFor(moniteur);
+            for (Evenement evenement : events) {
+                if (serviceEvent.getAnnee(evenement.getDatedebut()) == serviceEvent.getAnnee(Today) ||
+                        serviceEvent.getAnnee(evenement.getDatedebut()) == serviceEvent.getAnnee(Today) - 1) {
+                    eventsDTO.add(EvenementDTO.fromEntity(evenement));
+                    nbEvent++;
+                }
+            }
+            MoniteurDTO dto = MoniteurDTO.fromEntity(moniteur);
+            dto.setNbevents(nbEvent);
             wsResource.broadcast(new ProgressMessage(true,
                     "loadmoniteur", "Chargement du moniteur terminé...", 100));
-            return Response.ok(MoniteurDTO.fromEntity(moniteur)).build();
+            return Response.ok(dto).build();
         } else {
             wsResource.broadcast(
                     new InfoMessage("[Erreur]", "Erreur de chargement du moniteur..."));
@@ -68,6 +104,7 @@ public class MoniteurRessource {
     }
 
     @POST
+    @Transactional
     public Response addMoniteur(MoniteurDTO input) {
         Log.info("Ajout d'un moniteur : " + input);
 
@@ -84,6 +121,7 @@ public class MoniteurRessource {
     }
 
     @PUT
+    @Transactional
     public Response modifyMoniteur(MoniteurDTO input) {
         Log.info("Modification du moniteur " + input);
         Moniteur newMoniteur = Moniteur.findById(input.uuid);
@@ -99,6 +137,7 @@ public class MoniteurRessource {
     }
 
     @DELETE
+    @Transactional
     @Path("/{id}")
     public Response deleteMoniteurById(@PathParam("id") String id) {
         UUID uuid = UUID.fromString(id);

@@ -10,6 +10,7 @@ public class MoniteurDTO {
     public String lastname;
     public String firstname;
     public NiveauMoniteur niveau;
+    public int nbevents = 0;
 
     public static MoniteurDTO fromEntity(Moniteur moniteur) {
         if (moniteur == null) {
@@ -34,5 +35,9 @@ public class MoniteurDTO {
         moniteur.setFirstName(this.firstname);
         moniteur.setNiveau(this.niveau);
         return moniteur;
+    }
+
+    public void setNbevents(int nbevents) {
+        this.nbevents = nbevents;
     }
 }

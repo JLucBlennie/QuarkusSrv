@@ -252,7 +252,6 @@ public class CalendarServices {
 
             /* mService.events().insert(calendarId, eventCalendar).execute(); */
             event.setCalendareventid(eventCalendar.getId());
-            event.persist();
         }
         return true;
     }

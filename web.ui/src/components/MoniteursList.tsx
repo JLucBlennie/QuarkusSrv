@@ -23,7 +23,6 @@ const MoniteursList = () => {
             fetch(`${SERVER_URL}/ctr/moniteurs`, {
                 method: "GET",
                 redirect: "follow",
-                cache: "force-cache"
             })
                 .then((res) => {
                     if (!res.ok) {
@@ -34,13 +33,13 @@ const MoniteursList = () => {
                 .then((data) => {
                     console.log('Réponse du serveur Quarkus :', data);
                     let moniteurs: MoniteurColumn[] = [];
-                    let id = 0;
                     data.map((moniteur: MoniteurJSON) => {
                         var moniteurCol: MoniteurColumn = {
-                            uuid: moniteur.uuid,
-                            lastname: moniteur.lastname,
-                            firstname: moniteur.firstname,
-                            niveau: moniteur.niveau,
+                            uuid: (moniteur.uuid || ''),
+                            lastname: (moniteur.lastname || ''),
+                            firstname: (moniteur.firstname || ''),
+                            niveau: (moniteur.niveau || ''),
+                            nbevents: (moniteur.nbevents || 0)
                         };
                         moniteurs.push(moniteurCol);
                     });
@@ -72,7 +71,7 @@ const MoniteursList = () => {
         <div>
             {(!rowClicked && !addClicked && !error && !loading) &&
                 <div>
-                    <DataTableMoniteur columns={moniteurcolumns} data={moniteurs} onRowClick={handleRowClick} />
+                    <DataTableMoniteur columns={moniteurcolumns} data={moniteurs.sort((a, b) => a.lastname.localeCompare(b.lastname))} onRowClick={handleRowClick} />
                     <Button className="fixed bottom-6 right-6 flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors z-10" onClick={handleAddClick}>
                         <FaPlus className="h-6 w-6" />
                     </Button>

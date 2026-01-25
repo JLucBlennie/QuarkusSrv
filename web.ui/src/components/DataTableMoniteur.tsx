@@ -99,7 +99,11 @@ export function DataTableMoniteur<TData, TValue>({
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   onClick={() => onRowClick(row.original)}
-                  className={""}
+                  className={
+                    row.getValue("nbevents") === 0
+                      ? "bg-red-800 bg-opacity-70"
+                      : "bg-emerald-800 bg-opacity-70"
+                  }
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
