@@ -22,17 +22,16 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { forwardRef, useState } from "react";
 
-interface DataTableProps<TData, TValue> {
+interface DataTableDemandeurProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   onRowClick: (row: TData) => void;
 }
-
-export function DataTable<TData, TValue>({
+export function DataTableDemandeur<TData, TValue>({
   columns,
   data,
   onRowClick,
-}: DataTableProps<TData, TValue>) {
+}: DataTableDemandeurProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
@@ -51,11 +50,11 @@ export function DataTable<TData, TValue>({
     HTMLTableElement,
     React.HTMLAttributes<HTMLTableElement>
   >(({ className, ...props }, ref) => (
-      <table
-        ref={ref}
-        className={cn("w-full caption-bottom text-sm", className)}
-        {...props}
-      />
+    <table
+      ref={ref}
+      className={cn("w-full caption-bottom text-sm", className)}
+      {...props}
+    />
   ));
 
   const TableHeader = forwardRef<
@@ -72,7 +71,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      <ScrollArea className="h-[700px] rounded-md border">
+      <ScrollArea className="h-[600px] rounded-md border">
         <Table >
           <TableHeader className="sticky top-0 border-0 bg-white shadow-border shadow-[inset_0_-1px_0]">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -83,9 +82,9 @@ export function DataTable<TData, TValue>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   );
                 })}
@@ -99,15 +98,6 @@ export function DataTable<TData, TValue>({
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   onClick={() => onRowClick(row.original)}
-                  className={
-                    row.getValue("statut") === "VALIDE"
-                      ? "bg-emerald-800 bg-opacity-70"
-                      : row.getValue("statut") === "DEMANDE"
-                      ? "bg-orange-800 bg-opacity-70"
-                      : row.getValue("statut") === "REFUSE"
-                      ? "bg-red-800 bg-opacity-70"
-                      : ""
-                  }
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

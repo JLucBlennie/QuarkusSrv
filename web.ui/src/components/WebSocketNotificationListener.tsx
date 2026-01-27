@@ -1,6 +1,6 @@
 "use client"
 
-import { ReactNode, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ProgressCard from "./ProgressCard";
 import { toast } from "./ui/use-toast";
 
@@ -9,7 +9,7 @@ type MessageType = {
   message: string;
   processKey: string;
   title: string;
-  progressValue:number;
+  progressValue: number;
 }
 
 export default function WebSocketNotificationListener(props: { url: any; }) {

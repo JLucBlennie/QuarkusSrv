@@ -1,26 +1,26 @@
 'use client';
 
-import { MoniteurJSON, SERVER_URL } from '@/lib/constants';
+import { SERVER_URL, TypeEvenement } from '@/lib/constants';
 import { useEffect, useState } from 'react';
 import { FaPlus } from 'react-icons/fa6';
-import { DataTableMoniteur } from './DataTableMoniteur';
-import { MoniteurColumn, moniteurcolumns } from './Moniteur-columns';
+import { DataTableTypeEvenement } from './DataTableTypeEvenement';
 import { MoniteurEditor } from './MoniteurEditor';
+import { TypeEvenementColumn, typeevenementcolumns } from './TypeEvenement-columns';
 import { Button } from './ui/button';
 
-export function MoniteursList() {
-    const [moniteurs, setMoniteurs] = useState<MoniteurColumn[]>([]);
+export function TypeEvenementList() {
+    const [typeevenements, setTypeEvenements] = useState<TypeEvenementColumn[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [rowClicked, setRowClicked] = useState<boolean>(false);
     const [addClicked, setAddClicked] = useState<boolean>(false);
-    const [selectedRow, setSelectedRow] = useState<MoniteurColumn | null>(null);
-    const [moniteursData, setMoniteursData] = useState<MoniteurJSON[]>([]);
+    const [selectedRow, setSelectedRow] = useState<TypeEvenementColumn | null>(null);
+    const [typeevenementsData, setTypeEvenementsData] = useState<TypeEvenement[]>([]);
 
     useEffect(() => {
         if (loading) {
-            console.log('Chargement des moniteurs depuis le serveur Quarkus...');
-            fetch(`${SERVER_URL}/ctr/moniteurs`, {
+            console.log('Chargement des types d\'événements depuis le serveur Quarkus...');
+            fetch(`${SERVER_URL}/ctr/typeevenements`, {
                 method: "GET",
                 redirect: "follow",
             })
@@ -32,19 +32,18 @@ export function MoniteursList() {
                 })
                 .then((data) => {
                     console.log('Réponse du serveur Quarkus :', data);
-                    let moniteurs: MoniteurColumn[] = [];
-                    data.map((moniteur: MoniteurJSON) => {
-                        var moniteurCol: MoniteurColumn = {
-                            uuid: (moniteur.uuid || ''),
-                            lastname: (moniteur.lastname || ''),
-                            firstname: (moniteur.firstname || ''),
-                            niveau: (moniteur.niveau || ''),
-                            nbevents: (moniteur.nbevents || 0)
+                    let typeevenements: TypeEvenementColumn[] = [];
+                    data.map((typeevenement: TypeEvenement) => {
+                        var typeevenementCol: TypeEvenementColumn = {
+                            uuid: (typeevenement.uuid || ''),
+                            name: (typeevenement.name || ''),
+                            activite: (typeevenement.activite || ''),
+                            nbevents: (typeevenement.nbevents || 0)
                         };
-                        moniteurs.push(moniteurCol);
+                        typeevenements.push(typeevenementCol);
                     });
-                    setMoniteurs(moniteurs);
-                    setMoniteursData(data);
+                    setTypeEvenements(typeevenements);
+                    setTypeEvenementsData(data);
                     setLoading(false);
                 })
                 .catch((err) => {
@@ -55,14 +54,14 @@ export function MoniteursList() {
         }
     }, []);
 
-    function handleRowClick(row: MoniteurColumn) {
+    function handleRowClick(row: TypeEvenementColumn) {
         console.log('Ligne cliquée :', row);
         setRowClicked(true);
         setSelectedRow(row);
     }
 
     function handleAddClick() {
-        console.log('Ajouter un moniteur');
+        console.log('Ajouter un club/structure');
         setAddClicked(true);
         setSelectedRow(null);
     }
@@ -71,7 +70,8 @@ export function MoniteursList() {
         <div>
             {(!rowClicked && !addClicked && !error && !loading) &&
                 <div className="relative">
-                    <DataTableMoniteur columns={moniteurcolumns} data={moniteurs.sort((a, b) => a.lastname.localeCompare(b.lastname))} onRowClick={handleRowClick} />
+                    <h2 className="text-xl font-semibold mb-4">Liste des Types d'Evènement</h2>
+                    <DataTableTypeEvenement columns={typeevenementcolumns} data={typeevenements.sort((a, b) => a.name.localeCompare(b.name))} onRowClick={handleRowClick} />
                     <Button className="absolute bottom-0 right-0 flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors z-10" onClick={handleAddClick}>
                         <FaPlus className="h-6 w-6" />
                     </Button>

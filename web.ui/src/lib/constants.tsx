@@ -12,14 +12,16 @@ export type MoniteurJSON = {
 };
 
 export type ClubStructure = {
-  uuid: string;
-  name: string;
+  uuid?: string;
+  name?: string;
+  nbevents?: number;
 }
 
 export type Demandeur = {
-  uuid: string;
-  name: string;
-  numerostructure: string;
+  uuid?: string;
+  name?: string;
+  numerostructure?: string;
+  nbevents?: number;
 }
 
 export type Moniteur = {
@@ -30,10 +32,11 @@ export type Moniteur = {
 }
 
 export type TypeEvenement = {
-  uuid: string;
-  name: string;
-  activite: string;
-  valeurforms: string;
+  uuid?: string;
+  name?: string;
+  activite?: string;
+  valeurforms?: string;
+  nbevents?: number;
 }
 
 export type Session = {

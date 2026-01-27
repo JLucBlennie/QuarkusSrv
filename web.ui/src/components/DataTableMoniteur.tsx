@@ -72,7 +72,7 @@ export function DataTableMoniteur<TData, TValue>({
 
   return (
     <div>
-      <ScrollArea className="h-[800px] rounded-md border">
+      <ScrollArea className="h-[700px] rounded-md border">
         <Table >
           <TableHeader className="sticky top-0 border-0 bg-white shadow-border shadow-[inset_0_-1px_0]">
             {table.getHeaderGroups().map((headerGroup) => (

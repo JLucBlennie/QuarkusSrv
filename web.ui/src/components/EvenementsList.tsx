@@ -8,7 +8,7 @@ import { EvenementEditor } from './EvenementEditor';
 import { EventColumn, eventcolumns } from './Event-columns';
 import { Button } from './ui/button';
 
-const EvenementsList = () => {
+export function EvenementsList() {
   const [evenements, setEvenements] = useState<EventColumn[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -38,8 +38,8 @@ const EvenementsList = () => {
               uuid: (evenement.uuid || ''),
               datedemande: (evenement.datedemande?.split('T')[0] || ''),
               statut: (evenement.statut || ''),
-              activite: (evenement.typeEvenement === undefined) ? "Type null" : evenement.typeEvenement.name,
-              organisateur: evenement.organisateur ? evenement.organisateur.name : "",
+              activite: (evenement.typeEvenement?.activite === undefined) ? "Type null" : evenement.typeEvenement.activite,
+              organisateur: evenement.organisateur?.name || "",
               datedebut: (evenement.datedebut?.split('T')[0] || ''),
               datefin: (evenement.datefin?.split('T')[0] || ''),
               lieu: (evenement.lieu || '')
@@ -73,9 +73,9 @@ const EvenementsList = () => {
   return (
     <div>
       {(!rowClicked && !addClicked && !error && !loading) &&
-        <div>
+        <div className="relative">
           <DataTable columns={eventcolumns} data={evenements.sort((a, b) => a.datedemande.localeCompare(b.datedemande)).reverse()} onRowClick={handleRowClick} />
-          <Button className="fixed bottom-6 right-6 flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors z-10" onClick={handleAddClick}>
+          <Button className="absolute bottom-0 right-0 flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors z-10" onClick={handleAddClick}>
             <FaPlus className="h-6 w-6" />
           </Button>
         </div>
@@ -87,5 +87,3 @@ const EvenementsList = () => {
     </div >
   );
 };
-
-export default EvenementsList;
