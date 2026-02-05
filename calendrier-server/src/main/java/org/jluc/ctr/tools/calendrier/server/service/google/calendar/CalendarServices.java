@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
+import org.jluc.ctr.tools.calendrier.server.model.evenements.Session;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.TypeActivite;
 
 import com.google.api.client.auth.oauth2.Credential;
@@ -246,12 +247,30 @@ public class CalendarServices {
             return false;
         } else {
             Log.debug("Event a creer...");
-            Event eventCalendar = createEvent(typeEvenement + " - " + event.getDemandeur().getName(),
-                    event.getLieu(),
-                    description, event.getDatedebut(), event.getDatefin());
+            // TODO : Gestion des Sessions
+            if (event.getSessions().size() > 1) {
+                Log.warn("Creation d'un evenement avec plusieurs sessions, ce n'est pas encore géré.");
+                for (int iSession = 0; iSession < event.getSessions().size(); iSession++) {
+                    Session session = event.getSessions().get(iSession);
+                    Log.warn("Session " + (iSession + 1) + " : du " + event.getSessions().get(iSession).getDateDebut()
+                            + " au " + event.getSessions().get(iSession).getDateFin());
+                    Event eventCalendar = createEvent(typeEvenement + " - " + event.getDemandeur().getName(),
+                            event.getLieu(),
+                            description + "\n" + session.getTypeSession(), session.getDateDebut(),
+                            session.getDateFin());
 
-            /* mService.events().insert(calendarId, eventCalendar).execute(); */
-            event.setCalendareventid(eventCalendar.getId());
+                    mService.events().insert(calendarId, eventCalendar).execute();
+                    event.setCalendareventid(eventCalendar.getId());
+                }
+            } else {
+                Log.debug("Creation d'un evenement avec une seule session.");
+                Event eventCalendar = createEvent(typeEvenement + " - " + event.getDemandeur().getName(),
+                        event.getLieu(),
+                        description, event.getDatedebut(), event.getDatefin());
+
+                mService.events().insert(calendarId, eventCalendar).execute();
+                event.setCalendareventid(eventCalendar.getId());
+            }
         }
         return true;
     }

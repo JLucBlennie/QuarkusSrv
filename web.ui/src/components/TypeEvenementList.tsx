@@ -4,8 +4,8 @@ import { SERVER_URL, TypeEvenement } from '@/lib/constants';
 import { useEffect, useState } from 'react';
 import { FaPlus } from 'react-icons/fa6';
 import { DataTableTypeEvenement } from './DataTableTypeEvenement';
-import { MoniteurEditor } from './MoniteurEditor';
 import { TypeEvenementColumn, typeevenementcolumns } from './TypeEvenement-columns';
+import { TypeEvenementEditor } from './TypeEvenementEditor';
 import { Button } from './ui/button';
 
 export function TypeEvenementList() {
@@ -77,8 +77,8 @@ export function TypeEvenementList() {
                     </Button>
                 </div>
             }
-            {rowClicked && <MoniteurEditor uuid={selectedRow?.uuid} onExit={() => { setRowClicked(false) }} />}
-            {addClicked && <MoniteurEditor uuid={undefined} onExit={() => { setAddClicked(false) }} />}
+            {rowClicked && <TypeEvenementEditor uuid={selectedRow?.uuid} onExit={() => { setRowClicked(false) }} />}
+            {addClicked && <TypeEvenementEditor uuid={undefined} onExit={() => { setAddClicked(false) }} />}
             {error && <p>Erreur : {error}</p>}
             {loading && <p> </p>}
         </div >

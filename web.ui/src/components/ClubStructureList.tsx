@@ -4,8 +4,8 @@ import { ClubStructure, SERVER_URL } from '@/lib/constants';
 import { useEffect, useState } from 'react';
 import { FaPlus } from 'react-icons/fa6';
 import { ClubStructureColumn, clubstructurecolumns } from './ClubStructure-columns';
+import { ClubStructureEditor } from './ClubStructureEditor';
 import { DataTableClubStructure } from './DataTableClubStructure';
-import { MoniteurEditor } from './MoniteurEditor';
 import { Button } from './ui/button';
 
 export function ClubStructureList() {
@@ -76,8 +76,8 @@ export function ClubStructureList() {
                     </Button>
                 </div>
             }
-            {rowClicked && <MoniteurEditor uuid={selectedRow?.uuid} onExit={() => { setRowClicked(false) }} />}
-            {addClicked && <MoniteurEditor uuid={undefined} onExit={() => { setAddClicked(false) }} />}
+            {rowClicked && <ClubStructureEditor uuid={selectedRow?.uuid} onExit={() => { setRowClicked(false) }} />}
+            {addClicked && <ClubStructureEditor uuid={undefined} onExit={() => { setAddClicked(false) }} />}
             {error && <p>Erreur : {error}</p>}
             {loading && <p> </p>}
         </div >

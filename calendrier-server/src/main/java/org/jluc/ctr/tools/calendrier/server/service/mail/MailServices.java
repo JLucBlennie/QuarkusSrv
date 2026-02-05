@@ -42,25 +42,16 @@ public class MailServices {
                                 DATE_FORMAT.format(event.getDatedemande()), DATE_FORMAT.format(event.getDatedebut()),
                                 DATE_FORMAT.format(event.getDatefin()), event.getDemandeur().getName(),
                                 DATE_FORMAT.format(event.getDatevalidation()));
+
                 mailer.send(
-                                Mail.withHtml("jean-luc.blondy@cibpl.fr", subject, htmlMsg)
+                                Mail.withHtml(event.getMailcontact(), subject, htmlMsg)
                                                 .addInlineAttachment(
                                                                 "Logo CTR", // CID utilisé dans le HTML (ex: "logo")
                                                                 new File(url.toURI()), // Fichier de l'image
                                                                 "image/png", // Type MIME de l'image
                                                                 "LogoCTR")
+                                                .addCc("presidente-technique@cibpl.fr")
                                                 .addCc("webmaster-technique@cibpl.fr"));
-                /*
-                 * mailer.send(
-                 * Mail.withHtml(event.getMailcontact(), subject, htmlMsg)
-                 * .addInlineAttachment(
-                 * "Logo CTR", // CID utilisé dans le HTML (ex: "logo")
-                 * new File(url.toURI()), // Fichier de l'image
-                 * "image/png", // Type MIME de l'image
-                 * "LogoCTR")
-                 * .addCc("presidente-technique@cibpl.fr")
-                 * .addCc("webmaster-technique@cibpl.fr"));
-                 */
         }
 
         public void sendRefuseMessage(Evenement event)
@@ -79,24 +70,15 @@ public class MailServices {
                                 DATE_FORMAT.format(event.getDatedemande()), DATE_FORMAT.format(event.getDatedebut()),
                                 DATE_FORMAT.format(event.getDatefin()), event.getDemandeur().getName(),
                                 DATE_FORMAT.format(event.getDatevalidation()));
+
                 mailer.send(
-                                Mail.withHtml("jean-luc.blondy@cibpl.fr", subject, htmlMsg)
+                                Mail.withHtml(event.getMailcontact(), subject, htmlMsg)
                                                 .addInlineAttachment(
                                                                 "Logo CTR", // CID utilisé dans le HTML (ex: "logo")
                                                                 new File(url.toURI()), // Fichier de l'image
                                                                 "image/png", // Type MIME de l'image
                                                                 "LogoCTR")
+                                                .addCc("presidente-technique@cibpl.fr")
                                                 .addCc("webmaster-technique@cibpl.fr"));
-                /*
-                 * mailer.send(
-                 * Mail.withHtml(event.getMailcontact(), subject, htmlMsg)
-                 * .addInlineAttachment(
-                 * "Logo CTR", // CID utilisé dans le HTML (ex: "logo")
-                 * new File(url.toURI()), // Fichier de l'image
-                 * "image/png", // Type MIME de l'image
-                 * "LogoCTR")
-                 * .addCc("presidente-technique@cibpl.fr")
-                 * .addCc("webmaster-technique@cibpl.fr"));
-                 */
         }
 }

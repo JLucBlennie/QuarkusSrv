@@ -9,6 +9,7 @@ import org.jluc.ctr.tools.calendrier.server.model.club.Demandeur;
 import org.jluc.ctr.tools.calendrier.server.model.moniteurs.Moniteur;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
@@ -57,7 +58,7 @@ public class Evenement extends PanacheEntityBase {
     private ClubStructure organisateur;
     private String comment;
     private String calendareventid;
-    @OneToMany(mappedBy = "evenement")
+    @OneToMany(mappedBy = "evenement", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Session> sessions;
     private Integer nbparticipants = 0;
     

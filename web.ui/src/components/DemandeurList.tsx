@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { FaPlus } from 'react-icons/fa6';
 import { DataTableDemandeur } from './DataTableDemandeur';
 import { DemandeurColumn, demandeurcolumns } from './Demandeur-columns';
-import { MoniteurEditor } from './MoniteurEditor';
+import { DemandeurEditor } from './DemandeurEditor';
 import { Button } from './ui/button';
 
 export function DemandeurList() {
@@ -77,8 +77,8 @@ export function DemandeurList() {
                     </Button>
                 </div>
             }
-            {rowClicked && <MoniteurEditor uuid={selectedRow?.uuid} onExit={() => { setRowClicked(false) }} />}
-            {addClicked && <MoniteurEditor uuid={undefined} onExit={() => { setAddClicked(false) }} />}
+            {rowClicked && <DemandeurEditor uuid={selectedRow?.uuid} onExit={() => { setRowClicked(false) }} />}
+            {addClicked && <DemandeurEditor uuid={undefined} onExit={() => { setAddClicked(false) }} />}
             {error && <p>Erreur : {error}</p>}
             {loading && <p> </p>}
         </div >

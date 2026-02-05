@@ -38,7 +38,7 @@ export function EvenementsList() {
               uuid: (evenement.uuid || ''),
               datedemande: (evenement.datedemande?.split('T')[0] || ''),
               statut: (evenement.statut || ''),
-              activite: (evenement.typeEvenement?.activite === undefined) ? "Type null" : evenement.typeEvenement.activite,
+              activite: (evenement.typeEvenement?.name === undefined) ? "Type null" : evenement.typeEvenement.name,
               organisateur: evenement.organisateur?.name || "",
               datedebut: (evenement.datedebut?.split('T')[0] || ''),
               datefin: (evenement.datefin?.split('T')[0] || ''),

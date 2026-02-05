@@ -5,7 +5,10 @@ import java.util.List;
 import java.util.UUID;
 
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
+import org.jluc.ctr.tools.calendrier.server.model.evenements.Session;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Status;
+
+import io.quarkus.logging.Log;
 
 public class EvenementDTO {
     public UUID uuid;
@@ -66,10 +69,25 @@ public class EvenementDTO {
     }
 
     public Evenement toEntity() {
-        Evenement evenement = Evenement.findById(this.uuid);
-        if (evenement == null) {
+        Log.debug("Conversion d'un evenement JSON en evenement Quarkus");
+        Log.debug("EvenementJSON" + this.uuid + ", " + this.evtidforms + ", " + this.datedemande + ", " + this.datedebut
+                + ", "
+                + this.datefin + ", " + this.typeEvenement + ", " + this.demandeur + ", " + this.partenaire
+                + ", " + this.mailcontact + ", " + this.lieu + ", " + this.presidentjury + ", "
+                + this.deleguectr + ", " + this.repcibpl + ", " + this.statut + ", " + this.datevalidation
+                + ", " + this.organisateur + ", " + this.comment + ", " + this.calendareventid + ", "
+                + this.nbparticipants + ", " + this.sessions);
+
+        Evenement evenement = null;
+        if (this.uuid != null) {
+            evenement = Evenement.findById(this.uuid);
+            if (evenement == null) {
+                evenement = new Evenement();
+                evenement.setUUID(this.uuid != null ? this.uuid : UUID.randomUUID());
+            }
+        } else {
             evenement = new Evenement();
-            evenement.setUUID(this.uuid != null ? this.uuid : UUID.randomUUID());
+            evenement.setUUID(UUID.randomUUID());
         }
         evenement.setEvtidforms(this.evtidforms);
         evenement.setDatedemande(this.datedemande);
@@ -91,11 +109,16 @@ public class EvenementDTO {
         evenement.setNbparticipants(this.nbparticipants);
 
         if (this.sessions != null) {
-            List<org.jluc.ctr.tools.calendrier.server.model.evenements.Session> sessionEntities = this.sessions.stream()
+            Log.debug("Il y a des sessions");
+            List<Session> sessionEntities = this.sessions.stream()
                     .map(SessionDTO::toEntity)
                     .toList();
+            for (Session session : sessionEntities) {
+                session.setEvenement(evenement);
+            }
             evenement.setSessions(sessionEntities);
         } else {
+            Log.debug("Il n'y a pas de sessions");
             evenement.setSessions(null);
         }
 

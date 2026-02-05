@@ -9,30 +9,28 @@ import { EvenementsList } from "@/components/EvenementsList";
 import { MoniteursList } from "@/components/MoniteursList";
 import { ThreeColumnsLayout } from "@/components/ThreeColumnsLayout";
 import { TypeEvenementList } from "@/components/TypeEvenementList";
+import { Button } from "@/components/ui/button";
 import Tabs from "@/components/ui/tabs";
 import { SERVER_URL } from "@/lib/constants";
-import { useEffect, useState } from "react";
+import { FaArrowRotateLeft } from "react-icons/fa6";
 import pack from "../../package.json";
 
 export default function Home() {
-  const [updateDbDone, setUpdateDbDone] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (!updateDbDone) {
-      console.log('Mise à jour de la BDD locale depuis le serveur Quarkus...');
-      setUpdateDbDone(true);
-      fetch(`${SERVER_URL}/ctr/evenements/updatebdd/`, {
-        method: "GET",
-        redirect: "follow",
-      })
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error(`Erreur serveur : ${res.status}`);
-          }
-          return res;
-        });
-    }
-  }, []);
+  function handleUpdateClick() {
+    console.log('Mise à jour de la BDD locale depuis le serveur Quarkus...');
+    fetch(`${SERVER_URL}/ctr/evenements/updatebdd/`, {
+      method: "GET",
+      redirect: "follow",
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`Erreur serveur : ${res.status}`);
+        }
+        return res;
+      });
+  }
+
   return (
     <div className="relative min-h-screen bg-logo-35op bg-no-repeat bg-center bg-contain ">
       <div className="w-full h-full absolute top-0 left-0">
@@ -77,11 +75,12 @@ export default function Home() {
         <ThemeToggle />
       </div>
 
-      {/* Lower Left Box
+      {/* Lower Left Box */}
       <div className="absolute bottom-5 left-5 transform bg-slate-900 bg-opacity-50 text-white p-4 rounded shadow-lg z-10">
-        <h2 className="text-1xl font-bold mb-4">Version {pack.version}</h2>
+        <Button className="flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors" onClick={handleUpdateClick}>
+          <FaArrowRotateLeft className="h-6 w-6" />
+        </Button>
       </div>
-      */}
 
       {/* Lower Right Box
       <div className="absolute bottom-5 right-5 transform bg-slate-900 bg-opacity-50 text-white p-4 rounded shadow-lg z-10">

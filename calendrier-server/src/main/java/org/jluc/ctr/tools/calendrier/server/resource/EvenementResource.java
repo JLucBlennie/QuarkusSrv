@@ -158,15 +158,18 @@ public class EvenementResource {
     @POST
     @Transactional
     public Response addEvent(EvenementDTO input) {
-        Log.debug("Ajout d'un événement : " + input);
-
+        Log.debug("Ajout d'un événement : " + input.uuid);
+        Evenement newEvent = null;
         // Ici tu peux transformer en entité Evenement, valider, etc.
         // Exemple simple : retourner ce qu’on a reçu
-        Evenement newEvent = Evenement.findById(input.uuid);
-        if (newEvent != null) {
-            Log.warn("L'évènement existe déjà en base : " + input.uuid);
-            return Response.status(Response.Status.CONFLICT)
-                    .entity("L'évènement existe déjà en base.").build();
+        if (input.uuid != null) {
+            Log.warn("L'évènement a déjà un UUID : " + input.uuid);
+            newEvent = Evenement.findById(input.uuid);
+            if (newEvent != null) {
+                Log.warn("L'évènement existe déjà en base : " + input.uuid);
+                return Response.status(Response.Status.CONFLICT)
+                        .entity("L'évènement existe déjà en base.").build();
+            }
         }
         newEvent = input.toEntity();
         newEvent.persist();

@@ -29,6 +29,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
     const [createMode, setCreateMode] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
     const [modified, setModified] = useState<boolean>(false);
+    const today = new Date();
 
     useEffect(() => {
         setLoading(true);
@@ -286,7 +287,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
             uuid: '',
             dateDebut: '',
             dateFin: '',
-            typeSession: ''
+            typeSession: 'PRESENTIEL'
         };
         setEvent((prev: EvenementJSON | undefined) => {
             if (!prev) return prev;
@@ -301,7 +302,9 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
         const sessionIndex = parseInt(name.match(/\d+/)?.[0] || '0', 10) - 1;
         const fieldName = name.replace(`session${sessionIndex + 1}`, '');
         var valueToSet = value;
+        let dateOk = false;
         if (fieldName.startsWith('date')) {
+            dateOk = (value.split('-')[0] === today.getFullYear().toString());
             valueToSet = formatDateForAPI(value);
         }
         setEvent((prev: EvenementJSON | undefined) => {
@@ -310,7 +313,23 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
             if (updatedSessions[sessionIndex]) {
                 (updatedSessions[sessionIndex] as any)[fieldName] = valueToSet;
             }
-            return { ...prev, sessions: updatedSessions };
+            if (fieldName === 'dateDebut' && valueToSet && dateOk) {
+                if (!prev.datedebut || prev.datedebut.localeCompare(valueToSet) > 0) {
+                    const updatedEvent = { ...prev, datedebut: valueToSet, sessions: updatedSessions };
+                    return updatedEvent;
+                } else {
+                    return { ...prev, sessions: updatedSessions };
+                }
+            } else if (fieldName === 'dateFin' && valueToSet && dateOk) {
+                if (!prev.datefin || prev.datefin.localeCompare(valueToSet) < 0) {
+                    const updatedEvent = { ...prev, datefin: valueToSet, sessions: updatedSessions };
+                    return updatedEvent;
+                } else {
+                    return { ...prev, sessions: updatedSessions };
+                }
+            } else {
+                return { ...prev, sessions: updatedSessions };
+            }
         });
         setModified(true);
     }
@@ -324,7 +343,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
             }
             {!error && !loading &&
                 <div>
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form className="space-y-6">
                         <div className="grid grid-cols-2 grid-rows-5 gap-2 max-w-l mx-auto">
                             {/* Champ Date de Demande */}
                             <div className="p-1">
@@ -335,7 +354,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                     id="datedemande"
                                     name="datedemande"
                                     type="date"
-                                    value={event?.datedemande?.split('T')[0] || ''}
+                                    value={event?.datedemande?.split('T')[0] || today.toISOString().split('T')[0]}
                                     onChange={handleChange}
                                     className="mt-1 w-full max-w-1/2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
                                     readOnly={uuid !== undefined}
@@ -368,7 +387,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                         className={`mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2`}
                                     >
                                         <option value="">Sélectionnez un demandeur</option>
-                                        {eventDemandeurs.sort((a, b) => a.name.localeCompare(b.name)).map((demandeur) => (
+                                                {eventDemandeurs.sort((a, b) => a.name != undefined ? a.name.localeCompare(b.name != undefined ? b.name : '') : 0).map((demandeur) => (
                                             <option value={demandeur.uuid}>
                                                 {demandeur.name} ({demandeur.numerostructure})
                                             </option>
@@ -379,33 +398,31 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
 
                             {/* Champ Date de début */}
                             <div className="p-1">
-                                <label htmlFor="datededebut" className="text-sm font-medium text-white-700">
-                                    Date de début *
+                                <label htmlFor="datedebut" className="text-sm font-medium text-white-700">
+                                    Date de début
                                 </label>
                                 <input
-                                    id="datededebut"
-                                    name="datededebut"
+                                    id="datedebut"
+                                    name="datedebut"
                                     type="date"
                                     value={event?.datedebut?.split('T')[0]}
-                                    onChange={handleChange}
-                                    required
                                     className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+                                    readOnly={true}
                                 />
                             </div>
 
                             {/* Champ Date de fin */}
                             <div className="p-1">
                                 <label htmlFor="datefin" className="text-sm font-medium text-white-700">
-                                    Date de fin *
+                                    Date de fin
                                 </label>
                                 <input
                                     id="datefin"
                                     name="datefin"
                                     type="date"
                                     value={event?.datefin?.split('T')[0]}
-                                    onChange={handleChange}
-                                    required
                                     className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+                                    readOnly={true}
                                 />
                             </div>
 
@@ -450,7 +467,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                         className={`mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2`}
                                     >
                                         <option value="">Sélectionnez un type</option>
-                                        {eventTypes.sort((a, b) => a.name.localeCompare(b.name)).map((type) => (
+                                                {eventTypes.sort((a, b) => a.name != undefined ? a.name.localeCompare(b.name != undefined ? b.name : '') : 0).map((type) => (
                                             <option value={type.uuid}>
                                                 {type.name}
                                             </option>
@@ -500,7 +517,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                         className={`mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2`}
                                     >
                                         <option value="">Sélectionnez un organisateur</option>
-                                        {eventOrganisateurs.sort((a, b) => a.name.localeCompare(b.name)).map((organisateur) => (
+                                                {eventOrganisateurs.sort((a, b) => a.name != undefined ? a.name.localeCompare(b.name != undefined ? b.name : '') : 0).map((organisateur) => (
                                             <option value={organisateur.uuid}>
                                                 {organisateur.name}
                                             </option>

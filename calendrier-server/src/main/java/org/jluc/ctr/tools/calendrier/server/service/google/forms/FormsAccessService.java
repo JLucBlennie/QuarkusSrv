@@ -88,7 +88,7 @@ public class FormsAccessService {
                     events.add(eventToAdd);
                     nbEvents++;
                     wsResource.broadcast(new ProgressMessage(true, "loadevents",
-                            "Récupération des " + nbEvents + "évènements de Forms...",
+                            "Récupération des " + nbEvents + " évènements de Forms...",
                             (int) (nbEvents / records.size() * 100)));
                 } catch (ParseException e) {
                     Log.error(
