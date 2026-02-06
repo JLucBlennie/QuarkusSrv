@@ -194,7 +194,7 @@ public class CalendarServices {
         TypeActivite activite = event.getType().getActivite();
         String typeEvenement = event.getType().getName();
         String description = "Organisateur : " + event.getDemandeur().getName() + "\n" + "\r\n"
-                + "Contact : presidente-technique@cibpl.fr\r\n" + event.getMailcontact();
+                + "Contact : presidente-technique@cibpl.fr\r\n" + event.getMailcontact() + "\r\n" + event.getComment();
 
         String calendarId = mCalendarList.get(TypeCalendar.CTR).getId();
 
@@ -247,16 +247,18 @@ public class CalendarServices {
             return false;
         } else {
             Log.debug("Event a creer...");
-            // TODO : Gestion des Sessions
+            // Gestion des Sessions
             if (event.getSessions().size() > 1) {
                 Log.warn("Creation d'un evenement avec plusieurs sessions, ce n'est pas encore géré.");
                 for (int iSession = 0; iSession < event.getSessions().size(); iSession++) {
                     Session session = event.getSessions().get(iSession);
                     Log.warn("Session " + (iSession + 1) + " : du " + event.getSessions().get(iSession).getDateDebut()
                             + " au " + event.getSessions().get(iSession).getDateFin());
-                    Event eventCalendar = createEvent(typeEvenement + " - " + event.getDemandeur().getName(),
+                    Event eventCalendar = createEvent(
+                            typeEvenement + " - " + event.getDemandeur().getName() + " " + (iSession + 1) + " / "
+                                    + event.getSessions().size(),
                             event.getLieu(),
-                            description + "\n" + session.getTypeSession(), session.getDateDebut(),
+                            description + "\n Session en " + session.getTypeSession(), session.getDateDebut(),
                             session.getDateFin());
 
                     mService.events().insert(calendarId, eventCalendar).execute();

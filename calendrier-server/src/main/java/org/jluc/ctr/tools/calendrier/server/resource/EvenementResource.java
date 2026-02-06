@@ -180,10 +180,10 @@ public class EvenementResource {
     @PUT
     @Transactional
     public Response modifyEvent(EvenementDTO input) {
-        Log.debug("Modification de l'évènement" + input);
+        Log.debug("Modification de l'évènement " + input.uuid);
         Evenement newEvent = Evenement.findById(input.uuid);
         if (newEvent == null) {
-            Log.warn("L'évènement n'existe pas en base : " + input.uuid);
+            Log.debug("L'évènement n'existe pas en base : " + input.uuid);
             return Response.status(Response.Status.CONFLICT)
                     .entity("L'évènement n'existe pas en base.").build();
         }

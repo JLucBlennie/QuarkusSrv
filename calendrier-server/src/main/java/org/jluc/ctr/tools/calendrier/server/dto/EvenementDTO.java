@@ -70,7 +70,8 @@ public class EvenementDTO {
 
     public Evenement toEntity() {
         Log.debug("Conversion d'un evenement JSON en evenement Quarkus");
-        Log.debug("EvenementJSON" + this.uuid + ", " + this.evtidforms + ", " + this.datedemande + ", " + this.datedebut
+        Log.debug("EvenementJSON - " + this.uuid + ", " + this.evtidforms + ", " + this.datedemande + ", "
+                + this.datedebut
                 + ", "
                 + this.datefin + ", " + this.typeEvenement + ", " + this.demandeur + ", " + this.partenaire
                 + ", " + this.mailcontact + ", " + this.lieu + ", " + this.presidentjury + ", "

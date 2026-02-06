@@ -28,15 +28,18 @@ public class SessionDTO {
 
     public Session toEntity() {
         Log.debug("Conversion d'une session JSON en Session Quarkus");
-        Log.debug("SessionDTO: " + this.uuid + ", " + this.dateDebut + ", " + this.dateFin + ", " + this.typeSession);
+        Log.debug("SessionDTO : " + this.uuid + ", " + this.dateDebut + ", " + this.dateFin + ", " + this.typeSession);
         Session session = null;
         if (this.uuid != null) {
             session = Session.findById(this.uuid);
             if (session == null) {
+                Log.debug("La session n'existe pas en base, création d'une nouvelle session avec l'UUID fourni : "
+                        + this.uuid);
                 session = new Session();
                 session.setUuid(this.uuid);
             }
         } else {
+            Log.debug("Aucun UUID fourni pour la session, création d'une nouvelle session avec un UUID généré");
             session = new Session();
             session.setUuid(UUID.randomUUID());
         }

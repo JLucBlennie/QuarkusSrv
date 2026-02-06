@@ -58,7 +58,7 @@ public class Evenement extends PanacheEntityBase {
     private ClubStructure organisateur;
     private String comment;
     private String calendareventid;
-    @OneToMany(mappedBy = "evenement", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "evenement", cascade = CascadeType.ALL)
     private List<Session> sessions;
     private Integer nbparticipants = 0;
     

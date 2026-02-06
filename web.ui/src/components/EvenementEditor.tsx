@@ -145,6 +145,12 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
         setError(null);
         setSuccess(null);
 
+        if (event?.datedemande == undefined) {
+            setEvent((prev: EvenementJSON | undefined) => ({
+                ...(prev || {}), datedemande: formatDateForAPI(today.toISOString().split('T')[0])
+            }));
+        }
+
         const url = `${SERVER_URL}/ctr/evenements`;
         const method = uuid ? 'PUT' : 'POST';
 
@@ -246,6 +252,12 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
         console.log('Validation de l\'événement :', event);
         setError(null);
         setSuccess(null);
+
+        if (event?.datedemande == undefined) {
+            setEvent((prev: EvenementJSON | undefined) => ({
+                ...(prev || {}), datedemande: formatDateForAPI(today.toISOString().split('T')[0])
+            }));
+        }
 
         const url = `${SERVER_URL}/ctr/evenements/validate?id=${uuid}`;
         const method = 'PUT';
@@ -667,6 +679,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                                 id={`session${index + 1}typeSession`}
                                                 name={`session${index + 1}typeSession`}
                                                 onChange={handleSessionChange}
+                                                value={session?.typeSession || 'PRESENTIEL'}
                                                 className={`mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2`}
                                             >
                                                 <option>PRESENTIEL</option>
