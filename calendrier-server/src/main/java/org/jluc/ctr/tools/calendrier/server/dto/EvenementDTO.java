@@ -13,9 +13,9 @@ import io.quarkus.logging.Log;
 public class EvenementDTO {
     public UUID uuid;
     public String evtidforms;
-    public Date datedemande;
-    public Date datedebut;
-    public Date datefin;
+    public long datedemande;
+    public long datedebut;
+    public long datefin;
     public TypeEvenementDTO typeEvenement;
     public DemandeurDTO demandeur;
     public DemandeurDTO partenaire;
@@ -25,7 +25,7 @@ public class EvenementDTO {
     public MoniteurDTO deleguectr;
     public MoniteurDTO repcibpl;
     public Status statut = Status.DEMANDE;
-    public Date datevalidation;
+    public long datevalidation;
     public ClubStructureDTO organisateur;
     public String comment;
     public String calendareventid;
@@ -40,9 +40,9 @@ public class EvenementDTO {
         EvenementDTO dto = new EvenementDTO();
         dto.uuid = evenement.getUUID();
         dto.evtidforms = evenement.getEvtidforms();
-        dto.datedemande = evenement.getDatedemande();
-        dto.datedebut = evenement.getDatedebut();
-        dto.datefin = evenement.getDatefin();
+        dto.datedemande = evenement.getDatedemande().getTime();
+        dto.datedebut = evenement.getDatedebut() != null ? evenement.getDatedebut().getTime() : 0;
+        dto.datefin = evenement.getDatefin() != null ? evenement.getDatefin().getTime() : 0;
         dto.typeEvenement = TypeEvenementDTO.fromEntity(evenement.getType());
         dto.demandeur = DemandeurDTO.fromEntity(evenement.getDemandeur());
         dto.partenaire = DemandeurDTO.fromEntity(evenement.getPartenaire());
@@ -52,7 +52,7 @@ public class EvenementDTO {
         dto.deleguectr = MoniteurDTO.fromEntity(evenement.getDeleguectr());
         dto.repcibpl = MoniteurDTO.fromEntity(evenement.getRepcibpl());
         dto.statut = evenement.getStatut();
-        dto.datevalidation = evenement.getDatevalidation();
+        dto.datevalidation = evenement.getDatevalidation() != null ? evenement.getDatevalidation().getTime() : 0;
         dto.organisateur = ClubStructureDTO.fromEntity(evenement.getOrganisateur());
         dto.comment = evenement.getComment();
         dto.calendareventid = evenement.getCalendareventid();
@@ -91,9 +91,9 @@ public class EvenementDTO {
             evenement.setUUID(UUID.randomUUID());
         }
         evenement.setEvtidforms(this.evtidforms);
-        evenement.setDatedemande(this.datedemande);
-        evenement.setDatedebut(this.datedebut);
-        evenement.setDatefin(this.datefin);
+        evenement.setDatedemande(new Date(this.datedemande));
+        evenement.setDatedebut(new Date(this.datedebut));
+        evenement.setDatefin(new Date(this.datefin));
         evenement.setType(this.typeEvenement != null ? this.typeEvenement.toEntity() : null);
         evenement.setDemandeur(this.demandeur != null ? this.demandeur.toEntity() : null);
         evenement.setPartenaire(this.partenaire != null ? this.partenaire.toEntity() : null);
@@ -103,7 +103,7 @@ public class EvenementDTO {
         evenement.setDeleguectr(this.deleguectr != null ? this.deleguectr.toEntity() : null);
         evenement.setRepcibpl(this.repcibpl != null ? this.repcibpl.toEntity() : null);
         evenement.setStatut(this.statut);
-        evenement.setDatevalidation(this.datevalidation);
+        evenement.setDatevalidation(new Date(this.datevalidation));
         evenement.setOrganisateur(this.organisateur != null ? this.organisateur.toEntity() : null);
         evenement.setComment(this.comment);
         evenement.setCalendareventid(this.calendareventid);

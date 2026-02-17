@@ -1,17 +1,18 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { formatDateLocale, timestampToDate } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 
 export type EventColumn = {
   uuid: string;
-  datedemande: string;
+  datedemande: number;
   statut: string;
   activite: string;
   organisateur: string;
-  datedebut: string;
-  datefin: string;
+  datedebut: number;
+  datefin: number;
   lieu: string;
 };
 
@@ -71,6 +72,12 @@ export const eventcolumns: ColumnDef<EventColumn>[] = [
         </Button>
       );
     },
+    cell: ({ row }) => {
+      const rowdata = row.original;
+      return (
+        <div className="text-center">{formatDateLocale(timestampToDate(rowdata.datedebut))}</div>
+      );
+    }
   },
   {
     accessorKey: "datefin",
@@ -85,6 +92,12 @@ export const eventcolumns: ColumnDef<EventColumn>[] = [
         </Button>
       );
     },
+    cell: ({ row }) => {
+      const rowdata = row.original;
+      return (
+        <div className="text-center">{formatDateLocale(timestampToDate(rowdata.datefin))}</div>
+      );
+    }
   },
   {
     accessorKey: "lieu",

@@ -70,11 +70,14 @@ public class ClubStructureResource {
     public Response addClubStructure(ClubStructureDTO input) {
         Log.info("Ajout d'une structure ou club : " + input);
 
-        ClubStructure newClubStructure = ClubStructure.findById(input.uuid);
-        if (newClubStructure != null) {
-            Log.warn("La structure ou club existe déjà en base : " + input.uuid);
-            return Response.status(Response.Status.CONFLICT)
-                    .entity("La structure ou club existe déjà en base.").build();
+        ClubStructure newClubStructure = null;
+        if (input.uuid != null) {
+            newClubStructure = ClubStructure.findById(input.uuid);
+            if (newClubStructure != null) {
+                Log.warn("La structure ou club existe déjà en base : " + input.uuid);
+                return Response.status(Response.Status.CONFLICT)
+                        .entity("La structure ou club existe déjà en base.").build();
+            }
         }
         newClubStructure = input.toEntity();
         newClubStructure.persist();
@@ -85,6 +88,12 @@ public class ClubStructureResource {
     @PUT
     public Response modifyClubStructure(ClubStructureDTO input) {
         Log.info("Modification de la structure ou club " + input);
+        if (input.uuid == null) {
+            Log.warn("La structure ou club doit avoir un UUID pour être modifiée : " + input);
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("La structure ou club doit avoir un UUID pour être modifiée.").build();
+        }
+
         ClubStructure newClubStructure = ClubStructure.findById(input.uuid);
         if (newClubStructure == null) {
             Log.warn("La structure ou club n'existe pas en base : " + input.uuid);

@@ -74,13 +74,17 @@ export default function Home() {
       <div className="absolute top-2 right-5 transform bg-slate-900 bg-opacity-50 text-white p-2 w-max rounded shadow-lg z-10">
         <ThemeToggle />
       </div>
-
-      {/* Lower Left Box */}
-      <div className="absolute bottom-5 left-5 transform bg-slate-900 bg-opacity-50 text-white p-4 rounded shadow-lg z-10">
+      <div className="absolute top-20 right-5 transform bg-slate-900 bg-opacity-50 text-white p-2 w-max rounded shadow-lg z-10">
         <Button className="flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors" onClick={handleUpdateClick}>
           <FaArrowRotateLeft className="h-6 w-6" />
         </Button>
       </div>
+
+      {/* Lower Left Box 
+      <div className="absolute bottom-5 left-5 transform bg-slate-900 bg-opacity-50 text-white p-4 rounded shadow-lg z-10">
+
+      </div>
+      */}
 
       {/* Lower Right Box
       <div className="absolute bottom-5 right-5 transform bg-slate-900 bg-opacity-50 text-white p-4 rounded shadow-lg z-10">

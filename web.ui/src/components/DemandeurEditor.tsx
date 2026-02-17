@@ -90,7 +90,7 @@ export function DemandeurEditor({ uuid, onExit }: DemandeurEditorProps) {
             {!error && !loading &&
                 <div>
                     <p className="text-center">Modification d'un demandeur.</p>
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form className="space-y-6">
                         <div className="grid grid-cols-2 grid-rows-5 gap-2 max-w-l mx-auto">
                             {/* Champ First Name */}
                             <div className="p-1">

@@ -181,6 +181,12 @@ public class EvenementResource {
     @Transactional
     public Response modifyEvent(EvenementDTO input) {
         Log.debug("Modification de l'évènement " + input.uuid);
+        if (input.uuid == null) {
+            Log.warn("L'évènement n'a pas d'UUID pour la modification.");
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("L'évènement doit avoir un UUID pour être modifié.").build();
+        }
+
         Evenement newEvent = Evenement.findById(input.uuid);
         if (newEvent == null) {
             Log.debug("L'évènement n'existe pas en base : " + input.uuid);

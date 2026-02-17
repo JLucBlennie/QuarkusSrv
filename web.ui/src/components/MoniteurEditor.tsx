@@ -89,7 +89,7 @@ export function MoniteurEditor({ uuid, onExit }: MoniteurEditorProps) {
             }
             {!error && !loading &&
                 <div>
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form className="space-y-6">
                         <div className="grid grid-cols-2 grid-rows-5 gap-2 max-w-l mx-auto">
                             {/* Champ First Name */}
                             <div className="p-1">

@@ -22,10 +22,16 @@ public class DemandeurDTO {
     }
 
     public Demandeur toEntity() {
-        Demandeur demandeur = Demandeur.findById(this.uuid);
-        if (demandeur == null) {
+        Demandeur demandeur = null;
+        if (this.uuid != null) {
+            demandeur = Demandeur.findById(this.uuid);
+            if (demandeur == null) {
+                demandeur = new Demandeur();
+                demandeur.setUUID(this.uuid);
+            }
+        } else {
             demandeur = new Demandeur();
-            demandeur.setUUID(this.uuid != null ? this.uuid : UUID.randomUUID());
+            demandeur.setUUID(UUID.randomUUID());
         }
         demandeur.setName(this.name);
         demandeur.setNumeroStructure(this.numerostructure);

@@ -36,12 +36,12 @@ export function EvenementsList() {
           data.map((evenement: EvenementJSON) => {
             var eventCol: EventColumn = {
               uuid: (evenement.uuid || ''),
-              datedemande: (evenement.datedemande?.split('T')[0] || ''),
+              datedemande: (evenement.datedemande || 0),
               statut: (evenement.statut || ''),
               activite: (evenement.typeEvenement?.name === undefined) ? "Type null" : evenement.typeEvenement.name,
               organisateur: evenement.organisateur?.name || "",
-              datedebut: (evenement.datedebut?.split('T')[0] || ''),
-              datefin: (evenement.datefin?.split('T')[0] || ''),
+              datedebut: (evenement.datedebut || 0),
+              datefin: (evenement.datefin || 0),
               lieu: (evenement.lieu || '')
             };
             events.push(eventCol);
@@ -74,7 +74,7 @@ export function EvenementsList() {
     <div>
       {(!rowClicked && !addClicked && !error && !loading) &&
         <div className="relative">
-          <DataTable columns={eventcolumns} data={evenements.sort((a, b) => a.datedemande.localeCompare(b.datedemande)).reverse()} onRowClick={handleRowClick} />
+          <DataTable columns={eventcolumns} data={evenements.sort((a, b) => b.datedemande - a.datedemande)} onRowClick={handleRowClick} />
           <Button className="absolute bottom-0 right-0 flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors z-10" onClick={handleAddClick}>
             <FaPlus className="h-6 w-6" />
           </Button>
