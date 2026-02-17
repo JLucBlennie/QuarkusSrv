@@ -41,17 +41,17 @@ export type TypeEvenement = {
 
 export type Session = {
   uuid: string;
-  dateDebut: string;
-  dateFin: string;
+  dateDebut: number | null;
+  dateFin: number | null;
   typeSession: string;
 }
 
 export type EvenementJSON = {
   uuid?: string;
   evtidforms?: string;
-  datedemande?: string;
-  datedebut?: string;
-  datefin?: string;
+  datedemande?: number | null;
+  datedebut?: number | null;
+  datefin?: number | null;
   typeEvenement?: TypeEvenement;
   demandeur?: Demandeur;
   partenaire?: Demandeur;
@@ -61,9 +61,10 @@ export type EvenementJSON = {
   deleguectr?: Moniteur;
   repcibpl?: Moniteur;
   statut?: string;
-  datevalidation?: string;
+  datevalidation?: number | null;
   organisateur?: ClubStructure;
   comment?: string;
   calendareventid?: string;
+  nbparticipants?: number;
   sessions?: Session[];
 };

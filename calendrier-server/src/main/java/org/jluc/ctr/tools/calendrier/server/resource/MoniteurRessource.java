@@ -107,12 +107,14 @@ public class MoniteurRessource {
     @Transactional
     public Response addMoniteur(MoniteurDTO input) {
         Log.info("Ajout d'un moniteur : " + input);
-
-        Moniteur newMoniteur = Moniteur.findById(input.uuid);
-        if (newMoniteur != null) {
-            Log.warn("Le moniteur existe déjà en base : " + input.uuid);
-            return Response.status(Response.Status.CONFLICT)
-                    .entity("Le moniteur existe déjà en base.").build();
+        Moniteur newMoniteur = null;
+        if (input.uuid != null) {
+            newMoniteur = Moniteur.findById(input.uuid);
+            if (newMoniteur != null) {
+                Log.warn("Le moniteur existe déjà en base : " + input.uuid);
+                return Response.status(Response.Status.CONFLICT)
+                        .entity("Le moniteur existe déjà en base.").build();
+            }
         }
         newMoniteur = input.toEntity();
         newMoniteur.persist();
@@ -124,6 +126,11 @@ public class MoniteurRessource {
     @Transactional
     public Response modifyMoniteur(MoniteurDTO input) {
         Log.info("Modification du moniteur " + input);
+        if (input.uuid == null) {
+            Log.warn("Le moniteur n'a pas d'UUID : " + input);
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Le moniteur doit avoir un UUID.").build();
+        }
         Moniteur newMoniteur = Moniteur.findById(input.uuid);
         if (newMoniteur == null) {
             Log.warn("Le moniteur n'existe pas en base : " + input.uuid);

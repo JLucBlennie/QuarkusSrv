@@ -20,11 +20,19 @@ public class ClubStructureDTO {
     }
 
     public ClubStructure toEntity() {
-        if (ClubStructure.findById(this.uuid) != null) {
-            return ClubStructure.findById(this.uuid);
+        ClubStructure entity = null;
+        if (this.uuid != null) {
+            entity = ClubStructure.findById(this.uuid);
+            if (entity != null) {
+                return entity;
+            } else {
+                entity = new ClubStructure();
+                entity.setUuid(this.uuid);
+            }
+        } else {
+            entity = new ClubStructure();
+            entity.setUuid(UUID.randomUUID());
         }
-        ClubStructure entity = new ClubStructure();
-        entity.setUuid(this.uuid != null ? this.uuid : UUID.randomUUID());
         entity.setName(this.name);
         return entity;
     }

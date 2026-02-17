@@ -70,11 +70,14 @@ public class DemandeurResource {
     public Response addDemandeur(DemandeurDTO input) {
         Log.info("Ajout d'un demandeur : " + input);
 
-        Demandeur newDemandeur = Demandeur.findById(input.uuid);
-        if (newDemandeur != null) {
-            Log.warn("Le demandeur existe déjà en base : " + input.uuid);
-            return Response.status(Response.Status.CONFLICT)
-                    .entity("Le demandeur existe déjà en base.").build();
+        Demandeur newDemandeur = null;
+        if (input.uuid != null) {
+            newDemandeur = Demandeur.findById(input.uuid);
+            if (newDemandeur != null) {
+                Log.warn("Le demandeur existe déjà en base : " + input.uuid);
+                return Response.status(Response.Status.CONFLICT)
+                        .entity("Le demandeur existe déjà en base.").build();
+            }
         }
         newDemandeur = input.toEntity();
         newDemandeur.persist();
@@ -85,6 +88,11 @@ public class DemandeurResource {
     @PUT
     public Response modifyDemandeur(DemandeurDTO input) {
         Log.info("Modification du demandeur " + input);
+        if (input.uuid == null) {
+            Log.warn("Le demandeur n'a pas d'UUID : " + input);
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Le demandeur doit avoir un UUID.").build();
+        }
         Demandeur newDemandeur = Demandeur.findById(input.uuid);
         if (newDemandeur == null) {
             Log.warn("Le demandeur n'existe pas en base : " + input.uuid);

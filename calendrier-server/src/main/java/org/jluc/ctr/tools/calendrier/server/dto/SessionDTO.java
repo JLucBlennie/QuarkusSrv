@@ -9,8 +9,8 @@ import io.quarkus.logging.Log;
 
 public class SessionDTO {
     public UUID uuid;
-    public Date dateDebut;
-    public Date dateFin;
+    public long dateDebut;
+    public long dateFin;
     public String typeSession;
 
     public static SessionDTO fromEntity(Session session) {
@@ -20,8 +20,8 @@ public class SessionDTO {
 
         SessionDTO dto = new SessionDTO();
         dto.uuid = session.getUuid();
-        dto.dateDebut = session.getDateDebut();
-        dto.dateFin = session.getDateFin();
+        dto.dateDebut = session.getDateDebut() != null ? session.getDateDebut().getTime() : 0;
+        dto.dateFin = session.getDateFin() != null ? session.getDateFin().getTime() : 0;
         dto.typeSession = session.getTypeSession().name();
         return dto;
     }
@@ -43,8 +43,8 @@ public class SessionDTO {
             session = new Session();
             session.setUuid(UUID.randomUUID());
         }
-        session.setDateDebut(this.dateDebut);
-        session.setDateFin(this.dateFin);
+        session.setDateDebut(new Date(this.dateDebut));
+        session.setDateFin(new Date(this.dateFin));
         Log.debug("SessionDTO . TypeSession: " + TypeSession.valueOf(this.typeSession));
         session.setTypeSession(TypeSession.valueOf(this.typeSession));
         Log.debug("SessionDTO convertie en Session: " + session.getUuid() + ", " + session.getDateDebut() + ", "

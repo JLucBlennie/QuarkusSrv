@@ -26,10 +26,16 @@ public class MoniteurDTO {
     }
 
     public Moniteur toEntity() {
-        Moniteur moniteur = Moniteur.findById(this.uuid);
-        if (moniteur == null) {
+        Moniteur moniteur = null;
+        if (this.uuid != null) {
+            moniteur = Moniteur.findById(this.uuid);
+            if (moniteur == null) {
+                moniteur = new Moniteur();
+                moniteur.setUUID(this.uuid);
+            }
+        } else {
             moniteur = new Moniteur();
-            moniteur.setUUID(this.uuid != null ? this.uuid : UUID.randomUUID());
+            moniteur.setUUID(UUID.randomUUID());
         }
         moniteur.setLastName(this.lastname);
         moniteur.setFirstName(this.firstname);

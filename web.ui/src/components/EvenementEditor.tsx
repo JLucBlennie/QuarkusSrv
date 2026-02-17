@@ -1,4 +1,5 @@
 import { ClubStructure, Demandeur, EvenementJSON, Moniteur, SERVER_URL, Session, TypeEvenement } from "@/lib/constants";
+import { dateInputToTimestamp, timestampToDateInput } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa6";
 import { Button } from "./ui/button";
@@ -7,16 +8,6 @@ type EventEditorProps = {
     uuid: String | undefined;
     onExit: () => void;
 }
-
-// Fonction utilitaire pour parser les dates ISO
-function parseDateForInput(isoDate: string): string {
-    return isoDate.split('T')[0]; // "2024-12-31T12:00:00" → "2024-12-31"
-};
-
-// Fonction utilitaire pour formater les dates pour l'API
-function formatDateForAPI(date: string): string {
-    return `${date}T23:00:00.000+00:00`; // "2024-12-31" → "2024-12-31T23:00:00.000+00:00"
-};
 
 export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
     const [event, setEvent] = useState<EvenementJSON>();
@@ -147,7 +138,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
 
         if (event?.datedemande == undefined) {
             setEvent((prev: EvenementJSON | undefined) => ({
-                ...(prev || {}), datedemande: formatDateForAPI(today.toISOString().split('T')[0])
+                ...(prev || {}), datedemande: today.getTime()
             }));
         }
 
@@ -179,9 +170,15 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
 
     function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
         const { name, value } = e.target;
-        setEvent((prev: EvenementJSON | undefined) => ({
-            ...(prev || {}), [name]: value
-        }));
+        if (name.startsWith('date')) {
+            setEvent((prev: EvenementJSON | undefined) => ({
+                ...(prev || {}), [name]: dateInputToTimestamp(value)
+            }));
+        } else {
+            setEvent((prev: EvenementJSON | undefined) => ({
+                ...(prev || {}), [name]: value
+            }));
+        }
         setModified(true);
     };
 
@@ -255,7 +252,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
 
         if (event?.datedemande == undefined) {
             setEvent((prev: EvenementJSON | undefined) => ({
-                ...(prev || {}), datedemande: formatDateForAPI(today.toISOString().split('T')[0])
+                ...(prev || {}), datedemande: today.getTime()
             }));
         }
 
@@ -297,8 +294,8 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
         console.log('Ajouter une Session');
         const newSession: Session = {
             uuid: '',
-            dateDebut: '',
-            dateFin: '',
+            dateDebut: 0,
+            dateFin: 0,
             typeSession: 'PRESENTIEL'
         };
         setEvent((prev: EvenementJSON | undefined) => {
@@ -317,7 +314,6 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
         let dateOk = false;
         if (fieldName.startsWith('date')) {
             dateOk = (value.split('-')[0] === today.getFullYear().toString());
-            valueToSet = formatDateForAPI(value);
         }
         setEvent((prev: EvenementJSON | undefined) => {
             if (!prev) return prev;
@@ -326,15 +322,15 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                 (updatedSessions[sessionIndex] as any)[fieldName] = valueToSet;
             }
             if (fieldName === 'dateDebut' && valueToSet && dateOk) {
-                if (!prev.datedebut || prev.datedebut.localeCompare(valueToSet) > 0) {
-                    const updatedEvent = { ...prev, datedebut: valueToSet, sessions: updatedSessions };
+                if (!prev.datedebut || prev.datedebut <= dateInputToTimestamp(valueToSet)) {
+                    const updatedEvent = { ...prev, datedebut: dateInputToTimestamp(valueToSet), sessions: updatedSessions };
                     return updatedEvent;
                 } else {
                     return { ...prev, sessions: updatedSessions };
                 }
             } else if (fieldName === 'dateFin' && valueToSet && dateOk) {
-                if (!prev.datefin || prev.datefin.localeCompare(valueToSet) < 0) {
-                    const updatedEvent = { ...prev, datefin: valueToSet, sessions: updatedSessions };
+                if (!prev.datefin || prev.datefin <= dateInputToTimestamp(valueToSet)) {
+                    const updatedEvent = { ...prev, datefin: dateInputToTimestamp(valueToSet), sessions: updatedSessions };
                     return updatedEvent;
                 } else {
                     return { ...prev, sessions: updatedSessions };
@@ -366,7 +362,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                     id="datedemande"
                                     name="datedemande"
                                     type="date"
-                                    value={event?.datedemande?.split('T')[0] || today.toISOString().split('T')[0]}
+                                    value={event?.datedemande ? timestampToDateInput(event.datedemande) : timestampToDateInput(today.getTime())}
                                     onChange={handleChange}
                                     className="mt-1 w-full max-w-1/2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
                                     readOnly={uuid !== undefined}
@@ -417,7 +413,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                     id="datedebut"
                                     name="datedebut"
                                     type="date"
-                                    value={event?.datedebut?.split('T')[0]}
+                                    value={timestampToDateInput(event?.datedebut)}
                                     className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
                                     readOnly={true}
                                 />
@@ -432,7 +428,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                     id="datefin"
                                     name="datefin"
                                     type="date"
-                                    value={event?.datefin?.split('T')[0]}
+                                    value={timestampToDateInput(event?.datefin)}
                                     className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
                                     readOnly={true}
                                 />
@@ -651,7 +647,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                                 id={`session${index + 1}dateDebut`}
                                                 name={`session${index + 1}dateDebut`}
                                                 type="date"
-                                                value={session?.dateDebut?.split('T')[0] || ''}
+                                                value={timestampToDateInput(session?.dateDebut)}
                                                 onChange={handleSessionChange}
                                                 required
                                                 className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
@@ -665,7 +661,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                                 id={`session${index + 1}dateFin`}
                                                 name={`session${index + 1}dateFin`}
                                                 type="date"
-                                                value={session?.dateFin?.split('T')[0] || ''}
+                                                value={timestampToDateInput(session?.dateFin)}
                                                 onChange={handleSessionChange}
                                                 required
                                                 className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"

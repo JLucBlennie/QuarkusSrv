@@ -25,10 +25,16 @@ public class TypeEvenementDTO {
     }
 
     public TypeEvenement toEntity() {
-        TypeEvenement entity = TypeEvenement.findById(this.uuid);
-        if (entity == null) {
+        TypeEvenement entity = null;
+        if (this.uuid != null) {
+            entity = TypeEvenement.findById(this.uuid);
+            if (entity == null) {
+                entity = new TypeEvenement();
+                entity.setUuid(this.uuid);
+            }
+        } else {
             entity = new TypeEvenement();
-            entity.setUuid(this.uuid != null ? this.uuid : UUID.randomUUID());
+            entity.setUuid(UUID.randomUUID());
         }
         entity.setName(this.name);
         entity.setActivite(this.activite);

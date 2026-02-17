@@ -70,11 +70,14 @@ public class TypeEvenementResource {
     public Response addEventType(TypeEvenementDTO input) {
         Log.info("Ajout d'un type d'événement : " + input);
 
-        TypeEvenement newEventType = TypeEvenement.findById(input.uuid);
-        if (newEventType != null) {
-            Log.warn("Le type d'évènement existe déjà en base : " + input.uuid);
-            return Response.status(Response.Status.CONFLICT)
-                    .entity("Le type d'évènement existe déjà en base.").build();
+        TypeEvenement newEventType = null;
+        if (input.uuid != null) {
+            newEventType = TypeEvenement.findById(input.uuid);
+            if (newEventType != null) {
+                Log.warn("Le type d'évènement existe déjà en base : " + input.uuid);
+                return Response.status(Response.Status.CONFLICT)
+                        .entity("Le type d'évènement existe déjà en base.").build();
+            }
         }
         newEventType = input.toEntity();
         newEventType.persist();
@@ -85,6 +88,12 @@ public class TypeEvenementResource {
     @PUT
     public Response modifyEventType(TypeEvenementDTO input) {
         Log.info("Modification du type d'évènement" + input);
+        if (input.uuid == null) {
+            Log.warn("Le type d'évènement n'a pas d'UUID : " + input);
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Le type d'évènement doit avoir un UUID.").build();
+        }
+
         TypeEvenement newEventType = TypeEvenement.findById(input.uuid);
         if (newEventType == null) {
             Log.warn("Le type d'évènement n'existe pas en base : " + input.uuid);
