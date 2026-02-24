@@ -19,7 +19,7 @@ export function MoniteurEditor({ uuid, onExit }: MoniteurEditorProps) {
             setCreateMode(true);
             setLoading(false);
         } else {
-            fetch(`${SERVER_URL}/ctr/moniteurs/` + uuid, {
+            fetch(`${SERVER_URL}/moniteurs/` + uuid, {
                 method: "GET",
                 redirect: "follow"
             })
@@ -47,7 +47,7 @@ export function MoniteurEditor({ uuid, onExit }: MoniteurEditorProps) {
         setError(null);
         setSuccess(null);
 
-        const url = `${SERVER_URL}/ctr/moniteurs`;
+        const url = `${SERVER_URL}/moniteurs`;
         const method = uuid ? 'PUT' : 'POST';
 
         fetch(url, {

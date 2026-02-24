@@ -20,7 +20,7 @@ export function TypeEvenementList() {
     useEffect(() => {
         if (loading) {
             console.log('Chargement des types d\'événements depuis le serveur Quarkus...');
-            fetch(`${SERVER_URL}/ctr/typeevenements`, {
+            fetch(`${SERVER_URL}/typeevenements`, {
                 method: "GET",
                 redirect: "follow",
             })

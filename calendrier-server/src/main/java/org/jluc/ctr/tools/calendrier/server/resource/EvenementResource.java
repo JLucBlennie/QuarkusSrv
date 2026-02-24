@@ -2,6 +2,9 @@ package org.jluc.ctr.tools.calendrier.server.resource;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -244,4 +247,38 @@ public class EvenementResource {
         }
     }
 
+    @GET
+    @Path("/conflict")
+    public Response getEventsInConflict(@QueryParam("debut") String debut, @QueryParam("fin") String fin) {
+        Log.info("conflit demandé : " + debut + " - " + fin);
+        wsResource.broadcast(new ProgressMessage(true, "conflicts", "Chargement des évènements en conflit...", 0));
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        List<Evenement> conflicts = null;
+        Date debutDate = null;
+        Date finDate = null;
+        try {
+            debutDate = df.parse(debut);
+            finDate = df.parse(fin);
+        } catch (ParseException e) {
+            Log.error("Probleme dans le format de la date", e);
+            wsResource.broadcast(
+                    new InfoMessage("[Erreur]", "Format de date invalide..."));
+            return Response.status(Response.Status.BAD_REQUEST).entity("Format de date invalide").build();
+        }
+        conflicts = service.getAllEvenementsInConflict(debutDate, finDate, wsResource);
+        Log.info("Nb de confilcts trouvés : " + conflicts.size());
+        if (conflicts != null && conflicts.size() > 0) {
+            List<EvenementDTO> eventsDTO = new ArrayList<EvenementDTO>();
+            for (Evenement evenement : conflicts) {
+                eventsDTO.add(EvenementDTO.fromEntity(evenement));
+            }
+            wsResource.broadcast(
+                    new ProgressMessage(true, "conflicts", "Chargement des évènements en conflit terminé...", 100));
+            return Response.ok(eventsDTO).build();
+        } else {
+            wsResource.broadcast(
+                    new InfoMessage("[Info]", "Aucun évènement en conflit..."));
+            return Response.noContent().build();
+        }
+    }
 }

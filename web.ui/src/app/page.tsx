@@ -11,7 +11,7 @@ import { ThreeColumnsLayout } from "@/components/ThreeColumnsLayout";
 import { TypeEvenementList } from "@/components/TypeEvenementList";
 import { Button } from "@/components/ui/button";
 import Tabs from "@/components/ui/tabs";
-import { SERVER_URL } from "@/lib/constants";
+import { SERVER_URL, WS_URL } from "@/lib/constants";
 import { FaArrowRotateLeft } from "react-icons/fa6";
 import pack from "../../package.json";
 
@@ -19,7 +19,7 @@ export default function Home() {
 
   function handleUpdateClick() {
     console.log('Mise à jour de la BDD locale depuis le serveur Quarkus...');
-    fetch(`${SERVER_URL}/ctr/evenements/updatebdd/`, {
+    fetch(`${SERVER_URL}/evenements/updatebdd/`, {
       method: "GET",
       redirect: "follow",
     })
@@ -39,8 +39,7 @@ export default function Home() {
           <Tabs>
             {/* Onglet 1 : Liste des événements */}
             <Tabs.Tab label="Événements">
-              <div>
-                <h2 className="text-xl font-semibold mb-4">Liste des événements</h2>
+              <div className="w-full h-full overflow-auto">
                 <EvenementsList />
               </div>
             </Tabs.Tab>
@@ -112,7 +111,7 @@ export default function Home() {
       </div>
       */}
 
-      <WebSocketNotificationListener url="ws://localhost:9090/ws" />
+      <WebSocketNotificationListener url={`${WS_URL}/ws`} />
     </div>
   );
 }

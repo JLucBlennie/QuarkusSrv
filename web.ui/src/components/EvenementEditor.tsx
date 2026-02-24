@@ -2,6 +2,9 @@ import { ClubStructure, Demandeur, EvenementJSON, Moniteur, SERVER_URL, Session,
 import { dateInputToTimestamp, timestampToDateInput } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa6";
+import { DataTableEventConflict } from "./DataTableEventConflict";
+import { EventColumn } from "./Event-columns";
+import { eventconflictcolumns } from "./EventConflict-columns";
 import { Button } from "./ui/button";
 
 type EventEditorProps = {
@@ -20,6 +23,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
     const [createMode, setCreateMode] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
     const [modified, setModified] = useState<boolean>(false);
+    const [eventConflict, setEventConflict] = useState<EventColumn[]>([]);
     const today = new Date();
 
     useEffect(() => {
@@ -28,7 +32,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
             setCreateMode(true);
             setLoading(false);
         } else {
-            fetch(`${SERVER_URL}/ctr/evenements/` + uuid, {
+            fetch(`${SERVER_URL}/evenements/` + uuid, {
                 method: "GET",
                 redirect: "follow"
             })
@@ -42,6 +46,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                     console.log('Réponse du serveur Quarkus pour l\'evenement :', data);
                     setEvent(data);
                     setLoading(false);
+                    updateConflicts(data);
                 })
                 .catch((err) => {
                     console.error('Erreur fetch pour l\'evenement : ' + uuid, err);
@@ -49,7 +54,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                     setLoading(false);
                 });
         }
-        fetch(`${SERVER_URL}/ctr/typeevenements/`, {
+        fetch(`${SERVER_URL}/typeevenements/`, {
             method: "GET",
             redirect: "follow"
         })
@@ -69,7 +74,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                 setError(err.message);
                 setLoading(false);
             });
-        fetch(`${SERVER_URL}/ctr/demandeurs/`, {
+        fetch(`${SERVER_URL}/demandeurs/`, {
             method: "GET",
             redirect: "follow"
         })
@@ -89,7 +94,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                 setError(err.message);
                 setLoading(false);
             });
-        fetch(`${SERVER_URL}/ctr/clubstructures/`, {
+        fetch(`${SERVER_URL}/clubstructures/`, {
             method: "GET",
             redirect: "follow"
         })
@@ -109,7 +114,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                 setError(err.message);
                 setLoading(false);
             });
-        fetch(`${SERVER_URL}/ctr/moniteurs/`, {
+        fetch(`${SERVER_URL}/moniteurs/`, {
             method: "GET",
             redirect: "follow"
         })
@@ -142,7 +147,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
             }));
         }
 
-        const url = `${SERVER_URL}/ctr/evenements`;
+        const url = `${SERVER_URL}/evenements`;
         const method = uuid ? 'PUT' : 'POST';
 
         fetch(url, {
@@ -167,6 +172,37 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
             }
         });
     };
+
+    function updateConflicts(event?: EvenementJSON) {
+        console.log("Update des conflits pour l'événement : ", event);
+        if (event?.datedebut && event?.datefin) {
+            fetch(`${SERVER_URL}/evenements/conflict?debut=${timestampToDateInput(event.datedebut)}&fin=${timestampToDateInput(event.datefin)}`, {
+                method: "GET",
+                redirect: "follow"
+            }).then((res) => {
+                if (!res.ok) {
+                    throw new Error(`Erreur serveur : ${res.status}`);
+                }
+                return res.json();
+            }).then((data) => {
+                console.log('Réponse du serveur Quarkus pour les conflits :', data);
+                const conflicts: EventColumn[] = data.filter((evenement: EvenementJSON) => evenement.uuid !== event.uuid).map((evenement: EvenementJSON) => ({
+                    uuid: (evenement.uuid || ''),
+                    datedemande: (evenement.datedemande || 0),
+                    statut: (evenement.statut || ''),
+                    activite: (evenement.typeEvenement?.name === undefined) ? "Type null" : evenement.typeEvenement.name,
+                    organisateur: evenement.organisateur?.name || "",
+                    datedebut: (evenement.datedebut || 0),
+                    datefin: (evenement.datefin || 0),
+                    lieu: (evenement.lieu || '')
+                }));
+                setEventConflict(conflicts);
+            }).catch((err) => {
+                console.error('Erreur fetch pour les conflits :', err);
+                setError(err.message);
+            });
+        }
+    }
 
     function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
         const { name, value } = e.target;
@@ -256,7 +292,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
             }));
         }
 
-        const url = `${SERVER_URL}/ctr/evenements/validate?id=${uuid}`;
+        const url = `${SERVER_URL}/evenements/validate?id=${uuid}`;
         const method = 'PUT';
 
         fetch(url, {
@@ -275,7 +311,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
         setError(null);
         setSuccess(null);
 
-        const url = `${SERVER_URL}/ctr/evenements/refuse?id=${uuid}`;
+        const url = `${SERVER_URL}/evenements/refuse?id=${uuid}`;
         const method = 'PUT';
 
         fetch(url, {
@@ -338,6 +374,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
             } else {
                 return { ...prev, sessions: updatedSessions };
             }
+            updateConflicts(prev);
         });
         setModified(true);
     }
@@ -351,8 +388,8 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
             }
             {!error && !loading &&
                 <div>
-                    <form className="space-y-6">
-                        <div className="grid grid-cols-2 grid-rows-5 gap-2 max-w-l mx-auto">
+                    <form className="flex flex-col space-y-6">
+                        <div className="grid grid-cols-4 grid-rows-3 gap-2 max-w-l mx-auto">
                             {/* Champ Date de Demande */}
                             <div className="p-1">
                                 <label htmlFor="datedemande" className="text-sm font-medium text-white-700">
@@ -533,7 +570,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                     </select>
                                 )}
                             </div>
-                            <div className="col-span-2 grid grid-cols-3 grid-rows-1 gap-2 w-full max-w-l mx-auto">
+                            <div className="col-span-4 grid grid-cols-3 grid-rows-1 gap-2 w-full max-w-l mx-auto">
                                 <div className="p-1">
                                     <label htmlFor="presidentjury" className="text-sm font-medium text-white-700 mb-1">
                                         Président du jury *
@@ -631,81 +668,88 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                     )}
                                 </div>
                             </div>
-                            <div className="col-span-2">
-                                {event?.sessions && event.sessions.length > 0 && (
-                                    <label className="text-sm font-medium text-white-700 mb-1">
-                                        Les Sessions :
-                                    </label>
-                                )}
-                                {event?.sessions && event.sessions.map((session, index) => (
-                                    <div key={index} className="grid grid-cols-3 grid-rows-1 gap-2 w-full max-w-l mx-auto">
-                                        <div className="p-1">
-                                            <label htmlFor={`session${index + 1}dateDebut`} className="text-sm font-medium text-white-700 mb-1">
-                                                Session {index + 1} - Date de début *
-                                            </label>
-                                            <input
-                                                id={`session${index + 1}dateDebut`}
-                                                name={`session${index + 1}dateDebut`}
-                                                type="date"
-                                                value={timestampToDateInput(session?.dateDebut)}
-                                                onChange={handleSessionChange}
-                                                required
-                                                className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
-                                            />
+                            <div className="col-span-4 relative">
+                                <div className="max-h-[200px] overflow-auto">
+                                    {event?.sessions && event.sessions.length > 0 && (
+                                        <label className="text-sm font-medium text-white-700 mb-1">
+                                            Les Sessions :
+                                        </label>
+                                    )}
+                                    {event?.sessions && event.sessions.map((session, index) => (
+                                        <div key={index} className="grid grid-cols-3 grid-rows-1 gap-2 w-full max-w-l mx-auto">
+                                            <div className="p-1">
+                                                <label htmlFor={`session${index + 1}dateDebut`} className="text-sm font-medium text-white-700 mb-1">
+                                                    Session {index + 1} - Date de début *
+                                                </label>
+                                                <input
+                                                    id={`session${index + 1}dateDebut`}
+                                                    name={`session${index + 1}dateDebut`}
+                                                    type="date"
+                                                    value={timestampToDateInput(session?.dateDebut)}
+                                                    onChange={handleSessionChange}
+                                                    required
+                                                    className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+                                                />
+                                            </div>
+                                            <div className="p-1">
+                                                <label htmlFor={`session${index + 1}dateFin`} className="text-sm font-medium text-white-700 mb-1">
+                                                    Session {index + 1} - Date de fin *
+                                                </label>
+                                                <input
+                                                    id={`session${index + 1}dateFin`}
+                                                    name={`session${index + 1}dateFin`}
+                                                    type="date"
+                                                    value={timestampToDateInput(session?.dateFin)}
+                                                    onChange={handleSessionChange}
+                                                    required
+                                                    className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+                                                />
+                                            </div>
+                                            <div className="p-1">
+                                                <label htmlFor={`session${index + 1}typeSession`} className="text-sm font-medium text-white-700 mb-1">
+                                                    Session {index + 1} - Type *
+                                                </label>
+                                                <select
+                                                    id={`session${index + 1}typeSession`}
+                                                    name={`session${index + 1}typeSession`}
+                                                    onChange={handleSessionChange}
+                                                    value={session?.typeSession || 'PRESENTIEL'}
+                                                    className={`mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2`}
+                                                >
+                                                    <option>PRESENTIEL</option>
+                                                    <option>DISTANCIEL</option>
+                                                    <option>MIXTE</option>
+                                                </select>
+                                            </div>
                                         </div>
-                                        <div className="p-1">
-                                            <label htmlFor={`session${index + 1}dateFin`} className="text-sm font-medium text-white-700 mb-1">
-                                                Session {index + 1} - Date de fin *
-                                            </label>
-                                            <input
-                                                id={`session${index + 1}dateFin`}
-                                                name={`session${index + 1}dateFin`}
-                                                type="date"
-                                                value={timestampToDateInput(session?.dateFin)}
-                                                onChange={handleSessionChange}
-                                                required
-                                                className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
-                                            />
-                                        </div>
-                                        <div className="p-1">
-                                            <label htmlFor={`session${index + 1}typeSession`} className="text-sm font-medium text-white-700 mb-1">
-                                                Session {index + 1} - Type *
-                                            </label>
-                                            <select
-                                                id={`session${index + 1}typeSession`}
-                                                name={`session${index + 1}typeSession`}
-                                                onChange={handleSessionChange}
-                                                value={session?.typeSession || 'PRESENTIEL'}
-                                                className={`mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2`}
-                                            >
-                                                <option>PRESENTIEL</option>
-                                                <option>DISTANCIEL</option>
-                                                <option>MIXTE</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
                                 {/* Bouton Ajouter une session */}
-                                <Button className="fixed bottom-56 right-6 flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors z-10" onClick={handleAddClick}>
+                                <Button className="absolute bottom-6 right-6 flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors z-10" onClick={handleAddClick}>
                                     <FaPlus className="h-6 w-6" />
                                 </Button>
                             </div>
                         </div>
+                        <div className="grid grid-cols-2 grid-rows-1 gap-2 w-full max-w-l mx-auto">
+                            {/* Tableau des conflits d'evenement */}
+                            <div className="p-1">
+                                <label className="text-sm font-medium text-white-700">Conflits d'événement</label>
+                                <DataTableEventConflict columns={eventconflictcolumns} data={eventConflict} onRowClick={() => { }} />
+                            </div>
 
-                        {/* Tableau des conflits d'evenement */}
-
-                        {/* Champ Commentaire */}
-                        <div className="p-1">
-                            <label htmlFor="comment" className="text-sm font-medium text-white-700">
-                                Commentaire
-                            </label>
-                            <textarea
-                                id="comment"
-                                name="comment"
-                                value={event?.comment || ''}
-                                onChange={handleChange}
-                                className="mt-1 w-full max-w-1/2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
-                            />
+                            {/* Champ Commentaire */}
+                            <div className="p-1">
+                                <label htmlFor="comment" className="text-sm font-medium text-white-700">
+                                    Commentaire
+                                </label>
+                                <textarea
+                                    id="comment"
+                                    name="comment"
+                                    value={event?.comment || ''}
+                                    onChange={handleChange}
+                                    className="mt-1 w-full max-w-1/2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+                                />
+                            </div>
                         </div>
 
                         {/* Boutons d'action */}

@@ -19,7 +19,7 @@ export function ClubStructureEditor({ uuid, onExit }: ClubStructureEditorProps) 
             setCreateMode(true);
             setLoading(false);
         } else {
-            fetch(`${SERVER_URL}/ctr/clubstructures/` + uuid, {
+            fetch(`${SERVER_URL}/clubstructures/` + uuid, {
                 method: "GET",
                 redirect: "follow"
             })
@@ -47,7 +47,7 @@ export function ClubStructureEditor({ uuid, onExit }: ClubStructureEditorProps) 
         setError(null);
         setSuccess(null);
 
-        const url = `${SERVER_URL}/ctr/clubstructures`;
+        const url = `${SERVER_URL}/clubstructures`;
         const method = uuid ? 'PUT' : 'POST';
 
         fetch(url, {

@@ -20,7 +20,7 @@ export function MoniteursList() {
     useEffect(() => {
         if (loading) {
             console.log('Chargement des moniteurs depuis le serveur Quarkus...');
-            fetch(`${SERVER_URL}/ctr/moniteurs`, {
+            fetch(`${SERVER_URL}/moniteurs`, {
                 method: "GET",
                 redirect: "follow",
             })

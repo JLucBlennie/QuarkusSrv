@@ -20,7 +20,7 @@ export function ClubStructureList() {
     useEffect(() => {
         if (loading) {
             console.log('Chargement des club et structures depuis le serveur Quarkus...');
-            fetch(`${SERVER_URL}/ctr/clubstructures`, {
+            fetch(`${SERVER_URL}/clubstructures`, {
                 method: "GET",
                 redirect: "follow",
             })

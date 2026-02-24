@@ -42,7 +42,7 @@ public class EvenementService {
     private boolean evenementExists(String evtIdForms) {
         List<Evenement> evenements = Evenement.listAll();
         for (Evenement event : evenements) {
-            if (event.getEvtidforms().equalsIgnoreCase(evtIdForms)) {
+            if (event.getEvtidforms() != null && event.getEvtidforms().equalsIgnoreCase(evtIdForms)) {
                 return true;
             }
         }
@@ -132,5 +132,17 @@ public class EvenementService {
         mailServices.sendRefuseMessage(event);
         wsResource.broadcast(new InfoMessage("[Info]",
                 "eMail de refus envoyé"));
+    }
+
+    public List<Evenement> getAllEvenementsInConflict(Date datedebut, Date datefin, WebSocketResource wsResource) {
+        List<Evenement> conflicts = new ArrayList<Evenement>();
+        if (datedebut != null && datefin != null) {
+            for (Evenement evt : evenementRepository.findAllWithAllLoaded()) {
+                if (evt.getDatefin().after(datedebut) && evt.getDatedebut().before(datefin)) {
+                    conflicts.add(evt);
+                }
+            }
+        }
+        return conflicts;
     }
 }

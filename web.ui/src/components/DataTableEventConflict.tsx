@@ -28,7 +28,7 @@ interface DataTableProps<TData, TValue> {
   onRowClick: (row: TData) => void;
 }
 
-export function DataTable<TData, TValue>({
+export function DataTableEventConflict<TData, TValue>({
   columns,
   data,
   onRowClick,
@@ -44,18 +44,24 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    enableHiding: true,
     state: { sorting, columnFilters },
+    initialState: {
+      columnVisibility: {
+        statut: false, // Masquer la colonne "uuid" par défaut
+      },
+    },
   });
 
   const Table = forwardRef<
     HTMLTableElement,
     React.HTMLAttributes<HTMLTableElement>
   >(({ className, ...props }, ref) => (
-      <table
-        ref={ref}
-        className={cn("w-full caption-bottom text-sm", className)}
-        {...props}
-      />
+    <table
+      ref={ref}
+      className={cn("w-full caption-bottom text-sm", className)}
+      {...props}
+    />
   ));
 
   const TableHeader = forwardRef<
@@ -72,7 +78,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      <ScrollArea className="max-h-[700px] rounded-md border">
+      <ScrollArea className="max-h-[200px] rounded-md border">
         <Table >
           <TableHeader className="sticky top-0 border-0 bg-white shadow-border shadow-[inset_0_-1px_0]">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -83,9 +89,9 @@ export function DataTable<TData, TValue>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   );
                 })}
@@ -101,12 +107,12 @@ export function DataTable<TData, TValue>({
                   onClick={() => onRowClick(row.original)}
                   className={
                     row.getValue("statut") === "VALIDE"
-                      ? "bg-emerald-800 bg-opacity-70"
+                      ? "bg-emerald-800 bg-opacity-70 hover:bg-emerald-800 hover:bg-opacity-80"
                       : row.getValue("statut") === "DEMANDE"
-                      ? "bg-orange-800 bg-opacity-70"
-                      : row.getValue("statut") === "REFUSE"
-                      ? "bg-red-800 bg-opacity-70"
-                      : ""
+                        ? "bg-orange-800 bg-opacity-70 hover:bg-orange-800 hover:bg-opacity-80 "
+                        : row.getValue("statut") === "REFUSE"
+                          ? "bg-red-800 bg-opacity-70 hover:bg-red-800 hover:bg-opacity-80 "
+                          : ""
                   }
                 >
                   {row.getVisibleCells().map((cell) => (

@@ -19,7 +19,7 @@ export function DemandeurEditor({ uuid, onExit }: DemandeurEditorProps) {
             setCreateMode(true);
             setLoading(false);
         } else {
-            fetch(`${SERVER_URL}/ctr/demandeurs/` + uuid, {
+            fetch(`${SERVER_URL}/demandeurs/` + uuid, {
                 method: "GET",
                 redirect: "follow"
             })

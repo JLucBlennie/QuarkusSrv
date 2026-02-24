@@ -20,7 +20,7 @@ export function EvenementsList() {
   useEffect(() => {
     if (loading) {
       console.log('Chargement des événements depuis le serveur Quarkus...');
-      fetch(`${SERVER_URL}/ctr/evenements`, {
+      fetch(`${SERVER_URL}/evenements`, {
         method: "GET",
         redirect: "follow",
       })
@@ -74,6 +74,7 @@ export function EvenementsList() {
     <div>
       {(!rowClicked && !addClicked && !error && !loading) &&
         <div className="relative">
+          <h2 className="text-xl font-semibold mb-4">Liste des événements</h2>
           <DataTable columns={eventcolumns} data={evenements.sort((a, b) => b.datedemande - a.datedemande)} onRowClick={handleRowClick} />
           <Button className="absolute bottom-0 right-0 flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors z-10" onClick={handleAddClick}>
             <FaPlus className="h-6 w-6" />

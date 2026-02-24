@@ -17,9 +17,10 @@ afficher_menu() {
     echo "6. Nb Evenements pour moniteur $ID_MONO"
     echo "7. Mise à jour du moniteur $ID_MONO"
     echo "8. Recuperation du moniteur $ID_MONO"
+	echo "9. Recuperation des evenements en conflits"
     echo "q. Quitter"
     echo "======================"
-    echo -n "Choisissez une option [1-7] ou q : "
+    echo -n "Choisissez une option [1-9] ou q : "
 }
 
 # Fonction pour recuperer les evenements
@@ -69,6 +70,12 @@ test_mail() {
 	curl "$SERVER_URL_BASE/test-mail"
 }
 
+# Fonction pour recuperer les evenements en conflit
+recup_conflits() {
+	echo "Recuperation des evenements en conflit"
+	echo curl "$SERVER_URL_BASE/evenements/conflict?debut=2026-07-06&fin=2026-07-12"
+}
+
 # Boucle principale du menu
 while true; do
     afficher_menu
@@ -105,6 +112,10 @@ while true; do
             ;;
         8)
             recup_moniteur_by_id
+			read
+            ;;
+        9)
+            recup_conflits
 			read
             ;;
         q)

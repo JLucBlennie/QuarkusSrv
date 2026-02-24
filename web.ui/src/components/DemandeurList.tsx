@@ -20,7 +20,7 @@ export function DemandeurList() {
     useEffect(() => {
         if (loading) {
             console.log('Chargement des demandeurs depuis le serveur Quarkus...');
-            fetch(`${SERVER_URL}/ctr/demandeurs`, {
+            fetch(`${SERVER_URL}/demandeurs`, {
                 method: "GET",
                 redirect: "follow",
             })
