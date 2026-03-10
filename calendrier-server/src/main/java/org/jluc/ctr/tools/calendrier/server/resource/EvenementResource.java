@@ -276,6 +276,8 @@ public class EvenementResource {
                     new ProgressMessage(true, "conflicts", "Chargement des évènements en conflit terminé...", 100));
             return Response.ok(eventsDTO).build();
         } else {
+            wsResource.broadcast(new ProgressMessage(true, "conflicts",
+                    "Chargement des évènements en conflit terminé...", 100));
             wsResource.broadcast(
                     new InfoMessage("[Info]", "Aucun évènement en conflit..."));
             return Response.noContent().build();

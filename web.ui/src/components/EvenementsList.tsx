@@ -18,44 +18,7 @@ export function EvenementsList() {
   const [eventsData, setEventsData] = useState<EvenementJSON[]>([]);
 
   useEffect(() => {
-    if (loading) {
-      console.log('Chargement des événements depuis le serveur Quarkus...');
-      fetch(`${SERVER_URL}/evenements`, {
-        method: "GET",
-        redirect: "follow",
-      })
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error(`Erreur serveur : ${res.status}`);
-          }
-          return res.json();
-        })
-        .then((data) => {
-          console.log('Réponse du serveur Quarkus :', data);
-          let events: EventColumn[] = [];
-          data.map((evenement: EvenementJSON) => {
-            var eventCol: EventColumn = {
-              uuid: (evenement.uuid || ''),
-              datedemande: (evenement.datedemande || 0),
-              statut: (evenement.statut || ''),
-              activite: (evenement.typeEvenement?.name === undefined) ? "Type null" : evenement.typeEvenement.name,
-              organisateur: evenement.organisateur?.name || "",
-              datedebut: (evenement.datedebut || 0),
-              datefin: (evenement.datefin || 0),
-              lieu: (evenement.lieu || '')
-            };
-            events.push(eventCol);
-          });
-          setEvenements(events);
-          setEventsData(data);
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.error('Erreur fetch :', err);
-          setError(err.message);
-          setLoading(false);
-        });
-    }
+    updateEvenements();
   }, []);
 
   function handleRowClick(row: EventColumn) {
@@ -70,6 +33,46 @@ export function EvenementsList() {
     setSelectedRow(null);
   }
 
+  function updateEvenements() {
+    console.log('Chargement des événements depuis le serveur Quarkus...');
+    setLoading(true);
+    fetch(`${SERVER_URL}/evenements`, {
+      method: "GET",
+      redirect: "follow",
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`Erreur serveur : ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        console.log('Réponse du serveur Quarkus :', data);
+        let events: EventColumn[] = [];
+        data.map((evenement: EvenementJSON) => {
+          var eventCol: EventColumn = {
+            uuid: (evenement.uuid || ''),
+            datedemande: (evenement.datedemande || 0),
+            statut: (evenement.statut || ''),
+            activite: (evenement.typeEvenement?.name === undefined) ? "Type null" : evenement.typeEvenement.name,
+            organisateur: evenement.organisateur?.name || "",
+            datedebut: (evenement.datedebut || 0),
+            datefin: (evenement.datefin || 0),
+            lieu: (evenement.lieu || '')
+          };
+          events.push(eventCol);
+        });
+        setEvenements(events);
+        setEventsData(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('Erreur fetch :', err);
+        setError(err.message);
+        setLoading(false);
+      });
+  }
+
   return (
     <div>
       {(!rowClicked && !addClicked && !error && !loading) &&
@@ -81,10 +84,10 @@ export function EvenementsList() {
           </Button>
         </div>
       }
-      {rowClicked && <EvenementEditor uuid={selectedRow?.uuid} onExit={() => { setRowClicked(false) }} />}
-      {addClicked && <EvenementEditor uuid={undefined} onExit={() => { setAddClicked(false) }} />}
+      {rowClicked && <EvenementEditor uuid={selectedRow?.uuid} onExit={() => { setRowClicked(false); updateEvenements() }} />}
+      {addClicked && <EvenementEditor uuid={undefined} onExit={() => { setAddClicked(false); updateEvenements() }} />}
       {error && <p>Erreur : {error}</p>}
-      {loading && <p> </p>}
+      {loading && <p> Chargement en cours... </p>}
     </div >
   );
 };

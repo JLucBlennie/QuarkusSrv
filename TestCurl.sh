@@ -2,7 +2,9 @@
 
 SERVER_URL_BASE="http://localhost:9090/ctr"
 # TSI a Lorient
-ID_EVENT="7c35cd6c-e663-4988-871c-a44db592161d" 
+#ID_EVENT="7c35cd6c-e663-4988-871c-a44db592161d" 
+#TIV à Arnage
+ID_EVENT="fb1166b3-b7bd-45a0-927d-fe8499eaec23" 
 ID_MONO="327d3458-ab53-44a4-b685-079181d46c49" 
 
 # Fonction pour afficher le menu
@@ -73,7 +75,7 @@ test_mail() {
 # Fonction pour recuperer les evenements en conflit
 recup_conflits() {
 	echo "Recuperation des evenements en conflit"
-	echo curl "$SERVER_URL_BASE/evenements/conflict?debut=2026-07-06&fin=2026-07-12"
+	echo curl "$SERVER_URL_BASE/evenements/conflict?debut=2026-10-25&fin=2026-10-25"
 }
 
 # Boucle principale du menu
