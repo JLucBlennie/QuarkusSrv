@@ -180,8 +180,10 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                 method: "GET",
                 redirect: "follow"
             }).then((res) => {
-                if (!res.ok) {
+                if (!res.ok && res.status !== 204) {
                     throw new Error(`Erreur serveur : ${res.status}`);
+                } else if (res.status === 204) {
+                    return [];
                 }
                 return res.json();
             }).then((data) => {
