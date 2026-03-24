@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import io.quarkus.logging.Log;
+import io.smallrye.jwt.build.Jwt;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.core.Response;
