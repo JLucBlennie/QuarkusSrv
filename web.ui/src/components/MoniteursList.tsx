@@ -1,5 +1,6 @@
 'use client';
 
+import { authFetch } from '@/lib/authService';
 import { MoniteurJSON, SERVER_URL } from '@/lib/constants';
 import { useEffect, useState } from 'react';
 import { FaPlus } from 'react-icons/fa6';
@@ -20,7 +21,7 @@ export function MoniteursList() {
     useEffect(() => {
         if (loading) {
             console.log('Chargement des moniteurs depuis le serveur Quarkus...');
-            fetch(`${SERVER_URL}/moniteurs`, {
+            authFetch(`${SERVER_URL}/moniteurs`, {
                 method: "GET",
                 redirect: "follow",
             })

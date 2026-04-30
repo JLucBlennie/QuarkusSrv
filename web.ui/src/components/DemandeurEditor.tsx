@@ -1,3 +1,4 @@
+import { authFetch } from "@/lib/authService";
 import { Demandeur, SERVER_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
 
@@ -19,7 +20,7 @@ export function DemandeurEditor({ uuid, onExit }: DemandeurEditorProps) {
             setCreateMode(true);
             setLoading(false);
         } else {
-            fetch(`${SERVER_URL}/demandeurs/` + uuid, {
+            authFetch(`${SERVER_URL}/demandeurs/` + uuid, {
                 method: "GET",
                 redirect: "follow"
             })
@@ -50,12 +51,8 @@ export function DemandeurEditor({ uuid, onExit }: DemandeurEditorProps) {
         const url = `${SERVER_URL}/ctr/demandeurs`;
         const method = uuid ? 'PUT' : 'POST';
 
-        fetch(url, {
+        authFetch(url, {
             method,
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            },
             body: JSON.stringify(demandeur),
             redirect: 'follow'
         }).then((response) => {

@@ -1,3 +1,4 @@
+import { authFetch } from "@/lib/authService";
 import { ClubStructure, Demandeur, EvenementJSON, Moniteur, SERVER_URL, Session, TypeEvenement } from "@/lib/constants";
 import { dateInputToTimestamp, timestampToDateInput } from "@/lib/utils";
 import { useEffect, useState } from "react";
@@ -32,7 +33,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
             setCreateMode(true);
             setLoading(false);
         } else {
-            fetch(`${SERVER_URL}/evenements/` + uuid, {
+            authFetch(`${SERVER_URL}/evenements/` + uuid, {
                 method: "GET",
                 redirect: "follow"
             })
@@ -54,7 +55,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                     setLoading(false);
                 });
         }
-        fetch(`${SERVER_URL}/typeevenements/`, {
+        authFetch(`${SERVER_URL}/typeevenements/`, {
             method: "GET",
             redirect: "follow"
         })
@@ -74,7 +75,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                 setError(err.message);
                 setLoading(false);
             });
-        fetch(`${SERVER_URL}/demandeurs/`, {
+        authFetch(`${SERVER_URL}/demandeurs/`, {
             method: "GET",
             redirect: "follow"
         })
@@ -94,7 +95,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                 setError(err.message);
                 setLoading(false);
             });
-        fetch(`${SERVER_URL}/clubstructures/`, {
+        authFetch(`${SERVER_URL}/clubstructures/`, {
             method: "GET",
             redirect: "follow"
         })
@@ -114,7 +115,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                 setError(err.message);
                 setLoading(false);
             });
-        fetch(`${SERVER_URL}/moniteurs/`, {
+        authFetch(`${SERVER_URL}/moniteurs/`, {
             method: "GET",
             redirect: "follow"
         })
@@ -150,12 +151,8 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
         const url = `${SERVER_URL}/evenements`;
         const method = uuid ? 'PUT' : 'POST';
 
-        fetch(url, {
+        authFetch(url, {
             method,
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            },
             body: JSON.stringify(event),
             redirect: 'follow'
         }).then((response) => {
@@ -176,7 +173,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
     function updateConflicts(event?: EvenementJSON) {
         console.log("Update des conflits pour l'événement : ", event);
         if (event?.datedebut && event?.datefin) {
-            fetch(`${SERVER_URL}/evenements/conflict?debut=${timestampToDateInput(event.datedebut)}&fin=${timestampToDateInput(event.datefin)}`, {
+            authFetch(`${SERVER_URL}/evenements/conflict?debut=${timestampToDateInput(event.datedebut)}&fin=${timestampToDateInput(event.datefin)}`, {
                 method: "GET",
                 redirect: "follow"
             }).then((res) => {
@@ -297,7 +294,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
         const url = `${SERVER_URL}/evenements/validate?id=${uuid}`;
         const method = 'PUT';
 
-        fetch(url, {
+        authFetch(url, {
             method,
             redirect: 'follow'
         }).then((response) => {
@@ -316,7 +313,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
         const url = `${SERVER_URL}/evenements/refuse?id=${uuid}`;
         const method = 'PUT';
 
-        fetch(url, {
+        authFetch(url, {
             method,
             redirect: 'follow'
         }).then((response) => {

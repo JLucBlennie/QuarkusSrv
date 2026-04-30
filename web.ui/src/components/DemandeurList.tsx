@@ -1,5 +1,6 @@
 'use client';
 
+import { authFetch } from '@/lib/authService';
 import { Demandeur, SERVER_URL } from '@/lib/constants';
 import { useEffect, useState } from 'react';
 import { FaPlus } from 'react-icons/fa6';
@@ -20,7 +21,7 @@ export function DemandeurList() {
     useEffect(() => {
         if (loading) {
             console.log('Chargement des demandeurs depuis le serveur Quarkus...');
-            fetch(`${SERVER_URL}/demandeurs`, {
+            authFetch(`${SERVER_URL}/demandeurs`, {
                 method: "GET",
                 redirect: "follow",
             })

@@ -1,5 +1,6 @@
 'use client';
 
+import { authFetch } from '@/lib/authService';
 import { EvenementJSON, SERVER_URL } from '@/lib/constants';
 import { useEffect, useState } from 'react';
 import { FaPlus } from "react-icons/fa6";
@@ -36,7 +37,7 @@ export function EvenementsList() {
   function updateEvenements() {
     console.log('Chargement des événements depuis le serveur Quarkus...');
     setLoading(true);
-    fetch(`${SERVER_URL}/evenements`, {
+    authFetch(`${SERVER_URL}/evenements`, {
       method: "GET",
       redirect: "follow",
     })

@@ -11,6 +11,7 @@ import org.jluc.ctr.tools.calendrier.server.websockets.messages.InfoMessage;
 import org.jluc.ctr.tools.calendrier.server.websockets.messages.ProgressMessage;
 
 import io.quarkus.logging.Log;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -32,6 +33,7 @@ public class ClubStructureResource {
 
     @GET
     @Path("/{id}")
+    @RolesAllowed("user")
     public Response getClubStructureById(@PathParam("id") String id) {
         Log.info("UUID demandé : " + id);
         wsResource.broadcast(new ProgressMessage(true, "loadclub", "Chargement du club...", 0));
@@ -49,6 +51,7 @@ public class ClubStructureResource {
     }
 
     @GET
+    @RolesAllowed("user")
     public Response getAll() {
         List<ClubStructure> clubStructures = ClubStructure.listAll();
         wsResource.broadcast(new ProgressMessage(true, "loadclubs", "Chargement des clubs...", 0));
@@ -67,6 +70,7 @@ public class ClubStructureResource {
     }
 
     @POST
+    @RolesAllowed("admin")
     public Response addClubStructure(ClubStructureDTO input) {
         Log.info("Ajout d'une structure ou club : " + input);
 
@@ -86,6 +90,7 @@ public class ClubStructureResource {
     }
 
     @PUT
+    @RolesAllowed("admin")
     public Response modifyClubStructure(ClubStructureDTO input) {
         Log.info("Modification de la structure ou club " + input);
         if (input.uuid == null) {
@@ -108,6 +113,7 @@ public class ClubStructureResource {
 
     @DELETE
     @Path("/{id}")
+    @RolesAllowed("admin")
     public Response deleteClubStructureById(@PathParam("id") String id) {
         UUID uuid = UUID.fromString(id);
         if (ClubStructure.deleteById(uuid))

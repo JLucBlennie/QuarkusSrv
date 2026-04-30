@@ -1,5 +1,6 @@
 'use client';
 
+import { authFetch } from '@/lib/authService';
 import { ClubStructure, SERVER_URL } from '@/lib/constants';
 import { useEffect, useState } from 'react';
 import { FaPlus } from 'react-icons/fa6';
@@ -20,7 +21,7 @@ export function ClubStructureList() {
     useEffect(() => {
         if (loading) {
             console.log('Chargement des club et structures depuis le serveur Quarkus...');
-            fetch(`${SERVER_URL}/clubstructures`, {
+            authFetch(`${SERVER_URL}/clubstructures`, {
                 method: "GET",
                 redirect: "follow",
             })

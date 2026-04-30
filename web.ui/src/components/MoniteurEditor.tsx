@@ -1,3 +1,4 @@
+import { authFetch } from "@/lib/authService";
 import { MoniteurJSON, SERVER_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
 
@@ -19,7 +20,7 @@ export function MoniteurEditor({ uuid, onExit }: MoniteurEditorProps) {
             setCreateMode(true);
             setLoading(false);
         } else {
-            fetch(`${SERVER_URL}/moniteurs/` + uuid, {
+            authFetch(`${SERVER_URL}/moniteurs/` + uuid, {
                 method: "GET",
                 redirect: "follow"
             })
@@ -49,26 +50,26 @@ export function MoniteurEditor({ uuid, onExit }: MoniteurEditorProps) {
 
         const url = `${SERVER_URL}/moniteurs`;
         const method = uuid ? 'PUT' : 'POST';
+        console.log('Données à envoyer :', moniteur);
+        console.log('URL de l\'API :', url);
+        console.log('Méthode HTTP :', method);
 
-        fetch(url, {
+        authFetch(url, {
             method,
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            },
             body: JSON.stringify(moniteur),
             redirect: 'follow'
         }).then((response) => {
             if (!response.ok) {
-                throw new Error(`Échec de l'opération: ${response.statusText}`);
+                console.error('Erreur lors de la soumission :', response.status, response.statusText);
+                // throw new Error(`Échec de l'opération: ${response.statusText}`);
             } else {
                 setSuccess(
                     uuid
-                        ? 'Événement mis à jour avec succès !'
-                        : 'Événement créé avec succès !'
+                        ? 'Moniteur mis à jour avec succès !'
+                        : 'Moniteur créé avec succès !'
                 );
                 setModified(false);
-                onExit();
+                // onExit();
             }
         });
     };

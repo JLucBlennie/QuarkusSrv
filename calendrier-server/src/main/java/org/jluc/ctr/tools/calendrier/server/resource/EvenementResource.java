@@ -20,6 +20,7 @@ import org.jluc.ctr.tools.calendrier.server.websockets.messages.InfoMessage;
 import org.jluc.ctr.tools.calendrier.server.websockets.messages.ProgressMessage;
 
 import io.quarkus.logging.Log;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;
@@ -49,6 +50,7 @@ public class EvenementResource {
 
     @GET
     @Path("/{id}")
+    @RolesAllowed("user")
     public Response getEventById(@PathParam("id") String id) {
         Log.debug("UUID demandé : " + id);
         wsResource.broadcast(new ProgressMessage(true, "loadevents", "Chargement de l'évènement...", 0));
@@ -69,6 +71,7 @@ public class EvenementResource {
     @PUT
     @Transactional
     @Path("/validate")
+    @RolesAllowed("admin")
     public Response validateEvent(@QueryParam("id") String id) {
         Log.debug("Validation de l'évènement UUID : " + id);
         wsResource.broadcast(new ProgressMessage(true, "validateevent", "Validation de l'évènement...", 0));
@@ -99,6 +102,7 @@ public class EvenementResource {
     @PUT
     @Transactional
     @Path("/refuse")
+    @RolesAllowed("admin")
     public Response refuseEvent(@QueryParam("id") String id) {
         Log.debug("Refus de l'évènement UUID : " + id);
         wsResource.broadcast(new ProgressMessage(true, "refuseevent", "Refus de l'évènement...", 0));
@@ -128,6 +132,7 @@ public class EvenementResource {
 
     @GET
     @Path("/updatebdd")
+    @RolesAllowed("admin")
     public Response updateBDD() {
         wsResource.broadcast(
                 new ProgressMessage(true, "loadevents", "Chargement des nouveaux évènements...", 0));
@@ -138,6 +143,7 @@ public class EvenementResource {
     }
 
     @GET
+    @RolesAllowed("user")
     public Response getAll() {
         List<Evenement> events = evenementRepository.findAllWithAllLoaded();
         wsResource.broadcast(new ProgressMessage(true, "loadevents", "Chargement des évènements...", 0));
@@ -160,6 +166,7 @@ public class EvenementResource {
 
     @POST
     @Transactional
+    @RolesAllowed("user")
     public Response addEvent(EvenementDTO input) {
         Log.debug("Ajout d'un événement : " + input.uuid);
         Evenement newEvent = null;
@@ -182,6 +189,7 @@ public class EvenementResource {
 
     @PUT
     @Transactional
+    @RolesAllowed("user")
     public Response modifyEvent(EvenementDTO input) {
         Log.debug("Modification de l'évènement " + input.uuid);
         if (input.uuid == null) {
@@ -205,6 +213,7 @@ public class EvenementResource {
     @DELETE
     @Transactional
     @Path("/{id}")
+    @RolesAllowed("admin")
     public Response deleteEventById(@PathParam("id") String id) {
         UUID uuid = UUID.fromString(id);
         if (Evenement.deleteById(uuid))
@@ -215,6 +224,7 @@ public class EvenementResource {
 
     @GET
     @Path("/moniteur/{moniteurid}")
+    @RolesAllowed("user")
     public Response getEventsByMoniteurById(@PathParam("moniteurid") String moniteurid) {
         Log.debug("UUID demandé : " + moniteurid);
         wsResource.broadcast(new ProgressMessage(true, "loadmoniteur", "Chargement du moniteur...", 0));
@@ -249,6 +259,7 @@ public class EvenementResource {
 
     @GET
     @Path("/conflict")
+    @RolesAllowed("user")
     public Response getEventsInConflict(@QueryParam("debut") String debut, @QueryParam("fin") String fin) {
         Log.info("conflit demandé : " + debut + " - " + fin);
         wsResource.broadcast(new ProgressMessage(true, "conflicts", "Chargement des évènements en conflit...", 0));

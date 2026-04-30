@@ -1,3 +1,4 @@
+import { authFetch } from "@/lib/authService";
 import { ClubStructure, SERVER_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
 
@@ -19,7 +20,7 @@ export function ClubStructureEditor({ uuid, onExit }: ClubStructureEditorProps) 
             setCreateMode(true);
             setLoading(false);
         } else {
-            fetch(`${SERVER_URL}/clubstructures/` + uuid, {
+            authFetch(`${SERVER_URL}/clubstructures/` + uuid, {
                 method: "GET",
                 redirect: "follow"
             })
@@ -50,12 +51,8 @@ export function ClubStructureEditor({ uuid, onExit }: ClubStructureEditorProps) 
         const url = `${SERVER_URL}/clubstructures`;
         const method = uuid ? 'PUT' : 'POST';
 
-        fetch(url, {
+        authFetch(url, {
             method,
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            },
             body: JSON.stringify(clubstructure),
             redirect: 'follow'
         }).then((response) => {
