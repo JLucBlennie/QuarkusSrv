@@ -1,3 +1,4 @@
+import { authFetch } from "@/lib/authService";
 import { SERVER_URL, TypeEvenement } from "@/lib/constants";
 import { useEffect, useState } from "react";
 
@@ -19,7 +20,7 @@ export function TypeEvenementEditor({ uuid, onExit }: TypeEvenementEditorProps) 
             setCreateMode(true);
             setLoading(false);
         } else {
-            fetch(`${SERVER_URL}/ctr/typeevenements/` + uuid, {
+            authFetch(`${SERVER_URL}/ctr/typeevenements/` + uuid, {
                 method: "GET",
                 redirect: "follow"
             })
@@ -50,7 +51,7 @@ export function TypeEvenementEditor({ uuid, onExit }: TypeEvenementEditorProps) 
         const url = `${SERVER_URL}/ctr/typeevenements`;
         const method = uuid ? 'PUT' : 'POST';
 
-        fetch(url, {
+        authFetch(url, {
             method,
             headers: {
                 'Content-Type': 'application/json',

@@ -11,6 +11,7 @@ import org.jluc.ctr.tools.calendrier.server.websockets.messages.InfoMessage;
 import org.jluc.ctr.tools.calendrier.server.websockets.messages.ProgressMessage;
 
 import io.quarkus.logging.Log;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -32,6 +33,7 @@ public class DemandeurResource {
 
     @GET
     @Path("/{id}")
+    @RolesAllowed("user")
     public Response getCDemandeurById(@PathParam("id") String id) {
         Log.info("UUID demandé : " + id);
         wsResource.broadcast(new ProgressMessage(true, "loaddemandeur", "Chargement du demandeur...", 0));
@@ -49,6 +51,7 @@ public class DemandeurResource {
     }
 
     @GET
+    @RolesAllowed("user")
     public Response getAll() {
         List<Demandeur> demandeurs = Demandeur.listAll();
         wsResource.broadcast(new ProgressMessage(true, "loaddemandeurs", "Chargement des demandeurs...", 0));
@@ -67,6 +70,7 @@ public class DemandeurResource {
     }
 
     @POST
+    @RolesAllowed("admin")
     public Response addDemandeur(DemandeurDTO input) {
         Log.info("Ajout d'un demandeur : " + input);
 
@@ -86,6 +90,7 @@ public class DemandeurResource {
     }
 
     @PUT
+    @RolesAllowed("admin")
     public Response modifyDemandeur(DemandeurDTO input) {
         Log.info("Modification du demandeur " + input);
         if (input.uuid == null) {
@@ -107,6 +112,7 @@ public class DemandeurResource {
 
     @DELETE
     @Path("/{id}")
+    @RolesAllowed("admin")
     public Response deleteDemandeurById(@PathParam("id") String id) {
         UUID uuid = UUID.fromString(id);
         if (Demandeur.deleteById(uuid))

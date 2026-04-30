@@ -1,5 +1,6 @@
 'use client';
 
+import { authFetch } from '@/lib/authService';
 import { SERVER_URL, TypeEvenement } from '@/lib/constants';
 import { useEffect, useState } from 'react';
 import { FaPlus } from 'react-icons/fa6';
@@ -20,7 +21,7 @@ export function TypeEvenementList() {
     useEffect(() => {
         if (loading) {
             console.log('Chargement des types d\'événements depuis le serveur Quarkus...');
-            fetch(`${SERVER_URL}/typeevenements`, {
+            authFetch(`${SERVER_URL}/typeevenements`, {
                 method: "GET",
                 redirect: "follow",
             })

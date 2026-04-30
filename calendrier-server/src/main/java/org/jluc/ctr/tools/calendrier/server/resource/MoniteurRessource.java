@@ -15,6 +15,7 @@ import org.jluc.ctr.tools.calendrier.server.websockets.messages.InfoMessage;
 import org.jluc.ctr.tools.calendrier.server.websockets.messages.ProgressMessage;
 
 import io.quarkus.logging.Log;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;
@@ -40,6 +41,7 @@ public class MoniteurRessource {
     EvenementService serviceEvent;
 
     @GET
+    @RolesAllowed("user")
     public Response getAll() {
         List<Moniteur> moniteurs = Moniteur.listAll();
         wsResource.broadcast(new ProgressMessage(true, "loadmoniteur", "Chargement des moniteurs...", 0));
@@ -73,6 +75,7 @@ public class MoniteurRessource {
     
     @GET
     @Path("/{id}")
+    @RolesAllowed("user")
     public Response getMoniteurById(@PathParam("id") String id) {
         Log.info("UUID demandé : " + id);
         wsResource.broadcast(new ProgressMessage(true, "loadmoniteur", "Chargement du moniteur...", 0));
@@ -105,6 +108,7 @@ public class MoniteurRessource {
 
     @POST
     @Transactional
+    @RolesAllowed("user")
     public Response addMoniteur(MoniteurDTO input) {
         Log.info("Ajout d'un moniteur : " + input);
         Moniteur newMoniteur = null;
@@ -124,6 +128,7 @@ public class MoniteurRessource {
 
     @PUT
     @Transactional
+    @RolesAllowed("user")
     public Response modifyMoniteur(MoniteurDTO input) {
         Log.info("Modification du moniteur " + input);
         if (input.uuid == null) {
@@ -146,6 +151,7 @@ public class MoniteurRessource {
     @DELETE
     @Transactional
     @Path("/{id}")
+    @RolesAllowed("admin")
     public Response deleteMoniteurById(@PathParam("id") String id) {
         UUID uuid = UUID.fromString(id);
         if (Moniteur.deleteById(uuid))

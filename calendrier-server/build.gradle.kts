@@ -13,6 +13,7 @@ val quarkusPlatformArtifactId: String by project
 val quarkusPlatformVersion: String by project
 
 dependencies {
+    implementation("io.quarkus:quarkus-smallrye-jwt-build")
     implementation("io.quarkus:quarkus-jdbc-postgresql")
     implementation("io.quarkus:quarkus-hibernate-orm-panache")
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
@@ -21,6 +22,8 @@ dependencies {
     implementation("io.quarkus:quarkus-rest-jackson")
     implementation("io.quarkus:quarkus-websockets")
   	implementation("io.quarkus:quarkus-mailer")
+    implementation("io.quarkus:quarkus-smallrye-jwt")
+    implementation("io.quarkus:quarkus-elytron-security-properties-file")
     implementation("com.opencsv:opencsv:5.12.0")
     implementation("com.google.api-client:google-api-client:2.2.0")
     implementation("com.google.oauth-client:google-oauth-client-jetty:1.34.1")
