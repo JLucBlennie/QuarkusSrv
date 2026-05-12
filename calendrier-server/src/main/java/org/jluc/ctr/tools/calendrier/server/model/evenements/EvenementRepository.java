@@ -12,42 +12,55 @@ import jakarta.persistence.TypedQuery;
 
 @ApplicationScoped
 public class EvenementRepository {
-    @Inject
-    EntityManager entityManager;
+        @Inject
+        EntityManager entityManager;
 
-    public List<Evenement> findAllWithType() {
-        EntityGraph<Evenement> graph = (EntityGraph<Evenement>) entityManager.getEntityGraph("evenement-with-type");
-        TypedQuery<Evenement> query = entityManager
-                .createQuery("SELECT e FROM Evenement e", Evenement.class)
-                .setHint("jakarta.persistence.loadgraph", graph);
-        return query.getResultList();
-    }
-    
-    public List<Evenement> findAllWithPresidentDeleguer() {
-        EntityGraph<Evenement> graph = (EntityGraph<Evenement>) entityManager
-                .getEntityGraph("evenement-with-presdelegue");
-        TypedQuery<Evenement> query = entityManager
-                .createQuery("SELECT e FROM Evenement e", Evenement.class)
-                .setHint("jakarta.persistence.loadgraph", graph);
-        return query.getResultList();
-    }
+        public List<Evenement> findAllWithType() {
+                EntityGraph<Evenement> graph = (EntityGraph<Evenement>) entityManager
+                                .getEntityGraph("evenement-with-type");
+                TypedQuery<Evenement> query = entityManager
+                                .createQuery("SELECT e FROM Evenement e", Evenement.class)
+                                .setHint("jakarta.persistence.loadgraph", graph);
+                return query.getResultList();
+        }
 
-    public List<Evenement> findAllWithAllLoaded() {
-        EntityGraph<Evenement> graph = (EntityGraph<Evenement>) entityManager.getEntityGraph("evenement-with-all");
-        TypedQuery<Evenement> query = entityManager
-                .createQuery("SELECT e FROM Evenement e", Evenement.class)
-                .setHint("jakarta.persistence.loadgraph", graph);
-        return query.getResultList();
-    }
+        public List<Evenement> findAllWithPresidentDeleguer() {
+                EntityGraph<Evenement> graph = (EntityGraph<Evenement>) entityManager
+                                .getEntityGraph("evenement-with-presdelegue");
+                TypedQuery<Evenement> query = entityManager
+                                .createQuery("SELECT e FROM Evenement e", Evenement.class)
+                                .setHint("jakarta.persistence.loadgraph", graph);
+                return query.getResultList();
+        }
 
-    public Evenement findOneWithAllLoaded(UUID evenementId) {
-        EntityGraph<Evenement> graph = (EntityGraph<Evenement>) entityManager.getEntityGraph("evenement-with-all");
-        TypedQuery<Evenement> query = entityManager
-                .createQuery("SELECT e FROM Evenement e WHERE e.uuid = :evenementId",
-                        Evenement.class)
-                .setParameter("evenementId", evenementId)
-                        .setHint("jakarta.persistence.loadgraph", graph);
-        Log.debug("Query creee : " + evenementId + " -> " + query.getResultList().size() + " resultats.");
-        return query.getResultList().isEmpty() ? null : query.getResultList().get(0);
-    }
+        public List<Evenement> findAllWithAllLoaded() {
+                EntityGraph<Evenement> graph = (EntityGraph<Evenement>) entityManager
+                                .getEntityGraph("evenement-with-all");
+                TypedQuery<Evenement> query = entityManager
+                                .createQuery("SELECT e FROM Evenement e", Evenement.class)
+                                .setHint("jakarta.persistence.loadgraph", graph);
+                return query.getResultList();
+        }
+
+        public Evenement findOneWithAllLoaded(UUID evenementId) {
+                EntityGraph<Evenement> graph = (EntityGraph<Evenement>) entityManager
+                                .getEntityGraph("evenement-with-all");
+                TypedQuery<Evenement> query = entityManager
+                                .createQuery("SELECT e FROM Evenement e WHERE e.uuid = :evenementId",
+                                                Evenement.class)
+                                .setParameter("evenementId", evenementId)
+                                .setHint("jakarta.persistence.loadgraph", graph);
+                Log.debug("Query creee : " + evenementId + " -> " + query.getResultList().size() + " resultats.");
+                return query.getResultList().isEmpty() ? null : query.getResultList().get(0);
+        }
+
+        public List<Evenement> findByCreatedBy(String username) {
+                EntityGraph<Evenement> graph = (EntityGraph<Evenement>) entityManager
+                                .getEntityGraph("evenement-with-all");
+                TypedQuery<Evenement> query = entityManager
+                                .createQuery("SELECT e FROM Evenement e WHERE e.createdBy = :username", Evenement.class)
+                                .setParameter("username", username)
+                                .setHint("jakarta.persistence.loadgraph", graph);
+                return query.getResultList();
+        }
 }

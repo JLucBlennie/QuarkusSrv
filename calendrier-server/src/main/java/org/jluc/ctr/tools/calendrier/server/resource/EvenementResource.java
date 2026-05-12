@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jluc.ctr.tools.calendrier.server.dto.EvenementDTO;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.EvenementRepository;
@@ -47,6 +48,9 @@ public class EvenementResource {
 
     @Inject
     WebSocketResource wsResource;
+
+    @Inject
+    JsonWebToken jwt;
 
     @GET
     @Path("/{id}")
@@ -182,6 +186,7 @@ public class EvenementResource {
             }
         }
         newEvent = input.toEntity();
+        newEvent.setCreatedBy(jwt.getSubject());
         newEvent.persist();
         wsResource.broadcast(new InfoMessage("Evenement ajouté " + input.typeEvenement.activite));
         return Response.status(Response.Status.CREATED).entity(newEvent).build();
@@ -198,16 +203,26 @@ public class EvenementResource {
                     .entity("L'évènement doit avoir un UUID pour être modifié.").build();
         }
 
-        Evenement newEvent = Evenement.findById(input.uuid);
-        if (newEvent == null) {
+        Evenement existingEvent = Evenement.findById(input.uuid);
+        if (existingEvent == null) {
             Log.debug("L'évènement n'existe pas en base : " + input.uuid);
             return Response.status(Response.Status.CONFLICT)
                     .entity("L'évènement n'existe pas en base.").build();
         }
-        newEvent = input.toEntity();
-        newEvent.persist();
+
+        // 👇 Vérification : seul le créateur (ou un admin) peut modifier
+        String currentUser = jwt.getSubject();
+        boolean isAdmin = jwt.getGroups().contains("admin");
+        if (!isAdmin && !currentUser.equals(existingEvent.getCreatedBy())) {
+            return Response.status(Response.Status.FORBIDDEN)
+                    .entity("Vous n'êtes pas autorisé à modifier cet évènement.").build();
+        }
+
+        Evenement updatedEvent = input.toEntity();
+        updatedEvent.setCreatedBy(existingEvent.getCreatedBy());
+        updatedEvent.persist();
         wsResource.broadcast(new InfoMessage("Evenement modifié " + input.typeEvenement.activite));
-        return Response.status(Response.Status.CREATED).entity(newEvent).build();
+        return Response.status(Response.Status.CREATED).entity(updatedEvent).build();
     }
 
     @DELETE
@@ -255,6 +270,19 @@ public class EvenementResource {
                     new InfoMessage("[Erreur]", "Erreur de chargement du moniteur..."));
             return Response.noContent().build();
         }
+    }
+
+    @GET
+    @Path("/mes-evenements")
+    @RolesAllowed("user")
+    public Response getMesEvenements() {
+        String currentUser = jwt.getSubject(); // 👈 récupère le username depuis le JWT
+        Log.debug("Chargement des évènements pour : " + currentUser);
+        List<Evenement> events = evenementRepository.findByCreatedBy(currentUser);
+        List<EvenementDTO> eventsDTO = events.stream()
+                .map(EvenementDTO::fromEntity)
+                .toList();
+        return Response.ok(eventsDTO).build();
     }
 
     @GET

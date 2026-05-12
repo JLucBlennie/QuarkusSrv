@@ -3,7 +3,7 @@ import { ClubStructure, Demandeur, EvenementJSON, Moniteur, SERVER_URL, Session,
 import { dateInputToTimestamp, timestampToDateInput } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa6";
-import { DataTableEventConflict } from "./DataTableEventConflict";
+import { DataTable } from "./DataTable";
 import { EventColumn } from "./Event-columns";
 import { eventconflictcolumns } from "./EventConflict-columns";
 import { Button } from "./ui/button";
@@ -733,7 +733,19 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                             {/* Tableau des conflits d'evenement */}
                             <div className="p-1">
                                 <label className="text-sm font-medium text-white-700">Conflits d'événement</label>
-                                <DataTableEventConflict columns={eventconflictcolumns} data={eventConflict} onRowClick={() => { }} />
+                                <DataTable
+                                    columns={eventconflictcolumns}
+                                    data={eventConflict}
+                                    onRowClick={() => { }}
+                                    height="200px"
+                                    hiddenColumns={{ statut: false }}
+                                    rowClassName={(row) =>
+                                        row.getValue("statut") === "VALIDE" ? "bg-emerald-800 bg-opacity-70"
+                                            : row.getValue("statut") === "DEMANDE" ? "bg-orange-800 bg-opacity-70"
+                                                : row.getValue("statut") === "REFUSE" ? "bg-red-800 bg-opacity-70"
+                                                    : ""
+                                    }
+                                />
                             </div>
 
                             {/* Champ Commentaire */}

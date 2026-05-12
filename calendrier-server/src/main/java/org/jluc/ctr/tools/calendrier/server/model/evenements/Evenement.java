@@ -34,7 +34,7 @@ public class Evenement extends PanacheEntityBase {
     @Id
     private UUID uuid;
     private String evtidforms;
-    
+
     private Date datedemande;
     private Date datedebut;
     private Date datefin;
@@ -50,7 +50,7 @@ public class Evenement extends PanacheEntityBase {
     private Moniteur presidentjury;
     @ManyToOne
     private Moniteur deleguectr;
-    @ManyToOne  
+    @ManyToOne
     private Moniteur repcibpl;
     private Status statut = Status.DEMANDE;
     private Date datevalidation;
@@ -61,14 +61,15 @@ public class Evenement extends PanacheEntityBase {
     @OneToMany(mappedBy = "evenement", cascade = CascadeType.ALL)
     private List<Session> sessions;
     private Integer nbparticipants = 0;
-    
+    private String createdBy;
+
     @PrePersist
     public void generateUuid() {
         if (uuid == null) {
             uuid = UUID.randomUUID();
         }
     }
-    
+
     public String getEvtidforms() {
         return evtidforms;
     }
@@ -143,6 +144,10 @@ public class Evenement extends PanacheEntityBase {
 
     public int getNbparticipants() {
         return nbparticipants;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
     }
 
     public Evenement() {
@@ -273,5 +278,9 @@ public class Evenement extends PanacheEntityBase {
 
     public void setSessions(List<Session> sessions) {
         this.sessions = sessions;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
     }
 }

@@ -4,7 +4,7 @@ import { authFetch } from '@/lib/authService';
 import { MoniteurJSON, SERVER_URL } from '@/lib/constants';
 import { useEffect, useState } from 'react';
 import { FaPlus } from 'react-icons/fa6';
-import { DataTableMoniteur } from './DataTableMoniteur';
+import { DataTable } from './DataTable';
 import { MoniteurColumn, moniteurcolumns } from './Moniteur-columns';
 import { MoniteurEditor } from './MoniteurEditor';
 import { Button } from './ui/button';
@@ -72,7 +72,16 @@ export function MoniteursList() {
         <div>
             {(!rowClicked && !addClicked && !error && !loading) &&
                 <div className="relative">
-                    <DataTableMoniteur columns={moniteurcolumns} data={moniteurs.sort((a, b) => a.lastname.localeCompare(b.lastname))} onRowClick={handleRowClick} />
+                    <DataTable
+                        columns={moniteurcolumns}
+                        data={moniteurs.sort((a, b) => a.lastname.localeCompare(b.lastname))}
+                        onRowClick={handleRowClick}
+                        rowClassName={(row) =>
+                            row.getValue("nbevents") === 0
+                                ? "bg-red-800 bg-opacity-70"
+                                : "bg-emerald-800 bg-opacity-70"
+                        }
+                    />
                     <Button className="absolute bottom-0 right-0 flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors z-10" onClick={handleAddClick}>
                         <FaPlus className="h-6 w-6" />
                     </Button>

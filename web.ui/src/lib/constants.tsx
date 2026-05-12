@@ -1,9 +1,7 @@
 
-/* export const SERVER_URL = 'http://api.blondy29.ovh:9090'; */
 export const SERVER_URL = `${process.env.NEXT_PUBLIC_API_URL}`;
 export const WS_URL = `${process.env.NEXT_PUBLIC_WS_URL}`;
 
-// TODO : Ajouter les types manquants : TypeActivite, Demandeur, Moniteur, ClubStructure
 export type MoniteurJSON = {
   uuid?: string;
   lastname?: string;
@@ -68,4 +66,5 @@ export type EvenementJSON = {
   calendareventid?: string;
   nbparticipants?: number;
   sessions?: Session[];
+  createdBy?: string;
 };

@@ -4,7 +4,7 @@ import { authFetch } from '@/lib/authService';
 import { Demandeur, SERVER_URL } from '@/lib/constants';
 import { useEffect, useState } from 'react';
 import { FaPlus } from 'react-icons/fa6';
-import { DataTableDemandeur } from './DataTableDemandeur';
+import { DataTable } from './DataTable';
 import { DemandeurColumn, demandeurcolumns } from './Demandeur-columns';
 import { DemandeurEditor } from './DemandeurEditor';
 import { Button } from './ui/button';
@@ -72,7 +72,12 @@ export function DemandeurList() {
             {(!rowClicked && !addClicked && !error && !loading) &&
                 <div className="relative">
                     <h2 className="text-xl font-semibold mb-4">Liste des Demandeurs</h2>
-                    <DataTableDemandeur columns={demandeurcolumns} data={demandeurs.sort((a, b) => a.name.localeCompare(b.name))} onRowClick={handleRowClick} />
+                    <DataTable
+                        columns={demandeurcolumns}
+                        data={demandeurs.sort((a, b) => a.name.localeCompare(b.name))}
+                        onRowClick={handleRowClick}
+                        height="600px"
+                    />
                     <Button className="absolute bottom-0 right-0 flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors z-10" onClick={handleAddClick}>
                         <FaPlus className="h-6 w-6" />
                     </Button>

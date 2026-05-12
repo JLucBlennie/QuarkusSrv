@@ -19,7 +19,7 @@ import { FaArrowRotateLeft } from "react-icons/fa6";
 import pack from "../../package.json";
 
 export default function Home() {
-  const { user, logout } = useAuth();  // ← accès à l'utilisateur connecté
+  const { user, logout, hasRole } = useAuth();  // ← accès à l'utilisateur connecté
 
   useEffect(() => {
     if (user?.username) {
@@ -49,27 +49,42 @@ export default function Home() {
         <h1 className="text-5xl font-bold text-center">Calendrier de la CTR</h1>
         <div className="relative p-5">
           <Tabs>
-            <Tabs.Tab label="Événements">
-              <div className="w-full h-full overflow-auto">
-                <EvenementsList />
-              </div>
-            </Tabs.Tab>
-            <Tabs.Tab label="Moniteurs">
-              <div>
-                <h2 className="text-xl font-semibold mb-4">Liste des Moniteurs</h2>
-                <MoniteursList />
-              </div>
-            </Tabs.Tab>
-            <Tabs.Tab label="Paramètres">
-              <div>
-                <h2 className="text-xl font-semibold mb-4">Gestion des paramètres</h2>
-                <ThreeColumnsLayout
-                  left={<ClubStructureList />}
-                  center={<DemandeurList />}
-                  right={<TypeEvenementList />}
-                />
-              </div>
-            </Tabs.Tab>
+            {hasRole("admin") && (
+              <Tabs.Tab label="Événements">
+                <div className="w-full h-full overflow-auto">
+                  <EvenementsList />
+                </div>
+              </Tabs.Tab>
+            )}
+
+            {user?.username !== 'ctr' && (
+              <Tabs.Tab label="Mes Événements">
+                <div className="w-full h-full overflow-auto">
+                  <EvenementsList mesEvenementsOnly={true} />
+                </div>
+              </Tabs.Tab>
+            )}
+
+            {hasRole("admin") && (
+              <Tabs.Tab label="Moniteurs">
+                <div>
+                  <h2 className="text-xl font-semibold mb-4">Liste des Moniteurs</h2>
+                  <MoniteursList />
+                </div>
+              </Tabs.Tab>
+            )}
+            {hasRole("admin") && (
+              <Tabs.Tab label="Paramètres">
+                <div>
+                  <h2 className="text-xl font-semibold mb-4">Gestion des paramètres</h2>
+                  <ThreeColumnsLayout
+                    left={<ClubStructureList />}
+                    center={<DemandeurList />}
+                    right={<TypeEvenementList />}
+                  />
+                </div>
+              </Tabs.Tab>
+            )}
           </Tabs>
         </div>
       </div>
@@ -89,16 +104,16 @@ export default function Home() {
           <LogOut className="h-5 w-5" />
         </button>
       </div>
-
-      <div className="absolute top-20 right-5 bg-slate-900 bg-opacity-50 text-white p-2 w-max rounded shadow-lg z-10">
-        <Button
-          className="flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors"
-          onClick={handleUpdateClick}
-        >
-          <FaArrowRotateLeft className="h-6 w-6" />
-        </Button>
-      </div>
-
+      {hasRole("admin") && (
+        <div className="absolute top-20 right-5 bg-slate-900 bg-opacity-50 text-white p-2 w-max rounded shadow-lg z-10">
+          <Button
+            className="flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors"
+            onClick={handleUpdateClick}
+          >
+            <FaArrowRotateLeft className="h-6 w-6" />
+          </Button>
+        </div>
+      )}
       <WebSocketNotificationListener url={`${WS_URL}/ws`} />
     </div>
   );

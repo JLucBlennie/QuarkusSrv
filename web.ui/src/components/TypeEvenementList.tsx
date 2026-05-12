@@ -4,7 +4,7 @@ import { authFetch } from '@/lib/authService';
 import { SERVER_URL, TypeEvenement } from '@/lib/constants';
 import { useEffect, useState } from 'react';
 import { FaPlus } from 'react-icons/fa6';
-import { DataTableTypeEvenement } from './DataTableTypeEvenement';
+import { DataTable } from './DataTable';
 import { TypeEvenementColumn, typeevenementcolumns } from './TypeEvenement-columns';
 import { TypeEvenementEditor } from './TypeEvenementEditor';
 import { Button } from './ui/button';
@@ -72,7 +72,12 @@ export function TypeEvenementList() {
             {(!rowClicked && !addClicked && !error && !loading) &&
                 <div className="relative">
                     <h2 className="text-xl font-semibold mb-4">Liste des Types d'Evènement</h2>
-                    <DataTableTypeEvenement columns={typeevenementcolumns} data={typeevenements.sort((a, b) => a.name.localeCompare(b.name))} onRowClick={handleRowClick} />
+                    <DataTable
+                        columns={typeevenementcolumns}
+                        data={typeevenements.sort((a, b) => a.name.localeCompare(b.name))}
+                        onRowClick={handleRowClick}
+                        height="600px"
+                    />
                     <Button className="absolute bottom-0 right-0 flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors z-10" onClick={handleAddClick}>
                         <FaPlus className="h-6 w-6" />
                     </Button>

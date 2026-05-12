@@ -9,7 +9,11 @@ import { EvenementEditor } from './EvenementEditor';
 import { EventColumn, eventcolumns } from './Event-columns';
 import { Button } from './ui/button';
 
-export function EvenementsList() {
+interface EvenementsListProps {
+  mesEvenementsOnly?: boolean;
+}
+
+export function EvenementsList({ mesEvenementsOnly = false }: EvenementsListProps) {
   const [evenements, setEvenements] = useState<EventColumn[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,9 +39,13 @@ export function EvenementsList() {
   }
 
   function updateEvenements() {
+    const url = mesEvenementsOnly
+      ? `${SERVER_URL}/evenements/mes-evenements`
+      : `${SERVER_URL}/evenements`;
+
     console.log('Chargement des événements depuis le serveur Quarkus...');
     setLoading(true);
-    authFetch(`${SERVER_URL}/evenements`, {
+    authFetch(url, {
       method: "GET",
       redirect: "follow",
     })
@@ -79,7 +87,16 @@ export function EvenementsList() {
       {(!rowClicked && !addClicked && !error && !loading) &&
         <div className="relative">
           <h2 className="text-xl font-semibold mb-4">Liste des événements</h2>
-          <DataTable columns={eventcolumns} data={evenements.sort((a, b) => b.datedemande - a.datedemande)} onRowClick={handleRowClick} />
+          <DataTable
+            columns={eventcolumns}
+            data={evenements.sort((a, b) => b.datedemande - a.datedemande)}
+            onRowClick={handleRowClick}
+            rowClassName={(row) =>
+              row.getValue("statut") === "VALIDE" ? "bg-emerald-800 bg-opacity-70"
+                : row.getValue("statut") === "DEMANDE" ? "bg-orange-800 bg-opacity-70"
+                  : row.getValue("statut") === "REFUSE" ? "bg-red-800 bg-opacity-70"
+                    : ""
+            } />
           <Button className="absolute bottom-0 right-0 flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors z-10" onClick={handleAddClick}>
             <FaPlus className="h-6 w-6" />
           </Button>
