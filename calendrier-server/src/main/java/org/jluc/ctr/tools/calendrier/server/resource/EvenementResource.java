@@ -12,8 +12,10 @@ import java.util.UUID;
 
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jluc.ctr.tools.calendrier.server.dto.EvenementDTO;
+import org.jluc.ctr.tools.calendrier.server.model.club.Demandeur;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.EvenementRepository;
+import org.jluc.ctr.tools.calendrier.server.model.evenements.TypeEvenement;
 import org.jluc.ctr.tools.calendrier.server.model.moniteurs.Moniteur;
 import org.jluc.ctr.tools.calendrier.server.service.EvenementService;
 import org.jluc.ctr.tools.calendrier.server.websockets.WebSocketResource;
@@ -268,6 +270,76 @@ public class EvenementResource {
         } else {
             wsResource.broadcast(
                     new InfoMessage("[Erreur]", "Erreur de chargement du moniteur..."));
+            return Response.noContent().build();
+        }
+    }
+
+    @GET
+    @Path("/demandeur/{demandeurid}")
+    @RolesAllowed("user")
+    public Response getEventsByDemandeurById(@PathParam("demandeurid") String demandeurid) {
+        Log.debug("UUID demandé : " + demandeurid);
+        wsResource.broadcast(new ProgressMessage(true, "loaddemandeur", "Chargement du demandeur...", 0));
+        UUID uuid = UUID.fromString(demandeurid);
+        Demandeur demandeur = Demandeur.findById(uuid);
+        if (demandeur != null) {
+            wsResource.broadcast(new ProgressMessage(true,
+                    "loaddemandeur", "Chargement du demandeur terminé...", 100));
+            List<EvenementDTO> eventsDTO = new ArrayList<EvenementDTO>();
+            int nb = 0;
+            Date Today = new Date();
+            List<Evenement> events = service.getExamensFor(demandeur);
+            for (Evenement evenement : events) {
+                if (service.getAnnee(evenement.getDatedebut()) == service.getAnnee(Today) ||
+                        service.getAnnee(evenement.getDatedebut()) == service.getAnnee(Today) - 1) {
+                    eventsDTO.add(EvenementDTO.fromEntity(evenement));
+                    wsResource.broadcast(
+                            new ProgressMessage(true, "loadevents", "Chargement des évènements...",
+                                    (nb / events.size()) * 100));
+                    nb++;
+                }
+            }
+            wsResource.broadcast(
+                    new ProgressMessage(true, "loadevents", "Chargement des évènements terminé...", 100));
+            return Response.ok(eventsDTO).build();
+        } else {
+            wsResource.broadcast(
+                    new InfoMessage("[Erreur]", "Erreur de chargement du demandeur..."));
+            return Response.noContent().build();
+        }
+    }
+
+    @GET
+    @Path("/typeevenement/{typeevenementid}")
+    @RolesAllowed("user")
+    public Response getEventsByTypeEvenement(@PathParam("typeevenementid") String typeevenementid) {
+        Log.debug("UUID demandé : " + typeevenementid);
+        wsResource.broadcast(new ProgressMessage(true, "loadtypeevenement", "Chargement du type d'évènement...", 0));
+        UUID uuid = UUID.fromString(typeevenementid);
+        TypeEvenement typeEvenement = TypeEvenement.findById(uuid);
+        if (typeEvenement != null) {
+            wsResource.broadcast(new ProgressMessage(true,
+                    "loadtypeevenement", "Chargement du type d'évènement terminé...", 100));
+            List<EvenementDTO> eventsDTO = new ArrayList<EvenementDTO>();
+            int nb = 0;
+            Date Today = new Date();
+            List<Evenement> events = service.getExamensFor(typeEvenement);
+            for (Evenement evenement : events) {
+                if (service.getAnnee(evenement.getDatedebut()) == service.getAnnee(Today) ||
+                        service.getAnnee(evenement.getDatedebut()) == service.getAnnee(Today) - 1) {
+                    eventsDTO.add(EvenementDTO.fromEntity(evenement));
+                    wsResource.broadcast(
+                            new ProgressMessage(true, "loadevents", "Chargement des évènements...",
+                                    (nb / events.size()) * 100));
+                    nb++;
+                }
+            }
+            wsResource.broadcast(
+                    new ProgressMessage(true, "loadevents", "Chargement des évènements terminé...", 100));
+            return Response.ok(eventsDTO).build();
+        } else {
+            wsResource.broadcast(
+                    new InfoMessage("[Erreur]", "Erreur de chargement du type d'évènement..."));
             return Response.noContent().build();
         }
     }

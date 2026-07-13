@@ -10,6 +10,7 @@ public class TypeEvenementDTO {
     public String name;
     public TypeActivite activite;
     public String valeurforms;
+    public int nbevents = 0;
 
     public static TypeEvenementDTO fromEntity(TypeEvenement entity) {
         if (entity == null) {
@@ -40,5 +41,9 @@ public class TypeEvenementDTO {
         entity.setActivite(this.activite);
         entity.setValeurforms(this.valeurforms);
         return entity;
+    }
+
+    public void setNbevents(int nbevents) {
+        this.nbevents = nbevents;
     }
 }

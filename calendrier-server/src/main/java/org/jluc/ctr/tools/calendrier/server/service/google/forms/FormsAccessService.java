@@ -9,6 +9,9 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -33,9 +36,16 @@ public class FormsAccessService {
     public static final ResourceBundle DICO_PROPERTIES = ResourceBundle.getBundle("dicoCTR", Locale.getDefault());
     private static String FORMS_URL = DICO_PROPERTIES.getString("app.forms.url");
     private static SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
-    private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
 
     private static List<String> ERRORS = new ArrayList<String>();
+
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+    // Remplace DATE_FORMAT.parse(record[5])
+    private static Date parseDateUTC(String value) {
+        LocalDate localDate = LocalDate.parse(value, DATE_FORMATTER);
+        return Date.from(localDate.atStartOfDay(ZoneOffset.UTC).toInstant());
+    }
 
     public List<Evenement> getEventsFromGoogleForms(WebSocketResource wsResource) throws CsvException {
         List<Evenement> events = new ArrayList<Evenement>();
@@ -65,8 +75,8 @@ public class FormsAccessService {
                         continue;
                     }
                     Date dateDemande = DATE_TIME_FORMAT.parse(record[0]);
-                    Date dateDebut = DATE_FORMAT.parse(record[5]);
-                    Date dateFin = DATE_FORMAT.parse(record[6]);
+                    Date dateDebut = parseDateUTC(record[5]);
+                    Date dateFin = parseDateUTC(record[6]);
                     String comment = record[7];
                     String demandeur = (record[8].isEmpty() || record[8].equals("Autre")) ? record[9] : record[8];
                     String partenaire = record[10];

@@ -9,9 +9,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.jluc.ctr.tools.calendrier.server.model.club.Demandeur;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.EvenementRepository;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Status;
+import org.jluc.ctr.tools.calendrier.server.model.evenements.TypeEvenement;
 import org.jluc.ctr.tools.calendrier.server.model.moniteurs.Moniteur;
 import org.jluc.ctr.tools.calendrier.server.service.google.calendar.CalendarServices;
 import org.jluc.ctr.tools.calendrier.server.service.google.forms.FormsAccessService;
@@ -89,6 +91,22 @@ public class EvenementService {
         allEvenements.addAll(evenementsPresidentJury);
         allEvenements.addAll(evenementsDeleguerCTR);
         return allEvenements;
+    }
+
+    public List<Evenement> getExamensFor(Demandeur demandeur) {
+        List<Evenement> evenements = evenementRepository.findAllWithAllLoaded();
+        List<Evenement> evenementsDemandeur = evenements.stream()
+                .filter(e -> e.getDemandeur() != null && e.getDemandeur().equals(demandeur))
+                .toList();
+        return evenementsDemandeur;
+    }
+
+    public List<Evenement> getExamensFor(TypeEvenement typeEvenement) {
+        List<Evenement> evenements = evenementRepository.findAllWithType();
+        List<Evenement> evenementsActivite = evenements.stream()
+                .filter(e -> e.getType() != null && e.getType().equals(typeEvenement))
+                .toList();
+        return evenementsActivite;
     }
 
     public int getAnnee(Date date) {

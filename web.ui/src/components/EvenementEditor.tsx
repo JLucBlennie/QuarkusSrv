@@ -2,7 +2,7 @@ import { authFetch } from "@/lib/authService";
 import { ClubStructure, Demandeur, EvenementJSON, Moniteur, SERVER_URL, Session, TypeEvenement } from "@/lib/constants";
 import { dateInputToTimestamp, timestampToDateInput } from "@/lib/utils";
 import { useEffect, useState } from "react";
-import { FaPlus } from "react-icons/fa6";
+import { FaPlus, FaTrash } from "react-icons/fa6";
 import { DataTable } from "./DataTable";
 import { EventColumn } from "./Event-columns";
 import { eventconflictcolumns } from "./EventConflict-columns";
@@ -25,6 +25,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
     const [loading, setLoading] = useState<boolean>(true);
     const [modified, setModified] = useState<boolean>(false);
     const [eventConflict, setEventConflict] = useState<EventColumn[]>([]);
+    const [sessionErrors, setSessionErrors] = useState<Record<string, string>>({});
     const today = new Date();
 
     useEffect(() => {
@@ -142,18 +143,45 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
         setError(null);
         setSuccess(null);
 
+        // Validation des sessions avant soumission
+        const newSessionErrors: Record<string, string> = {};
+        (event?.sessions || []).forEach(s => {
+            if (!s.dateDebut) {
+                newSessionErrors[s.uuid] = 'Date de début requise';
+            } else if (!s.dateFin) {
+                newSessionErrors[s.uuid] = 'Date de fin requise';
+            } else if (s.dateDebut > s.dateFin) {
+                newSessionErrors[s.uuid] = 'La date de début doit être antérieure à la date de fin';
+            }
+        });
+        if (Object.keys(newSessionErrors).length > 0) {
+            setSessionErrors(newSessionErrors);
+            setError('Veuillez corriger les erreurs dans les sessions avant de soumettre.');
+            return;
+        }
+
         if (event?.datedemande == undefined) {
             setEvent((prev: EvenementJSON | undefined) => ({
                 ...(prev || {}), datedemande: today.getTime()
             }));
         }
 
+        // Nettoyer les UUIDs temporaires (temp_xxx) avant envoi :
+        // le backend génère un vrai UUID si null est reçu (SessionDTO.toEntity)
+        const eventToSend = {
+            ...event,
+            sessions: event?.sessions?.map(s => ({
+                ...s,
+                uuid: s.uuid?.startsWith('temp_') ? null : s.uuid
+            }))
+        };
+
         const url = `${SERVER_URL}/evenements`;
         const method = uuid ? 'PUT' : 'POST';
 
         authFetch(url, {
             method,
-            body: JSON.stringify(event),
+            body: JSON.stringify(eventToSend),
             redirect: 'follow'
         }).then((response) => {
             if (!response.ok) {
@@ -328,7 +356,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
     function handleAddClick() {
         console.log('Ajouter une Session');
         const newSession: Session = {
-            uuid: '',
+            uuid: `temp_${Date.now()}`,
             dateDebut: 0,
             dateFin: 0,
             typeSession: 'PRESENTIEL'
@@ -342,38 +370,61 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
     }
 
     function handleSessionChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
-        const { name, value } = e.target;
-        const sessionIndex = parseInt(name.match(/\d+/)?.[0] || '0', 10) - 1;
-        const fieldName = name.replace(`session${sessionIndex + 1}`, '');
-        var valueToSet = value;
-        let dateOk = false;
-        if (fieldName.startsWith('date')) {
-            dateOk = (value.split('-')[0] === today.getFullYear().toString());
+        const sessionId = e.target.dataset.sessionId!;
+        const fieldName = e.target.dataset.field!;
+        const value = e.target.value;
+
+        const valueToSet = fieldName.startsWith('date')
+            ? dateInputToTimestamp(value)
+            : value;
+
+        // Validation en temps réel sur les champs de dates
+        if (fieldName === 'dateDebut' || fieldName === 'dateFin') {
+            const currentSession = event?.sessions?.find(s => s.uuid === sessionId);
+            if (currentSession) {
+                const newDateDebut = fieldName === 'dateDebut' ? (valueToSet as number) : currentSession.dateDebut;
+                const newDateFin = fieldName === 'dateFin' ? (valueToSet as number) : currentSession.dateFin;
+                if (newDateDebut && newDateFin && newDateDebut > newDateFin) {
+                    setSessionErrors(prev => ({ ...prev, [sessionId]: 'La date de début doit être antérieure à la date de fin' }));
+                } else {
+                    setSessionErrors(prev => {
+                        const { [sessionId]: _, ...rest } = prev;
+                        return rest;
+                    });
+                }
+            }
         }
+
         setEvent((prev: EvenementJSON | undefined) => {
             if (!prev) return prev;
-            const updatedSessions = prev.sessions ? [...prev.sessions] : [];
-            if (updatedSessions[sessionIndex]) {
-                (updatedSessions[sessionIndex] as any)[fieldName] = valueToSet;
-            }
-            if (fieldName === 'dateDebut' && valueToSet && dateOk) {
-                if (!prev.datedebut || prev.datedebut <= dateInputToTimestamp(valueToSet)) {
-                    const updatedEvent = { ...prev, datedebut: dateInputToTimestamp(valueToSet), sessions: updatedSessions };
-                    return updatedEvent;
-                } else {
-                    return { ...prev, sessions: updatedSessions };
-                }
-            } else if (fieldName === 'dateFin' && valueToSet && dateOk) {
-                if (!prev.datefin || prev.datefin <= dateInputToTimestamp(valueToSet)) {
-                    const updatedEvent = { ...prev, datefin: dateInputToTimestamp(valueToSet), sessions: updatedSessions };
-                    return updatedEvent;
-                } else {
-                    return { ...prev, sessions: updatedSessions };
-                }
-            } else {
-                return { ...prev, sessions: updatedSessions };
-            }
-            updateConflicts(prev);
+            const updatedSessions = (prev.sessions || []).map(s =>
+                s.uuid !== sessionId ? s : { ...s, [fieldName]: valueToSet }
+            );
+            // Recalcul des dates de l'événement : min des débuts, max des fins
+            const allDebuts = updatedSessions.map(s => s.dateDebut).filter(d => d && d > 0) as number[];
+            const allFins = updatedSessions.map(s => s.dateFin).filter(d => d && d > 0) as number[];
+            const newDebut = allDebuts.length > 0 ? Math.min(...allDebuts) : prev.datedebut;
+            const newFin = allFins.length > 0 ? Math.max(...allFins) : prev.datefin;
+            const updatedEvent = { ...prev, sessions: updatedSessions, datedebut: newDebut, datefin: newFin };
+            updateConflicts(updatedEvent);
+            return updatedEvent;
+        });
+        setModified(true);
+    }
+
+    function handleDeleteSession(sessionId: string) {
+        setEvent((prev: EvenementJSON | undefined) => {
+            if (!prev) return prev;
+            const updatedSessions = (prev.sessions || []).filter(s => s.uuid !== sessionId);
+            const allDebuts = updatedSessions.map(s => s.dateDebut).filter(d => d && d > 0) as number[];
+            const allFins = updatedSessions.map(s => s.dateFin).filter(d => d && d > 0) as number[];
+            const newDebut = allDebuts.length > 0 ? Math.min(...allDebuts) : undefined;
+            const newFin = allFins.length > 0 ? Math.max(...allFins) : undefined;
+            return { ...prev, sessions: updatedSessions, datedebut: newDebut, datefin: newFin };
+        });
+        setSessionErrors(prev => {
+            const { [sessionId]: _, ...rest } = prev;
+            return rest;
         });
         setModified(true);
     }
@@ -674,52 +725,73 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                             Les Sessions :
                                         </label>
                                     )}
-                                    {event?.sessions && event.sessions.map((session, index) => (
-                                        <div key={index} className="grid grid-cols-3 grid-rows-1 gap-2 w-full max-w-l mx-auto">
-                                            <div className="p-1">
-                                                <label htmlFor={`session${index + 1}dateDebut`} className="text-sm font-medium text-white-700 mb-1">
-                                                    Session {index + 1} - Date de début *
-                                                </label>
-                                                <input
-                                                    id={`session${index + 1}dateDebut`}
-                                                    name={`session${index + 1}dateDebut`}
-                                                    type="date"
-                                                    value={timestampToDateInput(session?.dateDebut)}
-                                                    onChange={handleSessionChange}
-                                                    required
-                                                    className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
-                                                />
+                                    {event?.sessions && [...event.sessions].sort((a, b) => (a.dateDebut && b.dateDebut) ? a.dateDebut - b.dateDebut : 0).map((session, index) => (
+                                        <div key={session.uuid}>
+                                            <div className="grid grid-cols-4 grid-rows-1 gap-2 w-full max-w-l mx-auto items-end">
+                                                <div className="p-1">
+                                                    <label htmlFor={`session${index + 1}dateDebut`} className="text-sm font-medium text-white-700 mb-1">
+                                                        Session {index + 1} - Date de début *
+                                                    </label>
+                                                    <input
+                                                        type="date"
+                                                        data-session-id={session.uuid}
+                                                        data-field="dateDebut"
+                                                        id={`session${index + 1}dateDebut`}
+                                                        value={timestampToDateInput(session?.dateDebut)}
+                                                        onChange={handleSessionChange}
+                                                        required
+                                                        className={`mt-1 w-full rounded-md border shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 ${sessionErrors[session.uuid] ? 'border-red-500' : 'border-gray-300'}`}
+                                                    />
+                                                </div>
+                                                <div className="p-1">
+                                                    <label htmlFor={`session${index + 1}dateFin`} className="text-sm font-medium text-white-700 mb-1">
+                                                        Session {index + 1} - Date de fin *
+                                                    </label>
+                                                    <input
+                                                        type="date"
+                                                        data-session-id={session.uuid}
+                                                        data-field="dateFin"
+                                                        id={`session${index + 1}dateFin`}
+                                                        value={timestampToDateInput(session?.dateFin)}
+                                                        onChange={handleSessionChange}
+                                                        required
+                                                        className={`mt-1 w-full rounded-md border shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 ${sessionErrors[session.uuid] ? 'border-red-500' : 'border-gray-300'}`}
+                                                    />
+                                                </div>
+                                                <div className="p-1">
+                                                    <label htmlFor={`session${index + 1}typeSession`} className="text-sm font-medium text-white-700 mb-1">
+                                                        Session {index + 1} - Type *
+                                                    </label>
+                                                    <select
+                                                        id={`session${index + 1}typeSession`}
+                                                        data-session-id={session.uuid}
+                                                        data-field="typeSession"
+                                                        onChange={handleSessionChange}
+                                                        value={session?.typeSession || 'PRESENTIEL'}
+                                                        className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
+                                                    >
+                                                        <option>PRESENTIEL</option>
+                                                        <option>DISTANCIEL</option>
+                                                        <option>MIXTE</option>
+                                                    </select>
+                                                </div>
+                                                <div className="p-1 flex items-end">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleDeleteSession(session.uuid)}
+                                                        title="Supprimer la session"
+                                                        className="mt-1 w-full flex items-center justify-center gap-1 px-2 py-2 rounded-md border border-red-400 text-red-400 hover:bg-red-900 hover:text-white transition-colors text-sm"
+                                                    >
+                                                        <FaTrash className="h-3 w-3" />
+                                                        Supprimer
+                                                    </button>
+                                                </div>
                                             </div>
-                                            <div className="p-1">
-                                                <label htmlFor={`session${index + 1}dateFin`} className="text-sm font-medium text-white-700 mb-1">
-                                                    Session {index + 1} - Date de fin *
-                                                </label>
-                                                <input
-                                                    id={`session${index + 1}dateFin`}
-                                                    name={`session${index + 1}dateFin`}
-                                                    type="date"
-                                                    value={timestampToDateInput(session?.dateFin)}
-                                                    onChange={handleSessionChange}
-                                                    required
-                                                    className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
-                                                />
-                                            </div>
-                                            <div className="p-1">
-                                                <label htmlFor={`session${index + 1}typeSession`} className="text-sm font-medium text-white-700 mb-1">
-                                                    Session {index + 1} - Type *
-                                                </label>
-                                                <select
-                                                    id={`session${index + 1}typeSession`}
-                                                    name={`session${index + 1}typeSession`}
-                                                    onChange={handleSessionChange}
-                                                    value={session?.typeSession || 'PRESENTIEL'}
-                                                    className={`mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2`}
-                                                >
-                                                    <option>PRESENTIEL</option>
-                                                    <option>DISTANCIEL</option>
-                                                    <option>MIXTE</option>
-                                                </select>
-                                            </div>
+                                            {sessionErrors[session.uuid] && (
+                                                <p className="text-red-400 text-xs px-1 pb-1">
+                                                    ⚠ {sessionErrors[session.uuid]}
+                                                </p>
+                                            )}
                                         </div>
                                     ))}
                                 </div>

@@ -1,11 +1,15 @@
 package org.jluc.ctr.tools.calendrier.server.resource;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import org.jluc.ctr.tools.calendrier.server.dto.EvenementDTO;
 import org.jluc.ctr.tools.calendrier.server.dto.TypeEvenementDTO;
+import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.TypeEvenement;
+import org.jluc.ctr.tools.calendrier.server.service.EvenementService;
 import org.jluc.ctr.tools.calendrier.server.websockets.WebSocketResource;
 import org.jluc.ctr.tools.calendrier.server.websockets.messages.InfoMessage;
 import org.jluc.ctr.tools.calendrier.server.websockets.messages.ProgressMessage;
@@ -30,6 +34,9 @@ public class TypeEvenementResource {
     @Inject
     WebSocketResource wsResource;
 
+    @Inject
+    EvenementService serviceEvent;
+
     @GET
     @Path("/{id}")
     public Response getEventTypeById(@PathParam("id") String id) {
@@ -38,9 +45,23 @@ public class TypeEvenementResource {
         UUID uuid = UUID.fromString(id);
         TypeEvenement eventType = TypeEvenement.findById(uuid);
         if (eventType != null) {
+            // Récupération du nb d'évènements
+            List<EvenementDTO> eventsDTO = new ArrayList<EvenementDTO>();
+            int nbEvent = 0;
+            Date Today = new Date();
+            List<Evenement> events = serviceEvent.getExamensFor(eventType);
+            for (Evenement evenement : events) {
+                if (serviceEvent.getAnnee(evenement.getDatedebut()) == serviceEvent.getAnnee(Today) ||
+                        serviceEvent.getAnnee(evenement.getDatedebut()) == serviceEvent.getAnnee(Today) - 1) {
+                    eventsDTO.add(EvenementDTO.fromEntity(evenement));
+                    nbEvent++;
+                }
+            }
+            TypeEvenementDTO eventTypeDTO = TypeEvenementDTO.fromEntity(eventType);
+            eventTypeDTO.setNbevents(nbEvent);
             wsResource.broadcast(new ProgressMessage(true,
                     "loadeventtypes", "Chargement du type d'évènement terminé...", 100));
-            return Response.ok(TypeEvenementDTO.fromEntity(eventType)).build();
+            return Response.ok(eventTypeDTO).build();
         } else {
             wsResource.broadcast(
                     new InfoMessage("[Erreur]", "Erreur de chargement du type d'évènement..."));
@@ -51,11 +72,25 @@ public class TypeEvenementResource {
     @GET
     public Response getAll() {
         List<TypeEvenement> eventTypes = TypeEvenement.listAll();
-        wsResource.broadcast(new ProgressMessage(true, "loadeventtypes", "Chargement des nouveaux types d'évènements...", 0));
+        wsResource.broadcast(
+                new ProgressMessage(true, "loadeventtypes", "Chargement des nouveaux types d'évènements...", 0));
         List<TypeEvenementDTO> eventTypesDTO = new ArrayList<TypeEvenementDTO>();
         int nb = 0;
         for (TypeEvenement eventType : eventTypes) {
-                eventTypesDTO.add(TypeEvenementDTO.fromEntity(eventType));
+            List<EvenementDTO> eventsDTO = new ArrayList<EvenementDTO>();
+            int nbEvent = 0;
+            Date Today = new Date();
+            List<Evenement> events = serviceEvent.getExamensFor(eventType);
+            for (Evenement evenement : events) {
+                if (serviceEvent.getAnnee(evenement.getDatedebut()) == serviceEvent.getAnnee(Today) ||
+                        serviceEvent.getAnnee(evenement.getDatedebut()) == serviceEvent.getAnnee(Today) - 1) {
+                    eventsDTO.add(EvenementDTO.fromEntity(evenement));
+                    nbEvent++;
+                }
+            }
+            TypeEvenementDTO eventTypeDTO = TypeEvenementDTO.fromEntity(eventType);
+            eventTypeDTO.setNbevents(nbEvent);
+            eventTypesDTO.add(eventTypeDTO);
             wsResource.broadcast(
                     new ProgressMessage(true, "loadeventtypes", "Chargement des types d'évènements...",
                             (nb / eventTypes.size()) * 100));

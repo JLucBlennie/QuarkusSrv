@@ -250,6 +250,7 @@ public class CalendarServices {
             // Gestion des Sessions
             if (event.getSessions().size() > 1) {
                 Log.warn("Creation d'un evenement avec plusieurs sessions, ce n'est pas encore géré.");
+                event.getSessions().sort((s1, s2) -> s1.getDateDebut().compareTo(s2.getDateDebut()));
                 for (int iSession = 0; iSession < event.getSessions().size(); iSession++) {
                     Session session = event.getSessions().get(iSession);
                     Log.warn("Session " + (iSession + 1) + " : du " + event.getSessions().get(iSession).getDateDebut()
@@ -281,11 +282,11 @@ public class CalendarServices {
             Date endDate) {
         Event event = new Event().setSummary(titre).setLocation(location).setDescription(description);
 
-        DateTime startDateTime = new DateTime(true, startDate.getTime() + (24 * 3600000), 120);
+        DateTime startDateTime = new DateTime(true, startDate.getTime(), 120);
         EventDateTime start = new EventDateTime().setDate(startDateTime).setTimeZone("Europe/Paris");
         event.setStart(start);
 
-        DateTime endDateTime = new DateTime(true, endDate.getTime() + (48 * 3600000), 120);
+        DateTime endDateTime = new DateTime(true, endDate.getTime() + (24 * 3600000), 120);
         EventDateTime end = new EventDateTime().setDate(endDateTime).setTimeZone("Europe/Paris");
         event.setEnd(end);
 

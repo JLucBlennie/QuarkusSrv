@@ -8,6 +8,7 @@ public class DemandeurDTO {
     public UUID uuid;
     public String name;
     public String numerostructure;
+    public int nbevents = 0;
 
     public static DemandeurDTO fromEntity(Demandeur demandeur) {
         if (demandeur == null) {
@@ -36,5 +37,9 @@ public class DemandeurDTO {
         demandeur.setName(this.name);
         demandeur.setNumeroStructure(this.numerostructure);
         return demandeur;
+    }
+
+    public void setNbevents(int nbevents) {
+        this.nbevents = nbevents;
     }
 }

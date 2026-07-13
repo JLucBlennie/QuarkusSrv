@@ -1,11 +1,15 @@
 package org.jluc.ctr.tools.calendrier.server.resource;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 import org.jluc.ctr.tools.calendrier.server.dto.DemandeurDTO;
+import org.jluc.ctr.tools.calendrier.server.dto.EvenementDTO;
 import org.jluc.ctr.tools.calendrier.server.model.club.Demandeur;
+import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
+import org.jluc.ctr.tools.calendrier.server.service.EvenementService;
 import org.jluc.ctr.tools.calendrier.server.websockets.WebSocketResource;
 import org.jluc.ctr.tools.calendrier.server.websockets.messages.InfoMessage;
 import org.jluc.ctr.tools.calendrier.server.websockets.messages.ProgressMessage;
@@ -31,18 +35,35 @@ public class DemandeurResource {
     @Inject
     WebSocketResource wsResource;
 
+    @Inject
+    EvenementService serviceEvent;
+
     @GET
     @Path("/{id}")
     @RolesAllowed("user")
-    public Response getCDemandeurById(@PathParam("id") String id) {
+    public Response getDemandeurById(@PathParam("id") String id) {
         Log.info("UUID demandé : " + id);
         wsResource.broadcast(new ProgressMessage(true, "loaddemandeur", "Chargement du demandeur...", 0));
         UUID uuid = UUID.fromString(id);
         Demandeur demandeur = Demandeur.findById(uuid);
         if (demandeur != null) {
+            // Récupération du nb d'évènements
+            List<EvenementDTO> eventsDTO = new ArrayList<EvenementDTO>();
+            int nbEvent = 0;
+            Date Today = new Date();
+            List<Evenement> events = serviceEvent.getExamensFor(demandeur);
+            for (Evenement evenement : events) {
+                if (serviceEvent.getAnnee(evenement.getDatedebut()) == serviceEvent.getAnnee(Today) ||
+                        serviceEvent.getAnnee(evenement.getDatedebut()) == serviceEvent.getAnnee(Today) - 1) {
+                    eventsDTO.add(EvenementDTO.fromEntity(evenement));
+                    nbEvent++;
+                }
+            }
+            DemandeurDTO demandeurDTO = DemandeurDTO.fromEntity(demandeur);
+            demandeurDTO.setNbevents(nbEvent);
             wsResource.broadcast(new ProgressMessage(true,
                     "loaddemandeur", "Chargement du demandeur terminé...", 100));
-            return Response.ok(DemandeurDTO.fromEntity(demandeur)).build();
+            return Response.ok(demandeurDTO).build();
         } else {
             wsResource.broadcast(
                     new InfoMessage("[Erreur]", "Erreur de chargement du demandeur..."));
@@ -58,7 +79,20 @@ public class DemandeurResource {
         List<DemandeurDTO> demandeursDTO = new ArrayList<DemandeurDTO>();
         int nb = 0;
         for (Demandeur demandeur : demandeurs) {
-                demandeursDTO.add(DemandeurDTO.fromEntity(demandeur));
+            List<EvenementDTO> eventsDTO = new ArrayList<EvenementDTO>();
+            int nbEvent = 0;
+            Date Today = new Date();
+            List<Evenement> events = serviceEvent.getExamensFor(demandeur);
+            for (Evenement evenement : events) {
+                if (serviceEvent.getAnnee(evenement.getDatedebut()) == serviceEvent.getAnnee(Today) ||
+                        serviceEvent.getAnnee(evenement.getDatedebut()) == serviceEvent.getAnnee(Today) - 1) {
+                    eventsDTO.add(EvenementDTO.fromEntity(evenement));
+                    nbEvent++;
+                }
+            }
+            DemandeurDTO demandeurDTO = DemandeurDTO.fromEntity(demandeur);
+            demandeurDTO.setNbevents(nbEvent);
+            demandeursDTO.add(demandeurDTO);
             wsResource.broadcast(
                     new ProgressMessage(true, "loaddemandeurs", "Chargement des demandeurs...",
                             (nb / demandeurs.size()) * 100));
