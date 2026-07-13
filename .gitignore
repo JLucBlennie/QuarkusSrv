@@ -46,3 +46,7 @@ calendrier-server/data/club.csv
 calendrier-server/data/demandeur.csv
 calendrier-server/data/moniteur.csv
 calendrier-server/data/typeevenement.csv
+calendrier-server/data/20260710-SaveBeforeDateMigration.backup
+calendrier-server/data/20260710-SaveBeforeDateMigration.sql
+calendrier-server/data/evenement.csv
+calendrier-server/data/session.csv
