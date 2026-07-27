@@ -14,6 +14,7 @@ import { useAuth } from "@/context/AuthContext"; // ← nouveau
 import { authFetch } from "@/lib/authService"; // ← nouveau
 import { SERVER_URL, WS_URL } from "@/lib/constants";
 import { LogOut } from "lucide-react";
+import Link from "next/link";
 import { useEffect } from "react";
 import { FaArrowRotateLeft } from "react-icons/fa6";
 import pack from "../../package.json";
@@ -52,7 +53,7 @@ export default function Home() {
             {hasRole("admin") && (
               <Tabs.Tab label="Événements">
                 <div className="w-full h-full overflow-auto">
-                  <EvenementsList />
+                  <Link href="/evenements" className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors" >Ouvrir les événements</Link>
                 </div>
               </Tabs.Tab>
             )}

@@ -43,7 +43,8 @@ export function ClubStructureEditor({ uuid, onExit }: ClubStructureEditorProps) 
         }
     }, []);
 
-    function handleSubmit() {
+    function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
         // Logique de soumission du formulaire
         setError(null);
         setSuccess(null);
@@ -87,7 +88,7 @@ export function ClubStructureEditor({ uuid, onExit }: ClubStructureEditorProps) 
             {!error && !loading &&
                 <div>
                     <p className="text-center">Modification d'un club/structure.</p>
-                    <form className="space-y-6">
+                    <form className="space-y-6" onSubmit={handleSubmit}>
                         <div className="grid grid-cols-2 grid-rows-5 gap-2 max-w-l mx-auto">
                             {/* Champ First Name */}
                             <div className="p-1">
@@ -130,7 +131,6 @@ export function ClubStructureEditor({ uuid, onExit }: ClubStructureEditorProps) 
                             </button>
                             <button
                                 type="submit"
-                                onClick={handleSubmit}
                                 disabled={!modified}
                                 className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 enabled:hover:bg-gray-50 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                             >

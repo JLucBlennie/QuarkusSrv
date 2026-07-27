@@ -3,10 +3,10 @@
 import { authFetch } from '@/lib/authService';
 import { EvenementJSON, SERVER_URL } from '@/lib/constants';
 import { ColumnDef } from '@tanstack/react-table';
+import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { FaFilter, FaPlus, FaTrash } from "react-icons/fa6";
 import { DataTable } from './DataTable';
-import { EvenementEditor } from './EvenementEditor';
 import { EventColumn, eventcolumns } from './Event-columns';
 import { Button } from './ui/button';
 import { Checkbox } from './ui/checkbox';
@@ -26,13 +26,11 @@ const STATUTS = ['DEMANDE', 'VALIDE', 'REFUSE'];
 const EMPTY_FILTERS: Filters = { organisateur: '', demandeur: '', activite: '', statut: '' };
 
 export function EvenementsList({ mesEvenementsOnly = false }: EvenementsListProps) {
+  const router = useRouter();
   const [evenements, setEvenements] = useState<EventColumn[]>([]);
   const [eventsData, setEventsData] = useState<EvenementJSON[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [rowClicked, setRowClicked] = useState<boolean>(false);
-  const [addClicked, setAddClicked] = useState<boolean>(false);
-  const [selectedRow, setSelectedRow] = useState<EventColumn | null>(null);
 
   // Sélection pour suppression
   const [selectedUuids, setSelectedUuids] = useState<Set<string>>(new Set());
@@ -88,13 +86,11 @@ export function EvenementsList({ mesEvenementsOnly = false }: EvenementsListProp
       toggleRow(row.uuid);
       return;
     }
-    setRowClicked(true);
-    setSelectedRow(row);
+    router.push(`/evenements/${row.uuid}`);
   }
 
   function handleAddClick() {
-    setAddClicked(true);
-    setSelectedRow(null);
+    router.push('/evenements/nouveau');
   }
 
   function toggleRow(uuid: string) {
@@ -209,7 +205,7 @@ export function EvenementsList({ mesEvenementsOnly = false }: EvenementsListProp
 
   return (
     <div>
-      {(!rowClicked && !addClicked && !error && !loading) && (
+      {(!error && !loading) && (
         <div className="relative">
 
           {/* ── En-tête ── */}
@@ -327,12 +323,6 @@ export function EvenementsList({ mesEvenementsOnly = false }: EvenementsListProp
         </div>
       )}
 
-      {rowClicked && (
-        <EvenementEditor uuid={selectedRow?.uuid} onExit={() => { setRowClicked(false); updateEvenements(); }} />
-      )}
-      {addClicked && (
-        <EvenementEditor uuid={undefined} onExit={() => { setAddClicked(false); updateEvenements(); }} />
-      )}
       {error && <p>Erreur : {error}</p>}
       {loading && <p>Chargement en cours…</p>}
     </div>

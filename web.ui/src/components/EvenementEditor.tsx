@@ -1,3 +1,4 @@
+import { useAuth } from "@/context/AuthContext";
 import { authFetch } from "@/lib/authService";
 import { ClubStructure, Demandeur, EvenementJSON, Moniteur, SERVER_URL, Session, TypeEvenement } from "@/lib/constants";
 import { dateInputToTimestamp, timestampToDateInput } from "@/lib/utils";
@@ -26,6 +27,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
     const [modified, setModified] = useState<boolean>(false);
     const [eventConflict, setEventConflict] = useState<EventColumn[]>([]);
     const [sessionErrors, setSessionErrors] = useState<Record<string, string>>({});
+    const { hasRole } = useAuth();
     const today = new Date();
 
     useEffect(() => {
@@ -138,7 +140,8 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
             });
     }, []);
 
-    function handleSubmit() {
+    function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
         // Logique de soumission du formulaire
         setError(null);
         setSuccess(null);
@@ -438,7 +441,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
             }
             {!error && !loading &&
                 <div>
-                    <form className="flex flex-col space-y-6">
+                    <form className="flex flex-col space-y-6" onSubmit={handleSubmit}>
                         <div className="grid grid-cols-4 grid-rows-3 gap-2 max-w-l mx-auto">
                             {/* Champ Date de Demande */}
                             <div className="p-1">
@@ -848,6 +851,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                 type="button"
                                 onClick={onValidate}
                                 disabled={uuid === undefined || modified}
+                                hidden={!hasRole("admin")}
                                 className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-white-700 enabled:hover:bg-gray-50 disabled:opacity-50"
                             >
                                 Valider
@@ -856,13 +860,13 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                 type="button"
                                 onClick={onRefuse}
                                 disabled={uuid === undefined || modified}
+                                hidden={!hasRole("admin")}
                                 className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-white-700 enabled:hover:bg-gray-50 disabled:opacity-50"
                             >
                                 Refuser
                             </button>
                             <button
                                 type="submit"
-                                onClick={handleSubmit}
                                 disabled={!modified}
                                 className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 enabled:hover:bg-gray-50 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                             >
