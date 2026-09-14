@@ -1,6 +1,8 @@
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
+import WebSocketNotificationListener from "@/components/WebSocketNotificationListener";
 import { AuthProvider } from "@/context/AuthContext";
+import { WS_URL } from "@/lib/constants";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
@@ -40,6 +42,7 @@ export default function RootLayout({
             <AuthProvider>        
               <main>{children}</main>
               <Toaster />
+              <WebSocketNotificationListener url={`${WS_URL}/ws`} />
             </AuthProvider>
           </ThemeProvider>
         </body>

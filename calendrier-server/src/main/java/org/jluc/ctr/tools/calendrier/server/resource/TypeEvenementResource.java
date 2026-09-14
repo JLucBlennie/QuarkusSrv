@@ -15,6 +15,7 @@ import org.jluc.ctr.tools.calendrier.server.websockets.messages.InfoMessage;
 import org.jluc.ctr.tools.calendrier.server.websockets.messages.ProgressMessage;
 
 import io.quarkus.logging.Log;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -38,6 +39,7 @@ public class TypeEvenementResource {
     EvenementService serviceEvent;
 
     @GET
+    @RolesAllowed("user")
     @Path("/{id}")
     public Response getEventTypeById(@PathParam("id") String id) {
         Log.info("UUID demandé : " + id);
@@ -70,6 +72,7 @@ public class TypeEvenementResource {
     }
 
     @GET
+    @RolesAllowed("user")
     public Response getAll() {
         List<TypeEvenement> eventTypes = TypeEvenement.listAll();
         wsResource.broadcast(
@@ -102,6 +105,7 @@ public class TypeEvenementResource {
     }
 
     @POST
+    @RolesAllowed("admin")
     public Response addEventType(TypeEvenementDTO input) {
         Log.info("Ajout d'un type d'événement : " + input);
 
@@ -121,6 +125,7 @@ public class TypeEvenementResource {
     }
 
     @PUT
+    @RolesAllowed("admin")
     public Response modifyEventType(TypeEvenementDTO input) {
         Log.info("Modification du type d'évènement" + input);
         if (input.uuid == null) {
@@ -142,6 +147,7 @@ public class TypeEvenementResource {
     }
 
     @DELETE
+    @RolesAllowed("admin")
     @Path("/{id}")
     public Response deleteEventTypeById(@PathParam("id") String id) {
         UUID uuid = UUID.fromString(id);

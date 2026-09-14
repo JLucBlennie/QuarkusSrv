@@ -20,6 +20,7 @@ import {
 interface AuthContextType {
     user: StoredUser | null;
     isAuthenticated: boolean;
+    isLoading: boolean;
     login: (username: string, password: string) => Promise<AuthResponse>;
     logout: () => void;
     hasRole: (role: string) => boolean;
@@ -29,6 +30,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<StoredUser | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
 
     // Restaure l'utilisateur depuis le localStorage au démarrage
@@ -39,6 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
             router.push("/login");
         }
+        setIsLoading(false);
     }, []);
 
     const login = useCallback(async (username: string, password: string): Promise<AuthResponse> => {
@@ -58,7 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, [user]);
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, hasRole, isAuthenticated: !!user }}>
+        <AuthContext.Provider value={{ user, login, logout, hasRole, isAuthenticated: !!user, isLoading }}>
             {children}
         </AuthContext.Provider>
     );

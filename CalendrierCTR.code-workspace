@@ -1,11 +1,8 @@
 {
 	"folders": [
 		{
-			"path": "./calendrier-server"
-		},
-		{
-			"path": "./web.ui"
-		}		
+			"path": "."
+		}
 	],
 	"settings": {
 		"java.compile.nullAnalysis.mode": "automatic",

@@ -15,6 +15,7 @@ import org.jluc.ctr.tools.calendrier.server.dto.EvenementDTO;
 import org.jluc.ctr.tools.calendrier.server.model.club.Demandeur;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.EvenementRepository;
+import org.jluc.ctr.tools.calendrier.server.model.evenements.Status;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.TypeEvenement;
 import org.jluc.ctr.tools.calendrier.server.model.moniteurs.Moniteur;
 import org.jluc.ctr.tools.calendrier.server.service.EvenementService;
@@ -233,10 +234,17 @@ public class EvenementResource {
     @RolesAllowed("admin")
     public Response deleteEventById(@PathParam("id") String id) {
         UUID uuid = UUID.fromString(id);
-        if (Evenement.deleteById(uuid))
-            return Response.ok().build();
-        else
-            return Response.noContent().build();
+        Log.debug("Suppression de l'évènement " + uuid);
+
+        Evenement existingEvent = Evenement.findById(uuid);
+        if (existingEvent == null) {
+            Log.debug("L'évènement n'existe pas en base : " + uuid);
+            return Response.status(Response.Status.CONFLICT)
+                    .entity("L'évènement n'existe pas en base.").build();
+        }
+        existingEvent.setStatut(Status.SUPPRIME);
+        existingEvent.persist();
+        return Response.ok().build();
     }
 
     @GET

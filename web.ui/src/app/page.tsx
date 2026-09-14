@@ -9,10 +9,9 @@ import { TypeEvenementList } from "@/components/TypeEvenementList";
 import { Button } from "@/components/ui/button";
 import Tabs from "@/components/ui/tabs";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import WebSocketNotificationListener from "@/components/WebSocketNotificationListener";
 import { useAuth } from "@/context/AuthContext"; // ← nouveau
 import { authFetch } from "@/lib/authService"; // ← nouveau
-import { SERVER_URL, WS_URL } from "@/lib/constants";
+import { SERVER_URL } from "@/lib/constants";
 import { LogOut } from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
@@ -115,7 +114,6 @@ export default function Home() {
           </Button>
         </div>
       )}
-      <WebSocketNotificationListener url={`${WS_URL}/ws`} />
     </div>
   );
 }

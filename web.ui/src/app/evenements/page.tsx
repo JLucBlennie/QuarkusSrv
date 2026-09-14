@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function EvenementsPage() {
-    const { hasRole } = useAuth();
+    const { hasRole, isLoading } = useAuth();
     const router = useRouter();
 
     // Garde d'accès : seuls les admins voient la liste complète.
@@ -15,9 +15,9 @@ export default function EvenementsPage() {
         if (!hasRole("admin")) {
             router.push("/");
         }
-    }, [hasRole, router]);
+    }, [isLoading, hasRole, router]);
 
-    if (!hasRole("admin")) {
+    if (isLoading || !hasRole("admin")) {
         return null;
     }
 
