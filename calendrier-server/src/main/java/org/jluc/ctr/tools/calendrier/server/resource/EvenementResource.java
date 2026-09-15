@@ -158,7 +158,7 @@ public class EvenementResource {
         int nb = 0;
         Date Today = new Date();
         for (Evenement evenement : events) {
-            if (evenement.getDatedebut().after(Today)) {
+            if (evenement.getDatedebut().after(Today) && evenement.getStatut() != Status.SUPPRIME) {
                 eventsDTO.add(EvenementDTO.fromEntity(evenement));
             }
             wsResource.broadcast(
@@ -265,11 +265,13 @@ public class EvenementResource {
             for (Evenement evenement : events) {
                 if (service.getAnnee(evenement.getDatedebut()) == service.getAnnee(Today) ||
                         service.getAnnee(evenement.getDatedebut()) == service.getAnnee(Today) - 1) {
-                    eventsDTO.add(EvenementDTO.fromEntity(evenement));
-                    wsResource.broadcast(
-                            new ProgressMessage(true, "loadevents", "Chargement des évènements...",
-                                    (nb / events.size()) * 100));
-                    nb++;
+                    if (evenement.getStatut() != Status.SUPPRIME) {
+                        eventsDTO.add(EvenementDTO.fromEntity(evenement));
+                        wsResource.broadcast(
+                                new ProgressMessage(true, "loadevents", "Chargement des évènements...",
+                                        (nb / events.size()) * 100));
+                        nb++;
+                    }
                 }
             }
             wsResource.broadcast(
@@ -300,11 +302,13 @@ public class EvenementResource {
             for (Evenement evenement : events) {
                 if (service.getAnnee(evenement.getDatedebut()) == service.getAnnee(Today) ||
                         service.getAnnee(evenement.getDatedebut()) == service.getAnnee(Today) - 1) {
-                    eventsDTO.add(EvenementDTO.fromEntity(evenement));
-                    wsResource.broadcast(
-                            new ProgressMessage(true, "loadevents", "Chargement des évènements...",
-                                    (nb / events.size()) * 100));
-                    nb++;
+                    if (evenement.getStatut() != Status.SUPPRIME) {
+                        eventsDTO.add(EvenementDTO.fromEntity(evenement));
+                        wsResource.broadcast(
+                                new ProgressMessage(true, "loadevents", "Chargement des évènements...",
+                                        (nb / events.size()) * 100));
+                        nb++;
+                    }
                 }
             }
             wsResource.broadcast(
@@ -335,11 +339,13 @@ public class EvenementResource {
             for (Evenement evenement : events) {
                 if (service.getAnnee(evenement.getDatedebut()) == service.getAnnee(Today) ||
                         service.getAnnee(evenement.getDatedebut()) == service.getAnnee(Today) - 1) {
-                    eventsDTO.add(EvenementDTO.fromEntity(evenement));
-                    wsResource.broadcast(
-                            new ProgressMessage(true, "loadevents", "Chargement des évènements...",
-                                    (nb / events.size()) * 100));
-                    nb++;
+                    if (evenement.getStatut() != Status.SUPPRIME) {
+                        eventsDTO.add(EvenementDTO.fromEntity(evenement));
+                        wsResource.broadcast(
+                                new ProgressMessage(true, "loadevents", "Chargement des évènements...",
+                                        (nb / events.size()) * 100));
+                        nb++;
+                    }
                 }
             }
             wsResource.broadcast(
@@ -389,7 +395,9 @@ public class EvenementResource {
         if (conflicts != null && conflicts.size() > 0) {
             List<EvenementDTO> eventsDTO = new ArrayList<EvenementDTO>();
             for (Evenement evenement : conflicts) {
-                eventsDTO.add(EvenementDTO.fromEntity(evenement));
+                if (evenement.getStatut() != Status.SUPPRIME) {
+                    eventsDTO.add(EvenementDTO.fromEntity(evenement));
+                }
             }
             wsResource.broadcast(
                     new ProgressMessage(true, "conflicts", "Chargement des évènements en conflit terminé...", 100));
