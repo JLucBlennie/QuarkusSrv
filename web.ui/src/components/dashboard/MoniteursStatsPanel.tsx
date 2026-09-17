@@ -8,14 +8,22 @@ import { DataTable } from '../DataTable';
 import { MoniteurColumn, moniteurcolumns } from '../Moniteur-columns';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
-export function MoniteursStatsPanel() {
+interface MoniteursStatsPanelProps {
+    saison?: string;
+}
+
+export function MoniteursStatsPanel({ saison }: MoniteursStatsPanelProps) {
     const router = useRouter();
     const [moniteurs, setMoniteurs] = useState<MoniteurColumn[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        authFetch(`${SERVER_URL}/evenements/stats/moniteurs`, { method: 'GET', redirect: 'follow' })
+        const url = saison
+            ? `${SERVER_URL}/evenements/stats/moniteurs?saison=${saison}`
+            : `${SERVER_URL}/evenements/stats/moniteurs`;
+
+        authFetch(url, { method: 'GET', redirect: 'follow' })
             .then((res) => {
                 if (!res.ok) throw new Error(`Erreur serveur : ${res.status}`);
                 return res.json();
@@ -31,7 +39,7 @@ export function MoniteursStatsPanel() {
             })
             .catch((err) => setError(err.message))
             .finally(() => setLoading(false));
-    }, []);
+    }, [saison]);
 
     return (
         <Card>

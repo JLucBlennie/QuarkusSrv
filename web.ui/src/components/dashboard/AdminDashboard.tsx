@@ -2,15 +2,14 @@
 
 import { authFetch } from '@/lib/authService';
 import { SERVER_URL } from '@/lib/constants';
+import Link from 'next/dist/client/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { FaArrowRotateLeft, FaPlus } from 'react-icons/fa6';
+import { FaArrowRotateLeft, FaChartBar, FaPlus } from 'react-icons/fa6';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { DemandeursStatsPanel } from './DemandeursStatsPanel';
-import { MoniteursStatsPanel } from './MoniteursStatsPanel';
+import { HistoriqueEvenementsPanel } from './HistoriqueEvenementsPanel';
 import { PendingEventsPanel } from './PendingEventsPanel';
-import { TypesStatsPanel } from './TypesStatsPanel';
 import { UpcomingEventsPanel } from './UpcomingEventsPanel';
 
 export function AdminDashboard() {
@@ -56,10 +55,13 @@ export function AdminDashboard() {
             </div>
 
             <div className="grid gap-6 md:grid-cols-3">
-                <MoniteursStatsPanel />
-                <DemandeursStatsPanel />
-                <TypesStatsPanel />
+                <Button variant="outline" className="flex items-center gap-1.5" asChild>
+                    <Link href="/statistiques">
+                        <FaChartBar className="h-4 w-4" /> Statistiques
+                    </Link>
+                </Button>
             </div>
+            <HistoriqueEvenementsPanel isAdmin={true} />
         </div>
     );
 }

@@ -879,7 +879,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                             <button
                                 type="button"
                                 onClick={onValidate}
-                                disabled={uuid === undefined || modified}
+                                disabled={uuid === undefined || modified || isPasse}
                                 hidden={!hasRole("admin")}
                                 className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-white-700 enabled:hover:bg-gray-50 disabled:opacity-50"
                             >
@@ -888,7 +888,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                             <button
                                 type="button"
                                 onClick={onRefuse}
-                                disabled={uuid === undefined || modified}
+                                disabled={uuid === undefined || modified || isPasse}
                                 hidden={!hasRole("admin")}
                                 className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-white-700 enabled:hover:bg-gray-50 disabled:opacity-50"
                             >

@@ -99,7 +99,7 @@ export default function WebSocketNotificationListener(props: { url: string }) {
     <>
       <div className="absolute left-1/2 transform -translate-y-1/2 top-1/2">
         {Array.from(mapProgress.entries()).slice(0, 4).map(([key, value]) => (
-          <ProgressCard message={value.message === "" ? value.title : value.message} key={key} progress={value.progressValue} />
+          <ProgressCard message={value.message === "" ? value.title : value.message} key={key} progressKey={key} progress={value.progressValue} />
         ))}
       </div>
       <div className={`fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-500 bg-opacity-50 z-40 ${blocking ? 'flex' : 'hidden'}`} />

@@ -8,14 +8,20 @@ import { DataTable } from '../DataTable';
 import { DemandeurColumn, demandeurcolumns } from '../Demandeur-columns';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
-export function DemandeursStatsPanel() {
+interface DemandeursStatsPanelProps {
+    saison?: string;
+}
+export function DemandeursStatsPanel({ saison }: DemandeursStatsPanelProps) {
     const router = useRouter();
     const [demandeurs, setDemandeurs] = useState<DemandeurColumn[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        authFetch(`${SERVER_URL}/evenements/stats/demandeurs`, { method: 'GET', redirect: 'follow' })
+        const url = saison
+            ? `${SERVER_URL}/evenements/stats/demandeurs?saison=${saison}`
+            : `${SERVER_URL}/evenements/stats/demandeurs`;
+        authFetch(url, { method: 'GET', redirect: 'follow' })
             .then((res) => {
                 if (!res.ok) throw new Error(`Erreur serveur : ${res.status}`);
                 return res.json();
@@ -30,7 +36,7 @@ export function DemandeursStatsPanel() {
             })
             .catch((err) => setError(err.message))
             .finally(() => setLoading(false));
-    }, []);
+    }, [saison]);
 
     return (
         <Card>

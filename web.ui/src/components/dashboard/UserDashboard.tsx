@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { FaPlus } from 'react-icons/fa6';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { HistoriqueEvenementsPanel } from './HistoriqueEvenementsPanel';
 import { PendingEventsPanel } from './PendingEventsPanel';
 import { UpcomingEventsPanel } from './UpcomingEventsPanel';
 
@@ -30,6 +31,7 @@ export function UserDashboard() {
                     </CardContent>
                 </Card>
             </div>
+            <HistoriqueEvenementsPanel isAdmin={false} />
         </div>
     );
 }

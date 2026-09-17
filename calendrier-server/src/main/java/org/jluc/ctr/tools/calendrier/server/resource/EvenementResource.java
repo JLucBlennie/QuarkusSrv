@@ -157,7 +157,7 @@ public class EvenementResource {
 
     @GET
     @RolesAllowed("user")
-    public Response getAll(@QueryParam("statut") String statutParam) {
+    public Response getAll(@QueryParam("statut") String statutParam, @QueryParam("saison") String saison) {
         EnumSet<Status> statutsFiltre;
         try {
             statutsFiltre = parseStatutFilter(statutParam);
@@ -169,6 +169,7 @@ public class EvenementResource {
 
         List<Evenement> events = evenementRepository.findAllWithAllLoaded();
         wsResource.broadcast(new ProgressMessage(true, "loadevents", "Chargement des évènements...", 0));
+        Log.debug("Saison demandée : " + saison + ", statuts demandés : " + statutsFiltre);
         List<EvenementDTO> eventsDTO = new ArrayList<EvenementDTO>();
         int nb = 0;
         Date today = new Date();
@@ -176,7 +177,11 @@ public class EvenementResource {
             boolean statutOk = statutsFiltre == null
                     ? evenement.getStatut() != Status.SUPPRIME
                     : statutsFiltre.contains(evenement.getStatut());
-            if (evenement.getDatedebut().after(today) && statutOk) {
+            boolean saisonOk = saison == null || saison.isEmpty() || saison.equals(evenement.getSaison());
+            // Sans saison précisée : comportement historique (à venir uniquement).
+            // Avec saison précisée : on veut tout voir, passé compris.
+            boolean dateOk = saison != null || evenement.getDatedebut().after(today);
+            if (dateOk && statutOk && saisonOk) {
                 eventsDTO.add(EvenementDTO.fromEntity(evenement));
             }
             wsResource.broadcast(
@@ -391,7 +396,7 @@ public class EvenementResource {
     @GET
     @Path("/mes-evenements")
     @RolesAllowed("user")
-    public Response getMesEvenements(@QueryParam("statut") String statutParam) {
+    public Response getMesEvenements(@QueryParam("statut") String statutParam, @QueryParam("saison") String saison) {
         EnumSet<Status> statutsFiltre;
         try {
             statutsFiltre = parseStatutFilter(statutParam);
@@ -406,9 +411,10 @@ public class EvenementResource {
         List<Evenement> events = evenementRepository.findByCreatedBy(currentUser);
         Log.debug("Nb devents de lutilisateur " + currentUser + " = " + events.size());
         List<EvenementDTO> eventsDTO = events.stream()
-                .filter(e -> statutsFiltre == null
+                .filter(e -> (statutsFiltre == null
                         ? e.getStatut() != Status.SUPPRIME
                         : statutsFiltre.contains(e.getStatut()))
+                        && (saison == null || saison.isEmpty() || saison.equals(e.getSaison())))
                 .map(EvenementDTO::fromEntity)
                 .toList();
 
@@ -459,8 +465,8 @@ public class EvenementResource {
     @GET
     @Path("/stats/moniteurs")
     @RolesAllowed("admin")
-    public Response getStatsMoniteurs() {
-        Map<Moniteur, Long> counts = service.getEvenementCountsByMoniteur();
+    public Response getStatsMoniteurs(@QueryParam("saison") String saison) {
+        Map<Moniteur, Long> counts = service.getEvenementCountsByMoniteur(saison);
         List<MoniteurDTO> dtos = Moniteur.<Moniteur>listAll().stream()
                 .map(m -> {
                     MoniteurDTO dto = MoniteurDTO.fromEntity(m);
@@ -475,8 +481,8 @@ public class EvenementResource {
     @GET
     @Path("/stats/demandeurs")
     @RolesAllowed("admin")
-    public Response getStatsDemandeurs() {
-        Map<Demandeur, Long> counts = service.getEvenementCountsByDemandeur();
+    public Response getStatsDemandeurs(@QueryParam("saison") String saison) {
+        Map<Demandeur, Long> counts = service.getEvenementCountsByDemandeur(saison);
         List<DemandeurDTO> dtos = Demandeur.<Demandeur>listAll().stream()
                 .map(d -> {
                     DemandeurDTO dto = DemandeurDTO.fromEntity(d);
@@ -491,8 +497,8 @@ public class EvenementResource {
     @GET
     @Path("/stats/types")
     @RolesAllowed("admin")
-    public Response getStatsTypes() {
-        Map<TypeEvenement, Long> counts = service.getEvenementCountsByType();
+    public Response getStatsTypes(@QueryParam("saison") String saison) {
+        Map<TypeEvenement, Long> counts = service.getEvenementCountsByType(saison);
         List<TypeEvenementDTO> dtos = TypeEvenement.<TypeEvenement>listAll().stream()
                 .map(t -> {
                     TypeEvenementDTO dto = TypeEvenementDTO.fromEntity(t);
@@ -502,6 +508,20 @@ public class EvenementResource {
                 .sorted((a, b) -> b.nbevents - a.nbevents)
                 .toList();
         return Response.ok(dtos).build();
+    }
+
+    @GET
+    @Path("/stats/saisons")
+    @RolesAllowed("user")
+    public Response getStatsSaisons() {
+        boolean isAdmin = jwt.getGroups().contains("admin");
+        String currentUser = isAdmin ? null : jwt.getSubject();
+        Map<String, Long> counts = service.getEvenementCountsBySaison(currentUser);
+        List<Map<String, Object>> result = counts.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(e -> Map.<String, Object>of("saison", e.getKey(), "nbevents", e.getValue()))
+                .toList();
+        return Response.ok(result).build();
     }
 
     private EnumSet<Status> parseStatutFilter(String statutParam) throws IllegalArgumentException {

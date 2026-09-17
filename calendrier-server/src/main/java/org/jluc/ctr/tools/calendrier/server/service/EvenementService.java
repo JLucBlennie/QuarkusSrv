@@ -166,10 +166,12 @@ public class EvenementService {
         return conflicts;
     }
 
-    public Map<Moniteur, Long> getEvenementCountsByMoniteur() {
+    public Map<Moniteur, Long> getEvenementCountsByMoniteur(String saison) {
         Map<Moniteur, Long> counts = new HashMap<>();
         for (Evenement e : evenementRepository.findAllWithPresidentDeleguer()) {
             if (e.getStatut() == Status.SUPPRIME)
+                continue;
+            if (saison != null && !saison.equals(e.getSaison()))
                 continue;
             if (e.getPresidentjury() != null)
                 counts.merge(e.getPresidentjury(), 1L, Long::sum);
@@ -179,20 +181,39 @@ public class EvenementService {
         return counts;
     }
 
-    public Map<Demandeur, Long> getEvenementCountsByDemandeur() {
+    public Map<String, Long> getEvenementCountsBySaison(String createdBy) {
+        Map<String, Long> counts = new HashMap<>();
+        List<Evenement> events = createdBy != null
+                ? evenementRepository.findByCreatedBy(createdBy)
+                : evenementRepository.findAllWithAllLoaded();
+        for (Evenement e : events) {
+            if (e.getStatut() == Status.SUPPRIME)
+                continue;
+            String saison = e.getSaison();
+            if (saison != null)
+                counts.merge(saison, 1L, Long::sum);
+        }
+        return counts;
+    }
+
+    public Map<Demandeur, Long> getEvenementCountsByDemandeur(String saison) {
         Map<Demandeur, Long> counts = new HashMap<>();
         for (Evenement e : evenementRepository.findAllWithAllLoaded()) {
             if (e.getStatut() == Status.SUPPRIME || e.getDemandeur() == null)
+                continue;
+            if (saison != null && !saison.equals(e.getSaison()))
                 continue;
             counts.merge(e.getDemandeur(), 1L, Long::sum);
         }
         return counts;
     }
 
-    public Map<TypeEvenement, Long> getEvenementCountsByType() {
+    public Map<TypeEvenement, Long> getEvenementCountsByType(String saison) {
         Map<TypeEvenement, Long> counts = new HashMap<>();
         for (Evenement e : evenementRepository.findAllWithType()) {
             if (e.getStatut() == Status.SUPPRIME || e.getType() == null)
+                continue;
+            if (saison != null && !saison.equals(e.getSaison()))
                 continue;
             counts.merge(e.getType(), 1L, Long::sum);
         }

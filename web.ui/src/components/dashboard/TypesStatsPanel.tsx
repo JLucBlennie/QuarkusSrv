@@ -8,14 +8,22 @@ import { DataTable } from '../DataTable';
 import { TypeEvenementColumn, typeevenementcolumns } from '../TypeEvenement-columns';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
-export function TypesStatsPanel() {
+interface TypesStatsPanelProps {
+    saison?: string;
+}
+
+export function TypesStatsPanel({ saison }: TypesStatsPanelProps) {
     const router = useRouter();
     const [types, setTypes] = useState<TypeEvenementColumn[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        authFetch(`${SERVER_URL}/evenements/stats/types`, { method: 'GET', redirect: 'follow' })
+        const url = saison
+            ? `${SERVER_URL}/evenements/stats/types?saison=${saison}`
+            : `${SERVER_URL}/evenements/stats/types`;
+
+        authFetch(url, { method: 'GET', redirect: 'follow' })
             .then((res) => {
                 if (!res.ok) throw new Error(`Erreur serveur : ${res.status}`);
                 return res.json();
@@ -30,7 +38,7 @@ export function TypesStatsPanel() {
             })
             .catch((err) => setError(err.message))
             .finally(() => setLoading(false));
-    }, []);
+    }, [saison]);
 
     return (
         <Card>
