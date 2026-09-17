@@ -21,7 +21,6 @@ import java.util.ResourceBundle;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Session;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.TypeSession;
-import org.jluc.ctr.tools.calendrier.server.service.UserAccountService;
 import org.jluc.ctr.tools.calendrier.server.websockets.WebSocketResource;
 import org.jluc.ctr.tools.calendrier.server.websockets.messages.ProgressMessage;
 
@@ -30,13 +29,9 @@ import com.opencsv.exceptions.CsvException;
 
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class FormsAccessService {
-
-    @Inject
-    private UserAccountService userAccountService;
 
     public static final ResourceBundle DICO_PROPERTIES = ResourceBundle.getBundle("dicoCTR", Locale.getDefault());
     private static String FORMS_URL = DICO_PROPERTIES.getString("app.forms.url");
