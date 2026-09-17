@@ -6,9 +6,11 @@ export default function EditEvenementPage() {
     const { uuid } = useParams<{ uuid: string }>();
     const router = useRouter();
     return (
-        <EvenementEditor
-            uuid={uuid}
-            onExit={() => router.back()}
-        />
+        <div className="p-5 relative min-h-screen bg-logo-35op bg-no-repeat bg-center bg-contain">
+            <EvenementEditor
+                uuid={uuid}
+                onExit={() => router.back()}
+            />
+        </div>
     );
 }

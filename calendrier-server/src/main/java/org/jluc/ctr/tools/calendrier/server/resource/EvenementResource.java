@@ -239,6 +239,18 @@ public class EvenementResource {
                     .entity("Vous n'êtes pas autorisé à modifier cet évènement.").build();
         }
 
+        if (existingEvent.isPasse()) {
+            // Évènement passé : seuls nb participants, président jury et délégué CTR
+            // restent modifiables
+            existingEvent.setNbparticipants(input.nbparticipants);
+            existingEvent.setPresidentjury(input.presidentjury != null ? input.presidentjury.toEntity() : null);
+            existingEvent.setDeleguectr(input.deleguectr != null ? input.deleguectr.toEntity() : null);
+            existingEvent.persist();
+            wsResource.broadcast(
+                    new InfoMessage("Évènement passé mis à jour (candidats/jury) : " + existingEvent.getUUID()));
+            return Response.status(Response.Status.CREATED).entity(existingEvent).build();
+        }
+
         Evenement updatedEvent = input.toEntity();
         updatedEvent.setCreatedBy(existingEvent.getCreatedBy());
         updatedEvent.persist();

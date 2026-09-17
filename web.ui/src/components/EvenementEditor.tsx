@@ -29,6 +29,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
     const [sessionErrors, setSessionErrors] = useState<Record<string, string>>({});
     const { hasRole } = useAuth();
     const today = new Date();
+    const isPasse = !createMode && !!event?.datedebut && event.datedebut < Date.now();
 
     useEffect(() => {
         setLoading(true);
@@ -442,6 +443,11 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
             {!error && !loading &&
                 <div>
                     <form className="flex flex-col space-y-6" onSubmit={handleSubmit}>
+                        {isPasse && (
+                            <p className="text-sm text-orange-400 bg-orange-950 border border-orange-700 rounded-md p-2">
+                                Cet évènement est passé : seuls le nombre de participants, le président du jury et le délégué CTR peuvent encore être modifiés.
+                            </p>
+                        )}
                         <div className="grid grid-cols-4 grid-rows-3 gap-2 max-w-l mx-auto">
                             {/* Champ Date de Demande */}
                             <div className="p-1">
@@ -456,6 +462,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                     onChange={handleChange}
                                     className="mt-1 w-full max-w-1/2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
                                     readOnly={uuid !== undefined}
+                                    disabled={isPasse}
                                 />
                             </div>
 
@@ -480,6 +487,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                 ) : (
                                     <select
                                         id="demandeur"
+                                                disabled={isPasse}
                                         value={event?.demandeur?.uuid || undefined}
                                         onChange={(e) => { handleDemandeurChange(e); }}
                                         className={`mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2`}
@@ -535,7 +543,24 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                     type="email"
                                     value={event?.mailcontact || ''}
                                     onChange={handleChange}
+                                    disabled={isPasse}
                                     className="mt-1 w-full max-w-1/2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+                                />
+                            </div>
+
+                            {/* Champ Nombre de participants */}
+                            <div className="p-1">
+                                <label htmlFor="nbparticipants" className="text-sm font-medium text-white-700">
+                                    Nombre de participants
+                                </label>
+                                <input
+                                    id="nbparticipants"
+                                    name="nbparticipants"
+                                    type="number"
+                                    min={0}
+                                    value={event?.nbparticipants ?? 0}
+                                    onChange={handleChange}
+                                    className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
                                 />
                             </div>
 
@@ -562,6 +587,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                         id="event-type"
                                         value={event?.typeEvenement?.uuid || undefined}
                                         onChange={(e) => { handleTypeEvenementChange(e); }}
+                                                disabled={isPasse}
                                         className={`mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2`}
                                     >
                                         <option value="">Sélectionnez un type</option>
@@ -612,6 +638,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                         id="organisateur"
                                         value={event?.organisateur?.uuid || undefined}
                                         onChange={(e) => { handleOrganisateurChange(e); }}
+                                                disabled={isPasse}
                                         className={`mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2`}
                                     >
                                         <option value="">Sélectionnez un organisateur</option>
@@ -721,88 +748,90 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                     )}
                                 </div>
                             </div>
-                            <div className="col-span-4 relative">
-                                <div className="max-h-[200px] overflow-auto">
-                                    {event?.sessions && event.sessions.length > 0 && (
-                                        <label className="text-sm font-medium text-white-700 mb-1">
-                                            Les Sessions :
-                                        </label>
-                                    )}
-                                    {event?.sessions && [...event.sessions].sort((a, b) => (a.dateDebut && b.dateDebut) ? a.dateDebut - b.dateDebut : 0).map((session, index) => (
-                                        <div key={session.uuid}>
-                                            <div className="grid grid-cols-4 grid-rows-1 gap-2 w-full max-w-l mx-auto items-end">
-                                                <div className="p-1">
-                                                    <label htmlFor={`session${index + 1}dateDebut`} className="text-sm font-medium text-white-700 mb-1">
-                                                        Session {index + 1} - Date de début *
-                                                    </label>
-                                                    <input
-                                                        type="date"
-                                                        data-session-id={session.uuid}
-                                                        data-field="dateDebut"
-                                                        id={`session${index + 1}dateDebut`}
-                                                        value={timestampToDateInput(session?.dateDebut)}
-                                                        onChange={handleSessionChange}
-                                                        required
-                                                        className={`mt-1 w-full rounded-md border shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 ${sessionErrors[session.uuid] ? 'border-red-500' : 'border-gray-300'}`}
-                                                    />
+                            <fieldset disabled={isPasse}>
+                                <div className="col-span-4 relative">
+                                    <div className="max-h-[200px] overflow-auto">
+                                        {event?.sessions && event.sessions.length > 0 && (
+                                            <label className="text-sm font-medium text-white-700 mb-1">
+                                                Les Sessions :
+                                            </label>
+                                        )}
+                                        {event?.sessions && [...event.sessions].sort((a, b) => (a.dateDebut && b.dateDebut) ? a.dateDebut - b.dateDebut : 0).map((session, index) => (
+                                            <div key={session.uuid}>
+                                                <div className="grid grid-cols-4 grid-rows-1 gap-2 w-full max-w-l mx-auto items-end">
+                                                    <div className="p-1">
+                                                        <label htmlFor={`session${index + 1}dateDebut`} className="text-sm font-medium text-white-700 mb-1">
+                                                            Session {index + 1} - Date de début *
+                                                        </label>
+                                                        <input
+                                                            type="date"
+                                                            data-session-id={session.uuid}
+                                                            data-field="dateDebut"
+                                                            id={`session${index + 1}dateDebut`}
+                                                            value={timestampToDateInput(session?.dateDebut)}
+                                                            onChange={handleSessionChange}
+                                                            required
+                                                            className={`mt-1 w-full rounded-md border shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 ${sessionErrors[session.uuid] ? 'border-red-500' : 'border-gray-300'}`}
+                                                        />
+                                                    </div>
+                                                    <div className="p-1">
+                                                        <label htmlFor={`session${index + 1}dateFin`} className="text-sm font-medium text-white-700 mb-1">
+                                                            Session {index + 1} - Date de fin *
+                                                        </label>
+                                                        <input
+                                                            type="date"
+                                                            data-session-id={session.uuid}
+                                                            data-field="dateFin"
+                                                            id={`session${index + 1}dateFin`}
+                                                            value={timestampToDateInput(session?.dateFin)}
+                                                            onChange={handleSessionChange}
+                                                            required
+                                                            className={`mt-1 w-full rounded-md border shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 ${sessionErrors[session.uuid] ? 'border-red-500' : 'border-gray-300'}`}
+                                                        />
+                                                    </div>
+                                                    <div className="p-1">
+                                                        <label htmlFor={`session${index + 1}typeSession`} className="text-sm font-medium text-white-700 mb-1">
+                                                            Session {index + 1} - Type *
+                                                        </label>
+                                                        <select
+                                                            id={`session${index + 1}typeSession`}
+                                                            data-session-id={session.uuid}
+                                                            data-field="typeSession"
+                                                            onChange={handleSessionChange}
+                                                            value={session?.typeSession || 'PRESENTIEL'}
+                                                            className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
+                                                        >
+                                                            <option>PRESENTIEL</option>
+                                                            <option>DISTANCIEL</option>
+                                                            <option>MIXTE</option>
+                                                        </select>
+                                                    </div>
+                                                    <div className="p-1 flex items-end">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleDeleteSession(session.uuid)}
+                                                            title="Supprimer la session"
+                                                            className="mt-1 w-full flex items-center justify-center gap-1 px-2 py-2 rounded-md border border-red-400 text-red-400 hover:bg-red-900 hover:text-white transition-colors text-sm"
+                                                        >
+                                                            <FaTrash className="h-3 w-3" />
+                                                            Supprimer
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                                <div className="p-1">
-                                                    <label htmlFor={`session${index + 1}dateFin`} className="text-sm font-medium text-white-700 mb-1">
-                                                        Session {index + 1} - Date de fin *
-                                                    </label>
-                                                    <input
-                                                        type="date"
-                                                        data-session-id={session.uuid}
-                                                        data-field="dateFin"
-                                                        id={`session${index + 1}dateFin`}
-                                                        value={timestampToDateInput(session?.dateFin)}
-                                                        onChange={handleSessionChange}
-                                                        required
-                                                        className={`mt-1 w-full rounded-md border shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 ${sessionErrors[session.uuid] ? 'border-red-500' : 'border-gray-300'}`}
-                                                    />
-                                                </div>
-                                                <div className="p-1">
-                                                    <label htmlFor={`session${index + 1}typeSession`} className="text-sm font-medium text-white-700 mb-1">
-                                                        Session {index + 1} - Type *
-                                                    </label>
-                                                    <select
-                                                        id={`session${index + 1}typeSession`}
-                                                        data-session-id={session.uuid}
-                                                        data-field="typeSession"
-                                                        onChange={handleSessionChange}
-                                                        value={session?.typeSession || 'PRESENTIEL'}
-                                                        className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
-                                                    >
-                                                        <option>PRESENTIEL</option>
-                                                        <option>DISTANCIEL</option>
-                                                        <option>MIXTE</option>
-                                                    </select>
-                                                </div>
-                                                <div className="p-1 flex items-end">
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleDeleteSession(session.uuid)}
-                                                        title="Supprimer la session"
-                                                        className="mt-1 w-full flex items-center justify-center gap-1 px-2 py-2 rounded-md border border-red-400 text-red-400 hover:bg-red-900 hover:text-white transition-colors text-sm"
-                                                    >
-                                                        <FaTrash className="h-3 w-3" />
-                                                        Supprimer
-                                                    </button>
-                                                </div>
+                                                {sessionErrors[session.uuid] && (
+                                                    <p className="text-red-400 text-xs px-1 pb-1">
+                                                        ⚠ {sessionErrors[session.uuid]}
+                                                    </p>
+                                                )}
                                             </div>
-                                            {sessionErrors[session.uuid] && (
-                                                <p className="text-red-400 text-xs px-1 pb-1">
-                                                    ⚠ {sessionErrors[session.uuid]}
-                                                </p>
-                                            )}
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
+                                    {/* Bouton Ajouter une session */}
+                                    <Button className="absolute bottom-6 right-6 flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors z-10" onClick={handleAddClick}>
+                                        <FaPlus className="h-6 w-6" />
+                                    </Button>
                                 </div>
-                                {/* Bouton Ajouter une session */}
-                                <Button className="absolute bottom-6 right-6 flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors z-10" onClick={handleAddClick}>
-                                    <FaPlus className="h-6 w-6" />
-                                </Button>
-                            </div>
+                            </fieldset>
                         </div>
                         <div className="grid grid-cols-2 grid-rows-1 gap-2 w-full max-w-l mx-auto">
                             {/* Tableau des conflits d'evenement */}

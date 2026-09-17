@@ -1,5 +1,6 @@
 package org.jluc.ctr.tools.calendrier.server.model.evenements;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -282,5 +283,20 @@ public class Evenement extends PanacheEntityBase {
 
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
+    }
+
+    public String getSaison() {
+        if (datedebut == null)
+            return null;
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(datedebut);
+        int mois = cal.get(Calendar.MONTH); // 0 = janvier
+        int annee = cal.get(Calendar.YEAR);
+        int anneeDebut = (mois >= Calendar.SEPTEMBER) ? annee : annee - 1;
+        return anneeDebut + "-" + (anneeDebut + 1);
+    }
+
+    public boolean isPasse() {
+        return datedebut != null && datedebut.before(new Date());
     }
 }
