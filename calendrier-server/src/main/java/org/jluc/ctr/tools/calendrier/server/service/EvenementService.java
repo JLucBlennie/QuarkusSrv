@@ -7,7 +7,9 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jluc.ctr.tools.calendrier.server.model.club.Demandeur;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
@@ -162,5 +164,38 @@ public class EvenementService {
             }
         }
         return conflicts;
+    }
+
+    public Map<Moniteur, Long> getEvenementCountsByMoniteur() {
+        Map<Moniteur, Long> counts = new HashMap<>();
+        for (Evenement e : evenementRepository.findAllWithPresidentDeleguer()) {
+            if (e.getStatut() == Status.SUPPRIME)
+                continue;
+            if (e.getPresidentjury() != null)
+                counts.merge(e.getPresidentjury(), 1L, Long::sum);
+            if (e.getDeleguectr() != null)
+                counts.merge(e.getDeleguectr(), 1L, Long::sum);
+        }
+        return counts;
+    }
+
+    public Map<Demandeur, Long> getEvenementCountsByDemandeur() {
+        Map<Demandeur, Long> counts = new HashMap<>();
+        for (Evenement e : evenementRepository.findAllWithAllLoaded()) {
+            if (e.getStatut() == Status.SUPPRIME || e.getDemandeur() == null)
+                continue;
+            counts.merge(e.getDemandeur(), 1L, Long::sum);
+        }
+        return counts;
+    }
+
+    public Map<TypeEvenement, Long> getEvenementCountsByType() {
+        Map<TypeEvenement, Long> counts = new HashMap<>();
+        for (Evenement e : evenementRepository.findAllWithType()) {
+            if (e.getStatut() == Status.SUPPRIME || e.getType() == null)
+                continue;
+            counts.merge(e.getType(), 1L, Long::sum);
+        }
+        return counts;
     }
 }

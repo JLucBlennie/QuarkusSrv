@@ -4,6 +4,7 @@ import org.jluc.ctr.tools.calendrier.server.service.migration.DateMigrationServi
 import org.jluc.ctr.tools.calendrier.server.service.migration.DateMigrationService.MigrationReport;
 
 import io.quarkus.logging.Log;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -20,6 +21,7 @@ public class DateMigrationResource {
 
     @GET
     @Path("/fix-dates")
+    @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
     public Response runMigration() {
         Log.warn("=== DÉBUT MIGRATION DATES (endpoint temporaire) ===");

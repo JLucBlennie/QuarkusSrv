@@ -6,15 +6,22 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.jluc.ctr.tools.calendrier.server.dto.DemandeurDTO;
 import org.jluc.ctr.tools.calendrier.server.dto.EvenementDTO;
+import org.jluc.ctr.tools.calendrier.server.dto.MoniteurDTO;
+import org.jluc.ctr.tools.calendrier.server.dto.TypeEvenementDTO;
 import org.jluc.ctr.tools.calendrier.server.model.club.Demandeur;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.EvenementRepository;
+import org.jluc.ctr.tools.calendrier.server.model.evenements.Status;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.TypeEvenement;
 import org.jluc.ctr.tools.calendrier.server.model.moniteurs.Moniteur;
 import org.jluc.ctr.tools.calendrier.server.service.EvenementService;
@@ -150,14 +157,26 @@ public class EvenementResource {
 
     @GET
     @RolesAllowed("user")
-    public Response getAll() {
+    public Response getAll(@QueryParam("statut") String statutParam) {
+        EnumSet<Status> statutsFiltre;
+        try {
+            statutsFiltre = parseStatutFilter(statutParam);
+        } catch (IllegalArgumentException e) {
+            Log.warn("Statut invalide dans le filtre : " + statutParam, e);
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Statut invalide : " + statutParam).build();
+        }
+
         List<Evenement> events = evenementRepository.findAllWithAllLoaded();
         wsResource.broadcast(new ProgressMessage(true, "loadevents", "Chargement des évènements...", 0));
         List<EvenementDTO> eventsDTO = new ArrayList<EvenementDTO>();
         int nb = 0;
-        Date Today = new Date();
+        Date today = new Date();
         for (Evenement evenement : events) {
-            if (evenement.getDatedebut().after(Today)) {
+            boolean statutOk = statutsFiltre == null
+                    ? evenement.getStatut() != Status.SUPPRIME
+                    : statutsFiltre.contains(evenement.getStatut());
+            if (evenement.getDatedebut().after(today) && statutOk) {
                 eventsDTO.add(EvenementDTO.fromEntity(evenement));
             }
             wsResource.broadcast(
@@ -233,10 +252,17 @@ public class EvenementResource {
     @RolesAllowed("admin")
     public Response deleteEventById(@PathParam("id") String id) {
         UUID uuid = UUID.fromString(id);
-        if (Evenement.deleteById(uuid))
-            return Response.ok().build();
-        else
-            return Response.noContent().build();
+        Log.debug("Suppression de l'évènement " + uuid);
+
+        Evenement existingEvent = Evenement.findById(uuid);
+        if (existingEvent == null) {
+            Log.debug("L'évènement n'existe pas en base : " + uuid);
+            return Response.status(Response.Status.CONFLICT)
+                    .entity("L'évènement n'existe pas en base.").build();
+        }
+        existingEvent.setStatut(Status.SUPPRIME);
+        existingEvent.persist();
+        return Response.ok().build();
     }
 
     @GET
@@ -257,11 +283,13 @@ public class EvenementResource {
             for (Evenement evenement : events) {
                 if (service.getAnnee(evenement.getDatedebut()) == service.getAnnee(Today) ||
                         service.getAnnee(evenement.getDatedebut()) == service.getAnnee(Today) - 1) {
-                    eventsDTO.add(EvenementDTO.fromEntity(evenement));
-                    wsResource.broadcast(
-                            new ProgressMessage(true, "loadevents", "Chargement des évènements...",
-                                    (nb / events.size()) * 100));
-                    nb++;
+                    if (evenement.getStatut() != Status.SUPPRIME) {
+                        eventsDTO.add(EvenementDTO.fromEntity(evenement));
+                        wsResource.broadcast(
+                                new ProgressMessage(true, "loadevents", "Chargement des évènements...",
+                                        (nb / events.size()) * 100));
+                        nb++;
+                    }
                 }
             }
             wsResource.broadcast(
@@ -292,11 +320,13 @@ public class EvenementResource {
             for (Evenement evenement : events) {
                 if (service.getAnnee(evenement.getDatedebut()) == service.getAnnee(Today) ||
                         service.getAnnee(evenement.getDatedebut()) == service.getAnnee(Today) - 1) {
-                    eventsDTO.add(EvenementDTO.fromEntity(evenement));
-                    wsResource.broadcast(
-                            new ProgressMessage(true, "loadevents", "Chargement des évènements...",
-                                    (nb / events.size()) * 100));
-                    nb++;
+                    if (evenement.getStatut() != Status.SUPPRIME) {
+                        eventsDTO.add(EvenementDTO.fromEntity(evenement));
+                        wsResource.broadcast(
+                                new ProgressMessage(true, "loadevents", "Chargement des évènements...",
+                                        (nb / events.size()) * 100));
+                        nb++;
+                    }
                 }
             }
             wsResource.broadcast(
@@ -327,11 +357,13 @@ public class EvenementResource {
             for (Evenement evenement : events) {
                 if (service.getAnnee(evenement.getDatedebut()) == service.getAnnee(Today) ||
                         service.getAnnee(evenement.getDatedebut()) == service.getAnnee(Today) - 1) {
-                    eventsDTO.add(EvenementDTO.fromEntity(evenement));
-                    wsResource.broadcast(
-                            new ProgressMessage(true, "loadevents", "Chargement des évènements...",
-                                    (nb / events.size()) * 100));
-                    nb++;
+                    if (evenement.getStatut() != Status.SUPPRIME) {
+                        eventsDTO.add(EvenementDTO.fromEntity(evenement));
+                        wsResource.broadcast(
+                                new ProgressMessage(true, "loadevents", "Chargement des évènements...",
+                                        (nb / events.size()) * 100));
+                        nb++;
+                    }
                 }
             }
             wsResource.broadcast(
@@ -347,13 +379,28 @@ public class EvenementResource {
     @GET
     @Path("/mes-evenements")
     @RolesAllowed("user")
-    public Response getMesEvenements() {
+    public Response getMesEvenements(@QueryParam("statut") String statutParam) {
+        EnumSet<Status> statutsFiltre;
+        try {
+            statutsFiltre = parseStatutFilter(statutParam);
+        } catch (IllegalArgumentException e) {
+            Log.warn("Statut invalide dans le filtre : " + statutParam, e);
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Statut invalide : " + statutParam).build();
+        }
+
         String currentUser = jwt.getSubject(); // 👈 récupère le username depuis le JWT
         Log.debug("Chargement des évènements pour : " + currentUser);
         List<Evenement> events = evenementRepository.findByCreatedBy(currentUser);
+        Log.debug("Nb devents de lutilisateur " + currentUser + " = " + events.size());
         List<EvenementDTO> eventsDTO = events.stream()
+                .filter(e -> statutsFiltre == null
+                        ? e.getStatut() != Status.SUPPRIME
+                        : statutsFiltre.contains(e.getStatut()))
                 .map(EvenementDTO::fromEntity)
                 .toList();
+
+        Log.debug("Nb deventsJSON de lutilisateur " + currentUser + " = " + eventsDTO.size());
         return Response.ok(eventsDTO).build();
     }
 
@@ -381,7 +428,9 @@ public class EvenementResource {
         if (conflicts != null && conflicts.size() > 0) {
             List<EvenementDTO> eventsDTO = new ArrayList<EvenementDTO>();
             for (Evenement evenement : conflicts) {
-                eventsDTO.add(EvenementDTO.fromEntity(evenement));
+                if (evenement.getStatut() != Status.SUPPRIME) {
+                    eventsDTO.add(EvenementDTO.fromEntity(evenement));
+                }
             }
             wsResource.broadcast(
                     new ProgressMessage(true, "conflicts", "Chargement des évènements en conflit terminé...", 100));
@@ -393,5 +442,64 @@ public class EvenementResource {
                     new InfoMessage("[Info]", "Aucun évènement en conflit..."));
             return Response.noContent().build();
         }
+    }
+
+    @GET
+    @Path("/stats/moniteurs")
+    @RolesAllowed("admin")
+    public Response getStatsMoniteurs() {
+        Map<Moniteur, Long> counts = service.getEvenementCountsByMoniteur();
+        List<MoniteurDTO> dtos = Moniteur.<Moniteur>listAll().stream()
+                .map(m -> {
+                    MoniteurDTO dto = MoniteurDTO.fromEntity(m);
+                    dto.setNbevents(counts.getOrDefault(m, 0L).intValue());
+                    return dto;
+                })
+                .sorted((a, b) -> b.nbevents - a.nbevents)
+                .toList();
+        return Response.ok(dtos).build();
+    }
+
+    @GET
+    @Path("/stats/demandeurs")
+    @RolesAllowed("admin")
+    public Response getStatsDemandeurs() {
+        Map<Demandeur, Long> counts = service.getEvenementCountsByDemandeur();
+        List<DemandeurDTO> dtos = Demandeur.<Demandeur>listAll().stream()
+                .map(d -> {
+                    DemandeurDTO dto = DemandeurDTO.fromEntity(d);
+                    dto.setNbevents(counts.getOrDefault(d, 0L).intValue());
+                    return dto;
+                })
+                .sorted((a, b) -> b.nbevents - a.nbevents)
+                .toList();
+        return Response.ok(dtos).build();
+    }
+
+    @GET
+    @Path("/stats/types")
+    @RolesAllowed("admin")
+    public Response getStatsTypes() {
+        Map<TypeEvenement, Long> counts = service.getEvenementCountsByType();
+        List<TypeEvenementDTO> dtos = TypeEvenement.<TypeEvenement>listAll().stream()
+                .map(t -> {
+                    TypeEvenementDTO dto = TypeEvenementDTO.fromEntity(t);
+                    dto.setNbevents(counts.getOrDefault(t, 0L).intValue());
+                    return dto;
+                })
+                .sorted((a, b) -> b.nbevents - a.nbevents)
+                .toList();
+        return Response.ok(dtos).build();
+    }
+
+    private EnumSet<Status> parseStatutFilter(String statutParam) throws IllegalArgumentException {
+        if (statutParam == null || statutParam.isBlank()) {
+            return null;
+        }
+        return EnumSet.copyOf(
+                Arrays.stream(statutParam.split(","))
+                        .map(String::trim)
+                        .map(Status::valueOf)
+                        .toList());
     }
 }

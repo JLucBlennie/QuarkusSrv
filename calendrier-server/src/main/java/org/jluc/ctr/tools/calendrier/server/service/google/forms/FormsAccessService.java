@@ -18,9 +18,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import org.jluc.ctr.tools.calendrier.server.model.club.Demandeur;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Session;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.TypeSession;
+import org.jluc.ctr.tools.calendrier.server.service.UserAccountService;
 import org.jluc.ctr.tools.calendrier.server.websockets.WebSocketResource;
 import org.jluc.ctr.tools.calendrier.server.websockets.messages.ProgressMessage;
 
@@ -29,9 +31,13 @@ import com.opencsv.exceptions.CsvException;
 
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class FormsAccessService {
+
+    @Inject
+    private UserAccountService userAccountService;
 
     public static final ResourceBundle DICO_PROPERTIES = ResourceBundle.getBundle("dicoCTR", Locale.getDefault());
     private static String FORMS_URL = DICO_PROPERTIES.getString("app.forms.url");
@@ -94,6 +100,9 @@ public class FormsAccessService {
                     sessions.add(session);
                     eventToAdd.setSessions(sessions);
 
+                    // Affectation du créateur de l'évènement (celui qui a rempli le formulaire)
+                    eventToAdd.setCreatedBy(getUserFromDemandeur(eventToAdd.getDemandeur()));
+
                     // Ajout de l'évènement à la liste
                     events.add(eventToAdd);
                     nbEvents++;
@@ -124,5 +133,27 @@ public class FormsAccessService {
 
     public List<String> getErrors() {
         return ERRORS;
+    }
+
+    private String getUserFromDemandeur(Demandeur demandeur) {
+        String user = null;
+        try {
+            user = userAccountService.getDeclaredUsernames().stream()
+                    .filter(username -> {
+                        if (demandeur == null || demandeur.getName() == null) {
+                            return false;
+                        }
+                        if (demandeur.getName().contains("CTD") && username.contains("ctd")) {
+                            return demandeur.getName().substring(demandeur.getName().indexOf("CTD") + 1).trim()
+                                    .equalsIgnoreCase(username.substring(username.indexOf("ctd") + 1).trim());
+                        }
+                        return username.equalsIgnoreCase(demandeur.getName());
+                    })
+                    .findFirst()
+                    .orElse(null);
+        } catch (IOException e) {
+            Log.error("Erreur lors de la récupération des utilisateurs déclarés : " + e.getMessage(), e);
+        }
+        return user;
     }
 }
