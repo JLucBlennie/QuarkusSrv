@@ -129,7 +129,7 @@ public class EvenementResource {
                         "refuseevent", "Évènement refusé avec succès.", 100));
                 wsResource.broadcast(new InfoMessage("Évènement refusé : " + event.getUUID()));
                 event.persist();
-            } catch (IOException | URISyntaxException e) {
+            } catch (IOException e) {
                 Log.error("Erreur lors du refus de l'évènement : " + uuid, e);
                 wsResource.broadcast(
                         new InfoMessage("[Erreur]", "Erreur du refus de l'évènement..."));
@@ -149,7 +149,7 @@ public class EvenementResource {
     public Response updateBDD() {
         wsResource.broadcast(
                 new ProgressMessage(true, "loadevents", "Chargement des nouveaux évènements...", 0));
-        int nbNewEvents = service.updateEvenementsFromGoogleForms(wsResource);
+        int nbNewEvents = service.updateEvenementsFromGoogleForms(wsResource).size();
         wsResource.broadcast(new ProgressMessage(true, "loadevents",
                 "Ajout de " + nbNewEvents + " nouveaux évènements...", 100));
         return Response.ok().build();

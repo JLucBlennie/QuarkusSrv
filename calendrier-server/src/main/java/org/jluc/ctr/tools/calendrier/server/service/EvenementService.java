@@ -54,7 +54,7 @@ public class EvenementService {
     }
 
     @Transactional
-    public int updateEvenementsFromGoogleForms(WebSocketResource wsResource) {
+    public List<Evenement> updateEvenementsFromGoogleForms(WebSocketResource wsResource) {
         List<Evenement> events = new ArrayList<Evenement>();
         try {
             events = formsAccessService.getEventsFromGoogleForms(wsResource);
@@ -67,7 +67,7 @@ public class EvenementService {
             wsResource.broadcast(new InfoMessage("[ERREUR]",
                     "Erreur durant la récupération des évènements depuis Google Forms : " + e.getMessage()));
         }
-        int nbSaved = 0;
+        List<Evenement> newEvents = new ArrayList<Evenement>();
         for (Evenement event : events) {
             if (!evenementExists(event.getEvtidforms())) {
                 event.persist();
@@ -75,10 +75,10 @@ public class EvenementService {
                     event.getSessions().get(iSession).setEvenement(event);
                     event.getSessions().get(iSession).persist();
                 }
-                nbSaved++;
+                newEvents.add(event);
             }
         }
-        return nbSaved;
+        return newEvents;
     }
 
     public List<Evenement> getExamensFor(Moniteur moniteur) {
@@ -141,7 +141,7 @@ public class EvenementService {
     }
 
     public void refuseEvenement(Evenement event, WebSocketResource wsResource)
-            throws MalformedURLException, FileNotFoundException, URISyntaxException {
+            throws IOException {
         // Il faut envoyer le mail de refus
         event.setDatevalidation(new Date());
         event.setStatut(Status.REFUSE);

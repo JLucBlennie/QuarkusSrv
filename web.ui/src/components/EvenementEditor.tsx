@@ -494,7 +494,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                     >
                                         <option value="">Sélectionnez un demandeur</option>
                                                 {eventDemandeurs.sort((a, b) => a.name != undefined ? a.name.localeCompare(b.name != undefined ? b.name : '') : 0).map((demandeur) => (
-                                            <option value={demandeur.uuid}>
+                                                    <option value={demandeur.uuid} key={demandeur.uuid}>
                                                 {demandeur.name} ({demandeur.numerostructure})
                                             </option>
                                         ))}
@@ -592,7 +592,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                     >
                                         <option value="">Sélectionnez un type</option>
                                                 {eventTypes.sort((a, b) => a.name != undefined ? a.name.localeCompare(b.name != undefined ? b.name : '') : 0).map((type) => (
-                                            <option value={type.uuid}>
+                                                    <option value={type.uuid} key={type.uuid}>
                                                 {type.name}
                                             </option>
                                         ))}
@@ -643,7 +643,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                     >
                                         <option value="">Sélectionnez un organisateur</option>
                                                 {eventOrganisateurs.sort((a, b) => a.name != undefined ? a.name.localeCompare(b.name != undefined ? b.name : '') : 0).map((organisateur) => (
-                                            <option value={organisateur.uuid}>
+                                                    <option value={organisateur.uuid} key={organisateur.uuid}>
                                                 {organisateur.name}
                                             </option>
                                         ))}
@@ -676,7 +676,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                         >
                                             <option value="">Sélectionnez un président du jury</option>
                                             {eventMoniteurs.sort((a, b) => a.lastname.localeCompare(b.lastname)).map((moniteur) => (
-                                                <option value={moniteur.uuid}>
+                                                <option value={moniteur.uuid} key={moniteur.uuid}>
                                                     {moniteur.firstname} {moniteur.lastname} ({moniteur.niveau})
                                                 </option>
                                             ))}
@@ -708,7 +708,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                         >
                                             <option value="">Sélectionnez un délégué CTR</option>
                                             {eventMoniteurs.sort((a, b) => a.lastname.localeCompare(b.lastname)).map((moniteur) => (
-                                                <option value={moniteur.uuid}>
+                                                <option value={moniteur.uuid} key={moniteur.uuid}>
                                                     {moniteur.firstname} {moniteur.lastname} ({moniteur.niveau})
                                                 </option>
                                             ))}
@@ -740,7 +740,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                         >
                                             <option value="">Sélectionnez un représentant du comité</option>
                                             {eventMoniteurs.sort((a, b) => a.lastname.localeCompare(b.lastname)).map((moniteur) => (
-                                                <option value={moniteur.uuid}>
+                                                <option value={moniteur.uuid} key={moniteur.uuid}>
                                                     {moniteur.firstname} {moniteur.lastname} ({moniteur.niveau})
                                                 </option>
                                             ))}
@@ -748,14 +748,14 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                     )}
                                 </div>
                             </div>
-                            <fieldset disabled={isPasse}>
-                                <div className="col-span-4 relative">
-                                    <div className="max-h-[200px] overflow-auto">
-                                        {event?.sessions && event.sessions.length > 0 && (
-                                            <label className="text-sm font-medium text-white-700 mb-1">
-                                                Les Sessions :
-                                            </label>
-                                        )}
+                            <div className="col-span-4 relative">
+                                <div className="max-h-[200px] overflow-auto">
+                                    {event?.sessions && event.sessions.length > 0 && (
+                                        <label className="text-sm font-medium text-white-700 mb-1">
+                                            Les Sessions :
+                                        </label>
+                                    )}
+                                    <fieldset disabled={isPasse}>
                                         {event?.sessions && [...event.sessions].sort((a, b) => (a.dateDebut && b.dateDebut) ? a.dateDebut - b.dateDebut : 0).map((session, index) => (
                                             <div key={session.uuid}>
                                                 <div className="grid grid-cols-4 grid-rows-1 gap-2 w-full max-w-l mx-auto items-end">
@@ -810,6 +810,7 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                                         <button
                                                             type="button"
                                                             onClick={() => handleDeleteSession(session.uuid)}
+                                                            disabled={isPasse}
                                                             title="Supprimer la session"
                                                             className="mt-1 w-full flex items-center justify-center gap-1 px-2 py-2 rounded-md border border-red-400 text-red-400 hover:bg-red-900 hover:text-white transition-colors text-sm"
                                                         >
@@ -825,13 +826,13 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                                 )}
                                             </div>
                                         ))}
-                                    </div>
-                                    {/* Bouton Ajouter une session */}
-                                    <Button className="absolute bottom-6 right-6 flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors z-10" onClick={handleAddClick}>
-                                        <FaPlus className="h-6 w-6" />
-                                    </Button>
+                                    </fieldset>
                                 </div>
-                            </fieldset>
+                                {/* Bouton Ajouter une session */}
+                                <Button className="absolute bottom-6 right-6 flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors z-10" onClick={handleAddClick} disabled={isPasse}>
+                                    <FaPlus className="h-6 w-6" />
+                                </Button>
+                            </div>
                         </div>
                         <div className="grid grid-cols-2 grid-rows-1 gap-2 w-full max-w-l mx-auto">
                             {/* Tableau des conflits d'evenement */}
