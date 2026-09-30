@@ -5,6 +5,7 @@ import { MoniteursStatsPanel } from '@/components/dashboard/MoniteursStatsPanel'
 import { TypesStatsPanel } from '@/components/dashboard/TypesStatsPanel';
 import { SaisonEvolutionChart } from '@/components/SaisonEvolutionChart';
 import { SaisonSelector } from '@/components/SaisonSelector';
+import { TypeEvolutionChart } from '@/components/TypeEvolutionChart';
 import { useState } from 'react';
 
 function getCurrentSaison(): string {
@@ -25,13 +26,15 @@ export default function StatistiquesPage() {
                 <SaisonSelector value={saison} onChange={setSaison} />
             </div>
 
+            <TypeEvolutionChart saison={saison || undefined} />
+
+            <SaisonEvolutionChart />
+
             <div className="grid gap-6 md:grid-cols-3">
                 <MoniteursStatsPanel saison={saison || undefined} />
                 <DemandeursStatsPanel saison={saison || undefined} />
                 <TypesStatsPanel saison={saison || undefined} />
             </div>
-
-            <SaisonEvolutionChart />
         </div>
     );
 }

@@ -4,17 +4,20 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.jluc.ctr.tools.calendrier.server.model.club.Demandeur;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.EvenementRepository;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Status;
+import org.jluc.ctr.tools.calendrier.server.model.evenements.TypeActivite;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.TypeEvenement;
 import org.jluc.ctr.tools.calendrier.server.model.moniteurs.Moniteur;
 import org.jluc.ctr.tools.calendrier.server.service.google.calendar.CalendarServices;
@@ -216,6 +219,32 @@ public class EvenementService {
             if (saison != null && !saison.equals(e.getSaison()))
                 continue;
             counts.merge(e.getType(), 1L, Long::sum);
+        }
+        return counts;
+    }
+
+    public Map<String, Long> getEvenementCountsByPeriod(UUID typeUuid, TypeActivite activite, UUID demandeurUuid,
+            String saison) {
+        Map<String, Long> counts = new HashMap<>();
+        SimpleDateFormat monthFormat = new SimpleDateFormat("yyyy-MM");
+        boolean groupByMonth = saison != null && !saison.isBlank();
+
+        for (Evenement e : evenementRepository.findAllWithAllLoaded()) {
+            if (e.getStatut() == Status.SUPPRIME || e.getDatedebut() == null)
+                continue;
+            if (typeUuid != null && (e.getType() == null || !typeUuid.equals(e.getType().getUuid())))
+                continue;
+            if (activite != null && (e.getType() == null || e.getType().getActivite() != activite))
+                continue;
+            if (demandeurUuid != null
+                    && (e.getDemandeur() == null || !demandeurUuid.equals(e.getDemandeur().getUUID())))
+                continue;
+            if (groupByMonth && saison != null && !saison.equals(e.getSaison()))
+                continue;
+
+            String periode = groupByMonth ? monthFormat.format(e.getDatedebut()) : e.getSaison();
+            if (periode != null)
+                counts.merge(periode, 1L, Long::sum);
         }
         return counts;
     }

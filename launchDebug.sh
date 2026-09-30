@@ -7,5 +7,5 @@ echo Lancement du Server
 
 cd ../web.ui
 echo Lancement du Front End
-npm run dev
+./switch-env.sh dev
 cd ..

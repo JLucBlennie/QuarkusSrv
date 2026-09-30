@@ -68,3 +68,20 @@ export type EvenementJSON = {
   sessions?: Session[];
   createdBy?: string;
 };
+
+export type PeriodeStat = {
+  periode: string;
+  nbevents: number;
+};
+
+export const ACTIVITE_LABELS: Record<string, string> = {
+  ALL: 'Tout',
+  N4_GP: 'N4 - GP',
+  INITIATEUR: 'Initiateur',
+  TSI: 'TSI',
+  MF1: 'MF1',
+  MF2: 'MF2',
+  TIV: 'TIV',
+  SECOURISME: 'Secourisme',
+  HANDISUB: 'HandiSub',
+};

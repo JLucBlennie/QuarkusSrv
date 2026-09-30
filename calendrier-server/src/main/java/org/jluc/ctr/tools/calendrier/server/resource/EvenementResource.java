@@ -22,6 +22,7 @@ import org.jluc.ctr.tools.calendrier.server.model.club.Demandeur;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Evenement;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.EvenementRepository;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Status;
+import org.jluc.ctr.tools.calendrier.server.model.evenements.TypeActivite;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.TypeEvenement;
 import org.jluc.ctr.tools.calendrier.server.model.moniteurs.Moniteur;
 import org.jluc.ctr.tools.calendrier.server.service.EvenementService;
@@ -533,5 +534,49 @@ public class EvenementResource {
                         .map(String::trim)
                         .map(Status::valueOf)
                         .toList());
+    }
+
+    @GET
+    @Path("/stats/evolution")
+    @RolesAllowed("admin")
+    public Response getStatsEvolution(
+            @QueryParam("typeUuid") String typeUuidParam,
+            @QueryParam("activite") String activiteParam,
+            @QueryParam("demandeurUuid") String demandeurUuidParam,
+            @QueryParam("saison") String saison) {
+
+        UUID typeUuid = null;
+        if (typeUuidParam != null && !typeUuidParam.isBlank()) {
+            try {
+                typeUuid = UUID.fromString(typeUuidParam);
+            } catch (IllegalArgumentException e) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("typeUuid invalide").build();
+            }
+        }
+
+        TypeActivite activite = null;
+        if (activiteParam != null && !activiteParam.isBlank()) {
+            try {
+                activite = TypeActivite.valueOf(activiteParam);
+            } catch (IllegalArgumentException e) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("activite invalide").build();
+            }
+        }
+
+        UUID demandeurUuid = null;
+        if (demandeurUuidParam != null && !demandeurUuidParam.isBlank()) {
+            try {
+                demandeurUuid = UUID.fromString(demandeurUuidParam);
+            } catch (IllegalArgumentException e) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("demandeurUuid invalide").build();
+            }
+        }
+
+        Map<String, Long> counts = service.getEvenementCountsByPeriod(typeUuid, activite, demandeurUuid, saison);
+        List<Map<String, Object>> result = counts.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(e -> Map.<String, Object>of("periode", e.getKey(), "nbevents", e.getValue()))
+                .toList();
+        return Response.ok(result).build();
     }
 }
