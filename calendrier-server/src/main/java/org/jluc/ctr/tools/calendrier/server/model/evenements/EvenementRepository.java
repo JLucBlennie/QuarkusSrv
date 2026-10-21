@@ -1,5 +1,6 @@
 package org.jluc.ctr.tools.calendrier.server.model.evenements;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -62,5 +63,21 @@ public class EvenementRepository {
                                 .setParameter("username", username)
                                 .setHint("jakarta.persistence.loadgraph", graph);
                 return query.getResultList();
+        }
+
+        public List<Evenement> findAVenir(Status statut, Date debut, Date fin) {
+                return entityManager
+                                .createQuery("SELECT e FROM Evenement e "
+                                                + "LEFT JOIN FETCH e.sessions "
+                                                + "LEFT JOIN FETCH e.typeEvenement "
+                                                + "LEFT JOIN FETCH e.demandeur "
+                                                + "WHERE e.statut = :statut "
+                                                + "AND COALESCE(e.datefin, e.datedebut) >= :debut "
+                                                + "AND e.datedebut <= :fin "
+                                                + "ORDER BY e.datedebut", Evenement.class)
+                                .setParameter("statut", statut)
+                                .setParameter("debut", debut)
+                                .setParameter("fin", fin)
+                                .getResultList();
         }
 }

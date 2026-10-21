@@ -12,6 +12,8 @@ import org.jluc.ctr.tools.calendrier.server.model.moniteurs.Moniteur;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedAttributeNode;
@@ -53,6 +55,7 @@ public class Evenement extends PanacheEntityBase {
     private Moniteur deleguectr;
     @ManyToOne
     private Moniteur repcibpl;
+    @Enumerated(EnumType.STRING)
     private Status statut = Status.DEMANDE;
     private Date datevalidation;
     @ManyToOne
@@ -63,6 +66,10 @@ public class Evenement extends PanacheEntityBase {
     private List<Session> sessions;
     private Integer nbparticipants = 0;
     private String createdBy;
+    private Integer nbCandidatsHommes = 0;
+    private Integer nbCandidatsFemmes = 0;
+    private Integer nbCandidatsValidesHommes = 0;
+    private Integer nbCandidatsValidesFemmes = 0;
 
     @PrePersist
     public void generateUuid() {
@@ -147,6 +154,30 @@ public class Evenement extends PanacheEntityBase {
         return nbparticipants;
     }
 
+    public Integer getNbCandidats() {
+        return nbCandidatsHommes + nbCandidatsFemmes;
+    }
+
+    public Integer getNbCandidatsHommes() {
+        return nbCandidatsHommes;
+    }
+
+    public Integer getNbCandidatsFemmes() {
+        return nbCandidatsFemmes;
+    }
+
+    public Integer getNbCandidatsValides() {
+        return nbCandidatsValidesHommes + nbCandidatsValidesFemmes;
+    }
+
+    public Integer getNbCandidatsValidesHommes() {
+        return nbCandidatsValidesHommes;
+    }
+
+    public Integer getNbCandidatsValidesFemmes() {
+        return nbCandidatsValidesFemmes;
+    }
+
     public String getCreatedBy() {
         return createdBy;
     }
@@ -181,8 +212,14 @@ public class Evenement extends PanacheEntityBase {
                 .firstResult();
         if (demandeur == null) {
             System.out.println("Demandeur non trouvé pour : " + demandeurStr);
-            demandeur = new Demandeur(demandeurStr.substring(0, demandeurStr.indexOf(" (")),
-                    demandeurStr.substring(demandeurStr.indexOf(" (") + 2, demandeurStr.indexOf(")")));
+            String demandeurName = demandeurStr;
+            String demandeurNumStructure = "";
+            if (demandeurStr.indexOf(" (") > 0 && demandeurStr.indexOf(")") > 0) {
+                demandeurName = demandeurStr.substring(0, demandeurStr.indexOf(" ("));
+                demandeurNumStructure = demandeurStr.substring(demandeurStr.indexOf(" (") + 2,
+                        demandeurStr.indexOf(")"));
+            }
+            demandeur = new Demandeur(demandeurName, demandeurNumStructure);
             demandeur.persist();
         }
         this.demandeur = demandeur;
@@ -283,6 +320,22 @@ public class Evenement extends PanacheEntityBase {
 
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
+    }
+
+    public void setNbCandidatsHommes(Integer nbCandidatsHommes) {
+        this.nbCandidatsHommes = nbCandidatsHommes;
+    }
+
+    public void setNbCandidatsFemmes(Integer nbCandidatsFemmes) {
+        this.nbCandidatsFemmes = nbCandidatsFemmes;
+    }
+
+    public void setNbCandidatsValidesHommes(Integer nbCandidatsValidesHommes) {
+        this.nbCandidatsValidesHommes = nbCandidatsValidesHommes;
+    }
+
+    public void setNbCandidatsValidesFemmes(Integer nbCandidatsValidesFemmes) {
+        this.nbCandidatsValidesFemmes = nbCandidatsValidesFemmes;
     }
 
     public String getSaison() {

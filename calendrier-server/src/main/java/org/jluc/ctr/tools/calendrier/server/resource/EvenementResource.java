@@ -26,6 +26,7 @@ import org.jluc.ctr.tools.calendrier.server.model.evenements.TypeActivite;
 import org.jluc.ctr.tools.calendrier.server.model.evenements.TypeEvenement;
 import org.jluc.ctr.tools.calendrier.server.model.moniteurs.Moniteur;
 import org.jluc.ctr.tools.calendrier.server.service.EvenementService;
+import org.jluc.ctr.tools.calendrier.server.service.export.EvenementExportService;
 import org.jluc.ctr.tools.calendrier.server.websockets.WebSocketResource;
 import org.jluc.ctr.tools.calendrier.server.websockets.messages.InfoMessage;
 import org.jluc.ctr.tools.calendrier.server.websockets.messages.ProgressMessage;
@@ -36,6 +37,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
@@ -61,6 +63,9 @@ public class EvenementResource {
 
     @Inject
     JsonWebToken jwt;
+
+    @Inject
+    EvenementExportService exportService;
 
     @GET
     @Path("/{id}")
@@ -578,5 +583,16 @@ public class EvenementResource {
                 .map(e -> Map.<String, Object>of("periode", e.getKey(), "nbevents", e.getValue()))
                 .toList();
         return Response.ok(result).build();
+    }
+
+    @GET
+    @Path("/export")
+    @RolesAllowed("admin") // à adapter au nom réel du rôle
+    @Produces(MediaType.TEXT_HTML)
+    public Response export(@QueryParam("mois") @DefaultValue("3") int mois) {
+        String html = exportService.genererHtml(mois);
+        return Response.ok(html)
+                .header("Content-Disposition", "attachment; filename=\"evenements-a-venir.html\"")
+                .build();
     }
 }

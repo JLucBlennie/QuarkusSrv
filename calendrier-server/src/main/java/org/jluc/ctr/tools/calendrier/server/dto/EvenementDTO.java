@@ -1,6 +1,5 @@
 package org.jluc.ctr.tools.calendrier.server.dto;
 
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,6 +29,11 @@ public class EvenementDTO {
     public String comment;
     public String calendareventid;
     public int nbparticipants;
+    public Integer nbCandidatsHommes;
+    public Integer nbCandidatsFemmes;
+    public Integer nbCandidatsValidesHommes;
+    public Integer nbCandidatsValidesFemmes;
+
     public List<SessionDTO> sessions;
 
     public static EvenementDTO fromEntity(Evenement evenement) {
@@ -57,6 +61,10 @@ public class EvenementDTO {
         dto.comment = evenement.getComment();
         dto.calendareventid = evenement.getCalendareventid();
         dto.nbparticipants = evenement.getNbparticipants();
+        dto.nbCandidatsHommes = evenement.getNbCandidatsHommes();
+        dto.nbCandidatsFemmes = evenement.getNbCandidatsFemmes();
+        dto.nbCandidatsValidesHommes = evenement.getNbCandidatsValidesHommes();
+        dto.nbCandidatsValidesFemmes = evenement.getNbCandidatsValidesFemmes();
 
         if (evenement.getSessions() == null) {
             dto.sessions = null;
@@ -91,9 +99,9 @@ public class EvenementDTO {
             evenement.setUUID(UUID.randomUUID());
         }
         evenement.setEvtidforms(this.evtidforms);
-        evenement.setDatedemande(new Date(this.datedemande));
-        evenement.setDatedebut(new Date(this.datedebut));
-        evenement.setDatefin(new Date(this.datefin));
+        evenement.setDatedemande(DTOUtils.toDate(this.datedemande));
+        evenement.setDatedebut(DTOUtils.toDate(this.datedebut));
+        evenement.setDatefin(DTOUtils.toDate(this.datefin));
         evenement.setType(this.typeEvenement != null ? this.typeEvenement.toEntity() : null);
         evenement.setDemandeur(this.demandeur != null ? this.demandeur.toEntity() : null);
         evenement.setPartenaire(this.partenaire != null ? this.partenaire.toEntity() : null);
@@ -103,11 +111,15 @@ public class EvenementDTO {
         evenement.setDeleguectr(this.deleguectr != null ? this.deleguectr.toEntity() : null);
         evenement.setRepcibpl(this.repcibpl != null ? this.repcibpl.toEntity() : null);
         evenement.setStatut(this.statut);
-        evenement.setDatevalidation(new Date(this.datevalidation));
+        evenement.setDatevalidation(DTOUtils.toDate(this.datevalidation));
         evenement.setOrganisateur(this.organisateur != null ? this.organisateur.toEntity() : null);
         evenement.setComment(this.comment);
         evenement.setCalendareventid(this.calendareventid);
         evenement.setNbparticipants(this.nbparticipants);
+        evenement.setNbCandidatsHommes(this.nbCandidatsHommes);
+        evenement.setNbCandidatsFemmes(this.nbCandidatsFemmes);
+        evenement.setNbCandidatsValidesHommes(this.nbCandidatsValidesHommes);
+        evenement.setNbCandidatsValidesFemmes(this.nbCandidatsValidesFemmes);
 
         if (this.sessions != null) {
             Log.debug("Il y a des sessions");

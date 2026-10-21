@@ -65,6 +65,10 @@ export type EvenementJSON = {
   comment?: string;
   calendareventid?: string;
   nbparticipants?: number;
+  nbCandidatsHommes?: number;
+  nbCandidatsFemmes?: number;
+  nbCandidatsValidesHommes?: number;
+  nbCandidatsValidesFemmes?: number;
   sessions?: Session[];
   createdBy?: string;
 };

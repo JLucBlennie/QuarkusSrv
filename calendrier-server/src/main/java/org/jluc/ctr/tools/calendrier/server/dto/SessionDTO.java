@@ -1,5 +1,4 @@
 package org.jluc.ctr.tools.calendrier.server.dto;
-import java.util.Date;
 import java.util.UUID;
 
 import org.jluc.ctr.tools.calendrier.server.model.evenements.Session;
@@ -43,8 +42,8 @@ public class SessionDTO {
             session = new Session();
             session.setUuid(UUID.randomUUID());
         }
-        session.setDateDebut(new Date(this.dateDebut));
-        session.setDateFin(new Date(this.dateFin));
+        session.setDateDebut(DTOUtils.toDate(this.dateDebut));
+        session.setDateFin(DTOUtils.toDate(this.dateFin));
         Log.debug("SessionDTO . TypeSession: " + TypeSession.valueOf(this.typeSession));
         session.setTypeSession(TypeSession.valueOf(this.typeSession));
         Log.debug("SessionDTO convertie en Session: " + session.getUuid() + ", " + session.getDateDebut() + ", "

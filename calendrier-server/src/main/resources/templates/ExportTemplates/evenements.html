@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><title>Évènements à venir</title></head>
+<body style="font-family: Arial, sans-serif; color: #222;">
+  <h1 style="color: #1f3a5f;">Évènements à venir</h1>
+  <p>Période : {periode}</p>
+  {#if parType.isEmpty}
+    <p>Aucun évènement validé sur cette période.</p>
+  {/if}
+  {#each parType}
+    <h2 style="color: #1f3a5f; margin-top: 24px;">{it.key}</h2>
+    <table style="border-collapse: collapse; width: 100%;">
+      <thead>
+        <tr>
+          <th style="border: 1px solid #ccc; padding: 6px; background: #eef2f7; text-align: left;">Type d'évènement</th>
+          <th style="border: 1px solid #ccc; padding: 6px; background: #eef2f7; text-align: left;">Demandeur</th>
+          <th style="border: 1px solid #ccc; padding: 6px; background: #eef2f7; text-align: left;">Lieu</th>
+          <th style="border: 1px solid #ccc; padding: 6px; background: #eef2f7; text-align: left;">Dates</th>
+        </tr>
+      </thead>
+      <tbody>
+      {#for l in it.value}
+        <tr>
+          <td style="border: 1px solid #ccc; padding: 6px;">{l.type}</td>
+          <td style="border: 1px solid #ccc; padding: 6px;">{l.demandeur}</td>
+          <td style="border: 1px solid #ccc; padding: 6px;">{l.lieu}</td>
+          <td style="border: 1px solid #ccc; padding: 6px;">{#for s in l.sessions}{s}<br>{/for}</td>
+        </tr>
+      {/for}
+      </tbody>
+    </table>
+  {/each}
+</body>
+</html>

@@ -848,7 +848,8 @@ export function EvenementEditor({ uuid, onExit }: EventEditorProps) {
                                         row.getValue("statut") === "VALIDE" ? "bg-emerald-800 bg-opacity-70"
                                             : row.getValue("statut") === "DEMANDE" ? "bg-orange-800 bg-opacity-70"
                                                 : row.getValue("statut") === "REFUSE" ? "bg-red-800 bg-opacity-70"
-                                                    : ""
+                                                    : row.getValue("statut") === "ANNULE" ? "bg-gray-800 bg-opacity-70"
+                                                        : ""
                                     }
                                 />
                             </div>
