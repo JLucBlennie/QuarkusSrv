@@ -73,7 +73,7 @@ public class EvenementRepository {
                                                 + "LEFT JOIN FETCH e.demandeur "
                                                 + "WHERE e.statut = :statut "
                                                 + "AND COALESCE(e.datefin, e.datedebut) >= :debut "
-                                                + "AND e.datedebut <= :fin "
+                                                + "AND e.datefin <= :fin "
                                                 + "ORDER BY e.datedebut", Evenement.class)
                                 .setParameter("statut", statut)
                                 .setParameter("debut", debut)
