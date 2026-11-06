@@ -30,7 +30,7 @@ public class FormsSyncScheduler {
     @Inject
     Mailer mailer;
 
-    @Scheduled(every = "48h")
+    @Scheduled(every = "24h")
     void syncFormsPeriodically() {
         Log.info("Démarrage de la synchronisation planifiée des évènements Forms...");
         List<Evenement> newEvents = service.updateEvenementsFromGoogleForms(wsResource);
