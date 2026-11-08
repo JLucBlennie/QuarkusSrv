@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -101,7 +102,8 @@ public class EvenementExportService {
                         return d;
                 }
                 String f = jour(fin);
-                return d.equals(f) ? d : d + " → " + f;
+                long nbJours = ChronoUnit.DAYS.between(debut.toInstant(), fin.toInstant());
+                return d.equals(f) ? d : d + (nbJours == 1 ? " et " : " → ") + f;
         }
 
         private static String jour(Date date) {
